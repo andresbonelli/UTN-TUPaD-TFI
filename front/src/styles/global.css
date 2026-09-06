@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+/* Defino aquí la identidad visual compartida para que todas las pantallas hablen el mismo idioma. */
+:root {
+  --color-petroleum: #17313b;
+  --color-action: #087e8b;
+  --color-critical: #d9574c;
+  --color-review: #d99a18;
+  --color-complete: #2a9d72;
+  --color-info: #3978a8;
+  --color-background: #f3f7f6;
+  --color-white: #ffffff;
+  --color-border: #d7e1df;
+  --font-heading: 'Barlow Semi Condensed', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  color: var(--color-petroleum);
+  background: var(--color-background);
+  font-family: var(--font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Normalizo tamaños y controles para que el comportamiento sea predecible en móvil, tablet y PC. */
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, input, textarea, select { font: inherit; }
+
+/* Mantengo un foco visible para que la navegación con teclado no dependa del color de fondo. */
+:focus-visible { outline: 3px solid var(--color-review); outline-offset: 3px; }
+
+/* Uso la tipografía mono para orientar rápidamente al usuario dentro de la operación. */
+.eyebrow { color: var(--color-action); font-family: var(--font-mono); font-size: 0.72rem; font-weight: 500; letter-spacing: 0.08em; margin: 0 0 10px; }
+h1 { font-family: var(--font-heading); line-height: 0.95; margin: 0; }

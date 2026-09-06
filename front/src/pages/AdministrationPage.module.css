@@ -1,0 +1,16 @@
+/* Presento primero el contexto de la sesión para que administración sepa dónde está y con qué rol trabaja. */
+.intro { align-items: flex-start; display: flex; gap: 24px; justify-content: space-between; }
+.intro h1 { font-size: clamp(2.4rem, 6vw, 4.2rem); }
+.intro p:not(.eyebrow) { color: #5c7074; font-size: 1.05rem; margin: 14px 0 0; }
+.role { align-items: center; border: 1px solid #a9d6c7; color: #216d54; display: inline-flex; font-size: 0.83rem; gap: 7px; padding: 8px 12px; white-space: nowrap; }
+/* Organizo los indicadores en dos bloques comparables y los apilo en pantallas estrechas. */
+.statusGrid { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: clamp(42px, 8vw, 76px); max-width: 720px; }
+.statusGrid article { background: var(--color-white); border: 1px solid var(--color-border); display: grid; gap: 10px; min-height: 150px; padding: 22px; }
+.statusGrid svg { color: var(--color-action); }
+.statusGrid span { color: #5c7074; font-size: 0.85rem; }
+.statusGrid strong { font-family: var(--font-heading); font-size: 1.45rem; }
+/* Marco la siguiente acción con una línea para reforzar la lectura sin depender solo del color. */
+.notice { border-left: 3px solid var(--color-action); display: grid; gap: 6px; margin-top: 28px; max-width: 720px; padding: 5px 0 5px 16px; }
+.notice span { color: #5c7074; font-size: 0.9rem; }
+/* En móvil convierto la cabecera y los indicadores en una lectura vertical más cómoda. */
+@media (max-width: 720px) { .intro { display: block; } .role { margin-top: 24px; } .statusGrid { grid-template-columns: 1fr; } }
