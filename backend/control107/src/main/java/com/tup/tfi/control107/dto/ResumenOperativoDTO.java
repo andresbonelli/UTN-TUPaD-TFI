@@ -8,7 +8,8 @@ import java.util.List;
 @Builder
 public class ResumenOperativoDTO {
     private long turnosActivos;
-    private String ambulanciasDisponibles; // Ej: "05/08"
+    private long ambulanciasDisponibles;
+    private long ambulanciasTotales;
     private long alertasPendientes;
     private long controlesIncompletos;
     private List<AmbulanciaDTO> listaAmbulancias;

@@ -37,7 +37,6 @@ public class ControlGuardiaServiceImpl implements ControlGuardiaService {
         
         long totalAmbulancias = ambulanciaRepository.count();
         long aptas = ambulanciaRepository.findByEstado(EstadoAmbulancia.APTA).size();
-        String disponibilidad = String.format("%02d/%02d", aptas, totalAmbulancias);
 
         long alertasPendientes = inconsistenciaTicketRepository.countByEstado(EstadoTicket.PENDIENTE);
         long controlesIncompletos = turnoGuardiaRepository.findByEstado(EstadoTurno.PROGRAMADO).size();
@@ -54,7 +53,8 @@ public class ControlGuardiaServiceImpl implements ControlGuardiaService {
 
         return ResumenOperativoDTO.builder()
                 .turnosActivos(turnosActivos)
-                .ambulanciasDisponibles(disponibilidad)
+                .ambulanciasDisponibles(aptas)
+                .ambulanciasTotales(totalAmbulancias)
                 .alertasPendientes(alertasPendientes)
                 .controlesIncompletos(controlesIncompletos)
                 .listaAmbulancias(ambulanciasDTO)
