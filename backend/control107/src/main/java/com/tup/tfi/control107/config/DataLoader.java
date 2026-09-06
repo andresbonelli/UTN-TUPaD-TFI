@@ -5,6 +5,7 @@ import com.tup.tfi.control107.model.enums.*;
 import com.tup.tfi.control107.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
+@Profile("dev")
 public class DataLoader implements CommandLineRunner {
 
     private final UsuarioRepository usuarioRepository;
