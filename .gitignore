@@ -10,3 +10,11 @@ logs/
 
 ### MAC OS ###
 .DS_Store
+
+### Backend ###
+target/
+data/
+
+### Frontend ###
+pnpm-lock.yaml
+node_modules/
