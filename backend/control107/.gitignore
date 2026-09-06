@@ -33,3 +33,7 @@ build/
 .vscode/
 
 data/
+
+### Frontend ###
+pnpm-lock.yaml
+node_modules/
