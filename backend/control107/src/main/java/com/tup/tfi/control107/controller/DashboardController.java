@@ -1,7 +1,7 @@
 package com.tup.tfi.control107.controller;
 
 import com.tup.tfi.control107.dto.ResumenOperativoDTO;
-import com.tup.tfi.control107.service.ControlGuardiaService;
+import com.tup.tfi.control107.service.TurnoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class DashboardController {
 
-    private final ControlGuardiaService controlGuardiaService;
+    private final TurnoService turnoService;
 
     @GetMapping("/resumen")
     public ResponseEntity<ResumenOperativoDTO> obtenerResumenOperativo() {
-        ResumenOperativoDTO resumen = controlGuardiaService.obtenerResumenOperativo();
+        ResumenOperativoDTO resumen = turnoService.obtenerResumenOperativo();
         return ResponseEntity.ok(resumen);
     }
 }

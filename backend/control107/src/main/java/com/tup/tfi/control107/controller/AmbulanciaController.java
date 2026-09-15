@@ -3,7 +3,7 @@ package com.tup.tfi.control107.controller;
 import com.tup.tfi.control107.dto.AmbulanciaDTO;
 import com.tup.tfi.control107.model.entity.Ambulancia;
 import com.tup.tfi.control107.repository.AmbulanciaRepository;
-import com.tup.tfi.control107.service.ControlGuardiaService;
+import com.tup.tfi.control107.service.TurnoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class AmbulanciaController {
 
     private final AmbulanciaRepository ambulanciaRepository;
-    private final ControlGuardiaService controlGuardiaService;
+    private final TurnoService turnoService;
 
     @GetMapping
     public ResponseEntity<List<AmbulanciaDTO>> listarTodas() {

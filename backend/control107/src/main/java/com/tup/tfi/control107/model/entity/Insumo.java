@@ -3,6 +3,10 @@ package com.tup.tfi.control107.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * Representa el tipo de insumo utilizado en las ambulancias
+ * y la cantidad esperada de stock que debe contener, NO es stock de deposito
+ */
 @Entity
 @Table(name = "insumos")
 @Getter
@@ -15,13 +19,15 @@ public class Insumo extends BaseEntity {
     @Column(nullable = false)
     private String nombre;
 
-    @Column(nullable = false)
-    private String categoria; // Farmacológicos, Vía Aérea, Descartables, Oxígeno, Curación, Equipamiento
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "categoria_id", nullable = false)
+    private CategoriaInsumo categoria;
 
-    @Column(name = "punto_de_control", nullable = false)
-    private Integer puntoDeControl; // Cantidad baseline esperada
+    // Cantidad baseline esperada
+    @Column(name = "stock_base", nullable = false)
+    private Integer stockBase;
 
     @Builder.Default
     @Column(name = "es_critico", nullable = false)
-    private Boolean esCritico = false;
+    private boolean esCritico = false;
 }

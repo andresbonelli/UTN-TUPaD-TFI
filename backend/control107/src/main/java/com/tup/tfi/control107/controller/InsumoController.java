@@ -20,8 +20,8 @@ public class InsumoController {
         return ResponseEntity.ok(insumoRepository.findAll());
     }
 
-    @GetMapping("/categoria/{categoria}")
-    public ResponseEntity<List<Insumo>> listarPorCategoria(@PathVariable String categoria) {
-        return ResponseEntity.ok(insumoRepository.findByCategoria(categoria));
+    @GetMapping("/categoria/{categoriaId}")
+    public ResponseEntity<List<Insumo>> listarPorCategoria(@PathVariable Long categoriaId) {
+        return ResponseEntity.ok(insumoRepository.findByCategoriaId(categoriaId));
     }
 }

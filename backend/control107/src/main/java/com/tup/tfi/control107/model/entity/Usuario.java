@@ -16,9 +16,6 @@ public class Usuario extends BaseEntity {
     @Column(nullable = false)
     private String nombre;
 
-    @Column(nullable = false)
-    private String apellido;
-
     @Column(unique = true, nullable = false)
     private String dni;
 

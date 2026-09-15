@@ -10,8 +10,8 @@ public class ResumenOperativoDTO {
     private long turnosActivos;
     private long ambulanciasDisponibles;
     private long ambulanciasTotales;
-    private long alertasPendientes;
-    private long controlesIncompletos;
+    private long alertas;
+    private long inconsistencias;
     private List<AmbulanciaDTO> listaAmbulancias;
-    private List<InconsistenciaTicketDTO> alertasPrioritarias;
+
 }

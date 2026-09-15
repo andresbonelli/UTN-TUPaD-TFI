@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface InsumoRepository extends JpaRepository<Insumo, Long> {
-    List<Insumo> findByCategoria(String categoria);
+    List<Insumo> findByCategoriaId(Long categoriaId);
     List<Insumo> findByEsCriticoTrue();
 }

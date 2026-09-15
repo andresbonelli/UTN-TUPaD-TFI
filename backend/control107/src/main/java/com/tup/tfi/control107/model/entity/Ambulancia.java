@@ -1,8 +1,11 @@
 package com.tup.tfi.control107.model.entity;
 
-import com.tup.tfi.control107.model.enums.EstadoAmbulancia;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "ambulancias")
@@ -13,22 +16,33 @@ import lombok.*;
 @Builder
 public class Ambulancia extends BaseEntity {
 
-    @Column(name = "nro_movil", nullable = false, unique = true)
-    private String nroMovil; // Ej: "MÓVIL 01"
-
     @Column(nullable = false, unique = true)
     private String patente;
 
-    @Column(name = "codigo_qr", unique = true)
-    private String codigoQR;
-
-    @Enumerated(EnumType.STRING)
+    @Builder.Default
     @Column(nullable = false)
-    private EstadoAmbulancia estado;
+    private boolean disponible = true;
 
-    @Column(name = "presion_oxigeno_psi")
-    private Integer presionOxigenoPsi; // Dato crítico UI (ej: 850 psi)
+    /**
+     * Composición: El ciclo de vida del InsumoAmbulancia es manejado en su totalidad por la Ambulancia (Padre)
+     */
+    @Builder.Default
+    @OneToMany(mappedBy = "ambulancia", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<InsumoAmbulancia> insumos = new HashSet<>();
 
-    @Column(name = "kilometraje_actual")
-    private Double kilometrajeActual;
+    public void addInsumo(InsumoAmbulancia insumoAmbulancia) {
+        if (this.insumos == null) {
+            this.insumos = new HashSet<>();
+        }
+        this.insumos.add(insumoAmbulancia);
+        insumoAmbulancia.setAmbulancia(this);
+    }
+
+    public void removeInsumo(InsumoAmbulancia insumoAmbulancia) {
+        if (this.insumos != null) {
+            this.insumos.remove(insumoAmbulancia);
+            insumoAmbulancia.setAmbulancia(null);
+        }
+    }
 }

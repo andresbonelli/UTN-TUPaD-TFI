@@ -3,31 +3,26 @@ package com.tup.tfi.control107.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
+/**
+ * Registro de la cantidad utilizada de un insumo en un turno de guardia
+ */
 @Entity
-@Table(name = "usos_insumo")
+@Table(name = "uso_insumos")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UsoInsumo extends BaseEntity {
-
-    @Column(name = "fecha_hora", nullable = false)
-    private LocalDateTime fechaHora;
-
-    @Column(name = "nro_ficha_intervencion")
-    private String nroFichaIntervencion;
+public class UsoInsumo extends BaseEntity{
 
     @Column(name = "cantidad_usada", nullable = false)
     private Integer cantidadUsada;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "turno_guardia_id", nullable = false)
-    private TurnoGuardia turnoGuardia;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "insumo_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "insumo_id")
     private Insumo insumo;
+
+    @ManyToOne
+    @JoinColumn(name = "turno_id")
+    private Turno turno;
 }

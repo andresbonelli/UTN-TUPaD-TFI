@@ -26,4 +26,12 @@ public abstract class BaseEntity {
     @Builder.Default
     @Column(name = "updated_at", nullable = false)
     protected LocalDateTime updatedAt = LocalDateTime.now();
+
+    @Builder.Default
+    @Column(nullable = false)
+    protected boolean eliminado = false;
+
+    public void borradoLogico() {
+        eliminado = true;
+    }
 }
