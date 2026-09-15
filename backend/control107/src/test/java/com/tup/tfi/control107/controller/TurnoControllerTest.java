@@ -8,18 +8,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-public class DashboardControllerTest {
+public class TurnoControllerTest {
 
     @Autowired
     private TurnoService turnoService;
 
     @Autowired
-    private DashboardController dashboardController;
+    private TurnoController turnoController;
 
     @Test
     void contextLoads() {
         assertThat(turnoService).isNotNull();
-        assertThat(dashboardController).isNotNull();
+        assertThat(turnoController).isNotNull();
     }
 
     @Test

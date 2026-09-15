@@ -26,7 +26,26 @@ public class Usuario extends BaseEntity {
     @Column(nullable = false)
     private RolUsuario rol;
 
+    @Embedded
+    private Clave clave;
+
     @Builder.Default
     @Column(nullable = false)
-    private Boolean activo = true;
+    private boolean activo = true;
+
+    @Table(name = "usuario_clave")
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class Clave {
+
+        @Column(nullable = true)
+        private String hash;
+
+        @Column(nullable = true)
+        private String salt;
+
+    }
 }

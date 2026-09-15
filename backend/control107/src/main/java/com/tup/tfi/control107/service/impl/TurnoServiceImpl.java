@@ -2,6 +2,7 @@ package com.tup.tfi.control107.service.impl;
 
 import com.tup.tfi.control107.dto.AmbulanciaDTO;
 import com.tup.tfi.control107.dto.ResumenOperativoDTO;
+import com.tup.tfi.control107.dto.TurnoDTO;
 import com.tup.tfi.control107.model.entity.*;
 import com.tup.tfi.control107.model.enums.EstadoTurno;
 import com.tup.tfi.control107.repository.AmbulanciaRepository;
@@ -12,6 +13,8 @@ import com.tup.tfi.control107.service.TurnoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +56,11 @@ public class TurnoServiceImpl implements TurnoService {
     @Transactional
     @Override
     public void registrarEgreso(Turno turno) {
+    }
+
+    @Override
+    public List<TurnoDTO> obtenerTurnos() {
+        return turnoRepository.findAll().stream().map(TurnoDTO::new).toList();
     }
 
 }
