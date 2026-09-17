@@ -72,14 +72,12 @@ public class AmbulanciaServiceImpl implements AmbulanciaService {
 
     private @NonNull Set<InsumoAmbulancia> obtenerInsumos(AmbulanciaRequestDTO request) {
         return request.getInsumos().stream()
-                .map(i -> {
-                    return InsumoAmbulancia.builder()
-                            .insumo(insumoRepository.findById(i.getIdInsumo())
-                                    .map(InsumoAmbulancia::getInsumo)
-                                    .orElse(null))
-                            .stock(i.getCantidad())
-                            .build();
-                })
+                .map(i -> InsumoAmbulancia.builder()
+                        .insumo(insumoRepository.findById(i.getIdInsumo())
+                                .map(InsumoAmbulancia::getInsumo)
+                                .orElse(null))
+                        .stock(i.getCantidad())
+                        .build())
                 .collect(Collectors.toSet());
     }
 }
