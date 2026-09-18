@@ -24,10 +24,11 @@ export function LoginPage() {
     defaultValues: { role: 'administrativo' },
   })
 
-  // Simulo el ingreso local, creo la sesión en memoria y llevo al usuario a su pantalla principal.
+  // Simulo el ingreso local, creo la sesión en memoria y llevo al usuario a su pantalla según su rol.
   function onSubmit(data: LoginForm) {
     signIn(data.name, data.role as UserRole)
-    navigate('/administracion', { replace: true })
+    const targetRoute = data.role === 'operativo' ? '/control-ingreso' : '/administracion'
+    navigate(targetRoute, { replace: true })
   }
 
   return (
