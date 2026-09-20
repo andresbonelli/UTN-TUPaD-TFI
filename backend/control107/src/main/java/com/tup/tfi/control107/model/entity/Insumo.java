@@ -24,10 +24,10 @@ public class Insumo extends BaseEntity {
     private CategoriaInsumo categoria;
 
     // Cantidad baseline esperada
-    @Column(name = "stock_base", nullable = false)
-    private Integer stockBase;
+    @Column(name = "punto_control", nullable = false)
+    private int puntoControl;
 
     @Builder.Default
-    @Column(name = "es_critico", nullable = false)
-    private boolean esCritico = false;
+    @Column(name = "critico", nullable = false)
+    private boolean critico = false;
 }

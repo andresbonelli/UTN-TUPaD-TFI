@@ -7,7 +7,6 @@ import com.tup.tfi.control107.model.entity.*;
 import com.tup.tfi.control107.model.enums.EstadoTurno;
 import com.tup.tfi.control107.repository.AmbulanciaRepository;
 import com.tup.tfi.control107.repository.InsumoRepository;
-import com.tup.tfi.control107.repository.RegistroIngresoRepository;
 import com.tup.tfi.control107.repository.TurnoRepository;
 import com.tup.tfi.control107.service.TurnoService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ public class TurnoServiceImpl implements TurnoService {
     private final AmbulanciaRepository ambulanciaRepository;
     private final InsumoRepository insumoRepository;
     private final TurnoRepository turnoRepository;
-    private final RegistroIngresoRepository registroIngresoRepository;
 
 
     @Transactional(readOnly = true)
@@ -31,26 +29,28 @@ public class TurnoServiceImpl implements TurnoService {
     public ResumenOperativoDTO obtenerResumenOperativo() {
         var turnosActivos = turnoRepository.findByEstado(EstadoTurno.EN_CURSO);
         var ambulancias = ambulanciaRepository.findAll();
-        var ingresosInconsistentes = registroIngresoRepository.findByInconsistenciasIsTrue();
 
         return ResumenOperativoDTO.builder()
                 .turnosActivos(turnosActivos.size())
                 .ambulanciasDisponibles(ambulancias.stream().filter(Ambulancia::isDisponible).count())
                 .ambulanciasTotales(ambulancias.size())
                 .alertas(turnosActivos.stream()
-                        .filter(t -> t.getAmbulancia().getInsumos().stream()
-                                .anyMatch(i -> i.getInsumo().isEsCritico() && i.getStock() < i.getInsumo().getStockBase()))
+                        .filter(t -> t.getControlInsumos().stream()
+                                .anyMatch(i -> i.getIngresoFaltante() > 0 && i.getInsumo().isCritico()))
                         .count()
                 )
-                .inconsistencias(ingresosInconsistentes.size())
+                .inconsistencias(turnosActivos.stream()
+                        .flatMap(t -> t.getControlInsumos().stream())
+                        .filter(i -> i.getIngresoFaltante() > 0)
+                        .count()
+                )
                 .listaAmbulancias(ambulancias.stream().map(AmbulanciaDTO::new).toList())
                 .build();
     }
 
     @Transactional
     @Override
-    public RegistroIngreso registrarIngreso(RegistroIngreso registroIngreso) {
-        return null;
+    public void registrarIngreso(Turno turno) {
     }
 
     @Transactional

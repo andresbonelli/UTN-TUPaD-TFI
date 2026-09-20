@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface InsumoRepository extends JpaRepository<Insumo, Long> {
     List<Insumo> findByCategoriaId(Long categoriaId);
-    List<Insumo> findByEsCriticoTrue();
+    List<Insumo> findByCriticoTrue();
 }

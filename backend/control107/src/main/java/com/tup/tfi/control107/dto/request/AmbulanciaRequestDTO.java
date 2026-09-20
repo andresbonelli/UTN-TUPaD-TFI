@@ -12,5 +12,5 @@ import java.util.Set;
 public class AmbulanciaRequestDTO {
     private String patente;
     private boolean disponible = true;
-    private Set<InsumoAmbulanciaRequestDTO> insumos = Set.of();
+    private Set<Long> insumos = Set.of();
 }

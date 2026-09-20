@@ -43,3 +43,6 @@ logging:
 app:
   cors:
     allowed-origins: "*"
+server:
+  servlet:
+    context-path: /api

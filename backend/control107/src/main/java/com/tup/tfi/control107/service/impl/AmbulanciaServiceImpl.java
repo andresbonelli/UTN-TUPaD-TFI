@@ -3,9 +3,9 @@ package com.tup.tfi.control107.service.impl;
 import com.tup.tfi.control107.dto.AmbulanciaDTO;
 import com.tup.tfi.control107.dto.request.AmbulanciaRequestDTO;
 import com.tup.tfi.control107.model.entity.Ambulancia;
-import com.tup.tfi.control107.model.entity.InsumoAmbulancia;
+import com.tup.tfi.control107.model.entity.Insumo;
 import com.tup.tfi.control107.repository.AmbulanciaRepository;
-import com.tup.tfi.control107.repository.InsumoAmbulanciaRepository;
+import com.tup.tfi.control107.repository.InsumoRepository;
 import com.tup.tfi.control107.service.AmbulanciaService;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class AmbulanciaServiceImpl implements AmbulanciaService {
 
     private final AmbulanciaRepository ambulanciaRepository;
-    private final InsumoAmbulanciaRepository insumoRepository;
+    private final InsumoRepository insumoRepository;
 
     @Override
     public List<AmbulanciaDTO> listarTodas() {
@@ -70,14 +70,10 @@ public class AmbulanciaServiceImpl implements AmbulanciaService {
         }
     }
 
-    private @NonNull Set<InsumoAmbulancia> obtenerInsumos(AmbulanciaRequestDTO request) {
+    private @NonNull Set<Insumo> obtenerInsumos(AmbulanciaRequestDTO request) {
         return request.getInsumos().stream()
-                .map(i -> InsumoAmbulancia.builder()
-                        .insumo(insumoRepository.findById(i.getIdInsumo())
-                                .map(InsumoAmbulancia::getInsumo)
-                                .orElse(null))
-                        .stock(i.getCantidad())
-                        .build())
+                .map(i -> insumoRepository.findById(i)
+                        .orElse(null))
                 .collect(Collectors.toSet());
     }
 }

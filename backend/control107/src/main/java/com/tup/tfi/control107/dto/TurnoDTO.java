@@ -1,9 +1,6 @@
 package com.tup.tfi.control107.dto;
 
-import com.tup.tfi.control107.model.entity.Ambulancia;
-import com.tup.tfi.control107.model.entity.Turno;
-import com.tup.tfi.control107.model.entity.UsoInsumo;
-import com.tup.tfi.control107.model.entity.Usuario;
+import com.tup.tfi.control107.model.entity.*;
 import com.tup.tfi.control107.model.enums.EstadoTurno;
 import com.tup.tfi.control107.model.enums.HorarioTurno;
 import lombok.AllArgsConstructor;
@@ -24,13 +21,14 @@ public class TurnoDTO {
     private LocalDate fecha;
     private HorarioTurno horario;
     private EstadoTurno estado;
-    private UsuarioDTO chofer;
-    private UsuarioDTO enfermero;
-    private UsuarioDTO medico;
     private UsuarioDTO admin;
+    private UsuarioDTO enfermero;
+    private String medico;
+    private String chofer;
     private AmbulanciaDTO ambulancia;
-    private String observaciones;
-    private Set<UsoInsumoDTO> insumosUtilizados;
+    private String observacionesIngreso;
+    private String observacionesEgreso;
+    private Set<ControlInsumoDTO> controlInsumos;
 
     public TurnoDTO(Turno t) {
         if (null == t) return;
@@ -38,14 +36,12 @@ public class TurnoDTO {
         this.fecha = t.getFecha();
         this.horario = t.getHorario();
         this.estado = t.getEstado();
-        if (t.getChofer() != null) {
-            this.chofer = new UsuarioDTO(t.getChofer());
-        }
+        this.chofer = t.getNombreChofer();
+        this.medico = t.getNombreMedico();
+        this.observacionesIngreso = t.getObservacionesIngreso();
+        this.observacionesEgreso = t.getObservacionesEgreso();
         if (t.getEnfermero() != null) {
             this.enfermero = new UsuarioDTO(t.getEnfermero());
-        }
-        if (t.getMedico() != null) {
-            this.medico = new UsuarioDTO(t.getMedico());
         }
         if (t.getAdmin() != null) {
             this.admin = new UsuarioDTO(t.getAdmin());
@@ -53,9 +49,9 @@ public class TurnoDTO {
         if (t.getAmbulancia() != null) {
             this.ambulancia = new AmbulanciaDTO(t.getAmbulancia());
         }
-        if (t.getUsosInsumo() != null) {
-            this.insumosUtilizados = t.getUsosInsumo().stream()
-                    .map(UsoInsumoDTO::new)
+        if (t.getControlInsumos() != null) {
+            this.controlInsumos = t.getControlInsumos().stream()
+                    .map(ControlInsumoDTO::new)
                     .collect(Collectors.toSet());
         }
     }
@@ -64,14 +60,24 @@ public class TurnoDTO {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class UsoInsumoDTO {
-        private InsumoDTO insumo;
+    public static class ControlInsumoDTO {
+        private String nombre;
+        private String categoria;
+        private boolean esCritico;
+        private int cantidadIngreso;
+        private Integer cantidadEgreso;
+        private int ingresoFaltante;
         private Integer cantidadUsada;
 
-        public UsoInsumoDTO(UsoInsumo usoInsumo) {
-            if (null == usoInsumo) return;
-            this.insumo = new InsumoDTO(usoInsumo.getInsumo());
-            this.cantidadUsada = usoInsumo.getCantidadUsada();
+        public ControlInsumoDTO(ControlInsumo controlInsumo) {
+            if (null == controlInsumo) return;
+            this.nombre = controlInsumo.getInsumo().getNombre();
+            this.categoria = controlInsumo.getInsumo().getCategoria().getNombre();
+            this.esCritico = controlInsumo.getInsumo().isCritico();
+            this.cantidadIngreso = controlInsumo.getCantidadIngreso();
+            this.cantidadEgreso = controlInsumo.getCantidadEgreso();
+            this.ingresoFaltante = controlInsumo.getIngresoFaltante();
+            this.cantidadUsada = controlInsumo.getCantidadUsada();
         }
     }
 

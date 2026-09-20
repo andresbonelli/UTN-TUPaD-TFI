@@ -21,7 +21,6 @@ public class DataLoader implements CommandLineRunner {
     private final CategoriaRepository categoriaRepository;
     private final InsumoRepository insumoRepository;
     private final AmbulanciaRepository ambulanciaRepository;
-    private final RegistroIngresoRepository registroIngresoRepository;
 
     @Override
     public void run(String... args) {
@@ -46,21 +45,8 @@ public class DataLoader implements CommandLineRunner {
                 .activo(true)
                 .build());
 
-        Usuario medico = usuarioRepository.save(Usuario.builder()
-                .nombre("Matías Carro")
-                .dni("34555666")
-                .email("matias.carro@control107.gob.ar")
-                .rol(RolUsuario.MEDICO)
-                .activo(true)
-                .build());
-
-        Usuario chofer = usuarioRepository.save(Usuario.builder()
-                .nombre("Juan Perez")
-                .dni("28999888")
-                .email("juan.perez@control107.gob.ar")
-                .rol(RolUsuario.CHOFER)
-                .activo(true)
-                .build());
+        String medico = "Matías Carro";
+        String chofer = "Juan Perez";
 
         // 2.Cargar Categorias
         CategoriaInsumo farma = categoriaRepository.save(CategoriaInsumo.builder().nombre("FARMACOLOGICOS").color("#D9574C").build());
@@ -71,16 +57,16 @@ public class DataLoader implements CommandLineRunner {
         CategoriaInsumo  equipamiento = categoriaRepository.save(CategoriaInsumo.builder().nombre("EQUIPAMIENTO").color("#3978A8").build());
 
         // 3. Cargar Catálogo de Insumos
-        Insumo adrenalina = insumoRepository.save(Insumo.builder().nombre("Adrenalina 1mg").categoria(farma).stockBase(20).esCritico(false).build());
-        Insumo atropina = insumoRepository.save(Insumo.builder().nombre("Atropina 1mg").categoria(farma).stockBase(5).esCritico(false).build());
-        Insumo gasas = insumoRepository.save(Insumo.builder().nombre("Gasas Estériles (Sobres)").categoria(curacion).stockBase(30).esCritico(false).build());
-        Insumo guantes = insumoRepository.save(Insumo.builder().nombre("Guantes de Nitrilo M").categoria(descartables).stockBase(100).esCritico(false).build());
-        Insumo tuboO2Portatil = insumoRepository.save(Insumo.builder().nombre("Tubo O2 Portátil 415L").categoria(viaAerea).stockBase(2).esCritico(true).build());
-        Insumo tuboO2Pesado = insumoRepository.save(Insumo.builder().nombre("Tubo O2 Pesado 3m³").categoria(oxigeno).stockBase(1).esCritico(true).build());
+        Insumo adrenalina = insumoRepository.save(Insumo.builder().nombre("Adrenalina 1mg").categoria(farma).puntoControl(20).critico(false).build());
+        Insumo atropina = insumoRepository.save(Insumo.builder().nombre("Atropina 1mg").categoria(farma).puntoControl(5).critico(false).build());
+        Insumo gasas = insumoRepository.save(Insumo.builder().nombre("Gasas Estériles (Sobres)").categoria(curacion).puntoControl(30).critico(false).build());
+        Insumo guantes = insumoRepository.save(Insumo.builder().nombre("Guantes de Nitrilo M").categoria(descartables).puntoControl(100).critico(false).build());
+        Insumo tuboO2Portatil = insumoRepository.save(Insumo.builder().nombre("Tubo O2 Portátil 415L").categoria(viaAerea).puntoControl(2).critico(true).build());
+        Insumo tuboO2Pesado = insumoRepository.save(Insumo.builder().nombre("Tubo O2 Pesado 3m³").categoria(oxigeno).puntoControl(1).critico(true).build());
 
         var insumos = Set.of(adrenalina, atropina, gasas, guantes, tuboO2Portatil, tuboO2Pesado);
 
-        // 4. Cargar Ambulancias (matching identidad-visual-107.html)
+        // 4. Cargar Ambulancias
         Ambulancia m01 = crearAmbulanciaConInsumos("AE 107 AB", insumos);
         Ambulancia m02 = crearAmbulanciaConInsumos("AE 107 CD", insumos);
         Ambulancia m03 = crearAmbulanciaConInsumos("AE 107 EF", insumos);
@@ -88,36 +74,55 @@ public class DataLoader implements CommandLineRunner {
 
 
         // 5. Crear Turno de Guardia
-        Turno turno = turnoRepository.save(Turno.builder()
+        Turno turno1 = Turno.builder()
                 .fecha(LocalDate.now())
                 .horario(HorarioTurno.MANIANA)
-                .estado(EstadoTurno.EN_CURSO)
+                .estado(EstadoTurno.FINALIZADO)
                 .ambulancia(m04)
-                .chofer(chofer)
+                .nombreChofer(chofer)
                 .enfermero(enfermero)
-                .medico(medico)
+                .nombreMedico(medico)
                 .admin(admin)
-                .build());
-
-        // 6. Simular Control de Ingreso del Siguiente Turno (con inconsistencia en gasas)
-        RegistroIngreso ingresoNuevo = RegistroIngreso.builder()
-                .inconsistencias(true)
-                .observaciones("Faltan 2 sobres de gasas respecto a lo entregado por la guardia anterior.")
-                .turno(turno)
-                .enfermero(enfermero)
                 .build();
+        cargarInsumosTurno(turno1);
+        // Simular egreso
+        turno1.getControlInsumos().forEach(ci -> ci.informarEgreso(ci.getCantidadIngreso() - 1));
+        turnoRepository.save(turno1);
 
-        registroIngresoRepository.save(ingresoNuevo);
-
+        Turno turno2 = Turno.builder()
+                .fecha(LocalDate.now())
+                .horario(HorarioTurno.MANIANA)
+                .estado(EstadoTurno.FINALIZADO)
+                .ambulancia(m04)
+                .nombreChofer(chofer)
+                .enfermero(enfermero)
+                .nombreMedico(medico)
+                .admin(admin)
+                .build();
+        cargarInsumosTurno(turno2);
+        // Simular ingreso con inconsistencia en gasas
+        turno2.getControlInsumos().stream()
+                .filter(i -> gasas.equals(i.getInsumo()))
+                .findAny().ifPresent(i -> i.informarIngreso(20));
+        turnoRepository.save(turno2);
     }
 
     private Ambulancia crearAmbulanciaConInsumos(String patente, Set<Insumo> insumosBase) {
         Ambulancia amb = Ambulancia.builder()
                 .patente(patente)
+                .insumos(insumosBase)
                 .build();
-        insumosBase.stream()
-                .map(i -> InsumoAmbulancia.builder().insumo(i).stock(i.getStockBase()).build())
-                .forEach(amb::addInsumo);
         return ambulanciaRepository.save(amb);
+    }
+
+    private void cargarInsumosTurno(Turno t) {
+        t.setControlInsumos(t.getAmbulancia().getInsumos().stream()
+                .map(i -> ControlInsumo.builder()
+                        .insumo(i)
+                        .turno(t)
+                        .cantidadIngreso(i.getPuntoControl())
+                        .ingresoFaltante(0)
+                        .build())
+                .toList());
     }
 }

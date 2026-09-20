@@ -1,7 +1,6 @@
 package com.tup.tfi.control107.dto;
 
 import com.tup.tfi.control107.model.entity.Ambulancia;
-import com.tup.tfi.control107.model.entity.InsumoAmbulancia;
 import lombok.*;
 
 import java.util.Set;
@@ -28,29 +27,6 @@ public class AmbulanciaDTO {
                     .collect(Collectors.toSet());
         } else {
             this.insumos = Set.of();
-        }
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class InsumoDTO {
-        private Long id;
-        private String nombre;
-        private String categoria;
-        private Integer stock;
-
-        public InsumoDTO(InsumoAmbulancia i) {
-            if (null == i) return;
-            this.id = i.getId();
-            this.stock = i.getStock();
-            if (i.getInsumo() != null) {
-                this.nombre = i.getInsumo().getNombre();
-                if (i.getInsumo().getCategoria() != null) {
-                    this.categoria = i.getInsumo().getCategoria().getNombre();
-                }
-            }
         }
     }
 }
