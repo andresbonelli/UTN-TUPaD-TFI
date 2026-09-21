@@ -34,16 +34,9 @@ erDiagram
     INSUMO {
         bigint id PK
         string nombre
-        int stockBase
+        int puntoDeControl
         boolean esCritico
         bigint categoria_id FK
-    }
-
-    INSUMO_AMBULANCIA {
-        bigint id PK
-        int stock
-        bigint insumo_id FK
-        bigint ambulancia_id FK
     }
 
     TURNO {
@@ -51,6 +44,7 @@ erDiagram
         date fecha
         string horario
         string estado
+        string observaciones
         bigint ambulancia_id FK
         bigint chofer_id FK
         bigint enfermero_id FK
@@ -58,29 +52,20 @@ erDiagram
         bigint admin_id FK
     }
 
-    REGISTRO_INGRESO {
+    CONTROL_INSUMO {
         bigint id PK
-        boolean inconsistencias
-        string observaciones
+        int cantidadIngreso
+        int cantidadEgreso
+        int cantidadConsumida
+        int cantidadFaltante
         bigint turno_id FK
-        bigint enfermero_id FK
-    }
-
-    USO_INSUMO {
-        bigint id PK
-        int cantidadUsada
         bigint insumo_id FK
-        bigint turno_id FK
     }
-
 
     CATEGORIA_INSUMO ||--o{ INSUMO : "clasifica"
-    INSUMO ||--o{ INSUMO_AMBULANCIA : "referencia catalogo"
-    AMBULANCIA ||--|{ INSUMO_AMBULANCIA : "compone"
+    AMBULANCIA }|--|{ INSUMO : "contiene"
     AMBULANCIA ||--o{ TURNO : "asignada a"
-    USUARIO ||--o{ TURNO : "participa"
-    TURNO ||--o| REGISTRO_INGRESO : "registra control"
-    USUARIO ||--o{ REGISTRO_INGRESO : "revisado por"
-    TURNO ||--o{ USO_INSUMO : "registra consumos"
-    INSUMO ||--o{ USO_INSUMO : "consumido en"
+    USUARIO ||--o{ TURNO : "crea o modifica"
+    TURNO ||--|{ CONTROL_INSUMO : "registra"
+    INSUMO ||--o{ CONTROL_INSUMO : "referencia"
 ```
