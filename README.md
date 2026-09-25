@@ -43,33 +43,31 @@ La propuesta se desarrollará teniendo en cuenta los conceptos trabajados en la 
 ---
 
 # Documentacion Tecnica – Segunda Entrega  
-## Sistema de Gestión y Trazabilidad 107
+## Sistema de Gestión y Trazabilidad 107 – Backend (Java + Spring Boot)
 
 ---
 
 # Descripción General del Proyecto
 
-El sistema gestiona la trazabilidad operativa de las ambulancias del servicio 107.  
+El sistema gestiona la trazabilidad operativa de las ambulancias del servicio 107.
 Digitaliza el proceso de control de stock, turnos de guardia, ingreso/egreso de móviles y detección de inconsistencias entre turnos.
 
-El dominio está centrado en:
+El modelo está **centrado en el Turno**, que representa la unidad operativa principal:
 
-- **Ambulancia**
-- **Turno de Guardia**
-- **Control de Ingreso**
-- **Control de Egreso**
-- **Insumos**
-- **Detalle de Stock**
-- **Tickets de Inconsistencia**
-- **Usuarios (Admin / Enfermero)**
+- **Ambulancia asignada**
+- **Equipo de trabajo** (admin, enfermero, chofer, médico)
+- **Control de insumos** al ingreso y egreso
+- **Observaciones del turno**
+- **Detección de inconsistencias entre turnos consecutivos**
 
-El objetivo es reemplazar las planillas físicas, mejorando y garantizando:
+El objetivo es reemplazar las planillas físicas, garantizando:
 
-- Trazabilidad   
+- Trazabilidad completa  
 - Auditoría entre ingreso y egreso  
-- Detección de inconsistencias  
+- Detección automática de inconsistencias  
 - Registro de faltantes  
-- Gestión de alertas e inconsistencias  
+- Gestión de alertas  
+- Historial operativo por ambulancia y usuario  
 
 ---
 
@@ -78,135 +76,111 @@ El objetivo es reemplazar las planillas físicas, mejorando y garantizando:
 ## Entidades del Sistema
 
 ---
+##  BaseEntity – Clase Base del Modelo  
+La clase **BaseEntity** define los campos comunes para todas las entidades del sistema.  
+Incluye auditoría automática, borrado lógico y configuración estándar de JPA.
 
-## 🟦 AMBULANCIA
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| **id** | Long | Identificador único autogenerado |
+| **createdAt** | LocalDateTime | Fecha/hora de creación del registro |
+| **updatedAt** | LocalDateTime | Fecha/hora de última actualización |
+| **eliminado** | boolean | Marca de borrado lógico |
+| **borradoLogico()** | método | Cambia `eliminado` a `true` |
+
+--- 
+
+## AMBULANCIA
+Representa un móvil del servicio 107.
+
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
 | id | bigint | Identificador |
-| nroMovil | string | Número interno |
-| patente | string | Patente |
-| codigoQR | string | Identificador QR |
-| estado | enum | Estado operativo |
-| presionOxigenoPsi | int | Presión del tubo |
-| kilometrajeActual | double | Kilometraje |
+| patente | string | Patente única |
+| disponible | boolean | Estado operativo |
+| insumos | N–N Insumo | Insumos base que debe tener |
 
 ---
 
-## 🟦 USUARIO
+## USUARIO
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
 | id | bigint | Identificador |
 | nombre | string | Nombre |
 | dni | string | Documento |
 | email | string | Correo |
-| rol | enum | ADMINISTRADOR / ENFERMERO |
+| rol | enum RolUsuario | ADMINISTRADOR / ENFERMERO |
 | activo | boolean | Estado |
+| clave.hash | string | Hash de contraseña |
+| clave.salt | string | Salt |
 
 ---
 
-## 🟦 INSUMO
+## CATEGORIA_INSUMO
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| id | bigint | Identificador |
+| nombre | string | Nombre |
+| color | string | Color visual |
+
+---
+
+## INSUMO
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
 | id | bigint | Identificador |
 | nombre | string | Nombre del insumo |
-| categoria | string | Categoría textual (NO FK) |
-| puntoDeControl | int | Cantidad esperada |
-| esCritico | boolean | Indica si es crítico |
+| categoria_id | FK | Categoría |
+| puntoControl | int | Cantidad esperada |
+| critico | boolean | Indica si es crítico |
 
 ---
 
-## 🟦 TURNO_GUARDIA
+## TURNO (Entidad central del dominio)
+El turno contiene **todo**: ambulancia, usuarios, insumos, observaciones y estado.
+
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
 | id | bigint | Identificador |
 | fecha | date | Fecha del turno |
-| horaInicio | string | Hora inicio |
-| horaFin | string | Hora fin |
-| estado | enum | PROGRAMADO / EN_CURSO / FINALIZADO |
-| admin_id | FK | Usuario Admin creador |
+| horario | enum HorarioTurno | MAÑANA / TARDE / NOCHE |
+| estado | enum EstadoTurno | PROGRAMADO / EN_CURSO / FINALIZADO |
 | ambulancia_id | FK | Ambulancia asignada |
-| personalAsignado | N–N | Usuarios asignados |
-
----
-
-## 🟦 CONTROL_INGRESO
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| id | bigint | Identificador |
-| fechaHora | datetime | Fecha/hora del control |
-| hayFaltantes | boolean | Si faltan insumos |
-| aptoParaSalir | boolean | Si la ambulancia puede salir |
-| observacionProblema | string | Observaciones |
-| turno_guardia_id | FK | Turno asociado |
 | enfermero_id | FK | Enfermero responsable |
+| admin_id | FK | Administrador |
+| nombreChofer | string | Chofer |
+| nombreMedico | string | Médico |
+| observacionesIngreso | text | Observaciones del ingreso |
+| observacionesEgreso | text | Observaciones del egreso |
+| controlInsumos | 1–N ControlInsumo | Detalle de stock |
 
 ---
 
-## 🟦 DETALLE_STOCK_INGRESO
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| id | bigint | Identificador del insumo |
-| control_ingreso_id | FK | ControlIngreso |
-| insumo_id | FK | Insumo recibido |
-| cantidadRecibida | int | Cantidad recibida |
+## CONTROL_INSUMO
+Detalle de stock del turno.
 
-
----
-
-## 🟦 CONTROL_EGRESO
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
 | id | bigint | Identificador |
-| fechaHora | datetime | Fecha/hora del egreso |
-| turno_guardia_id | FK | Turno asociado |
-| enfermero_id | FK | Enfermero responsable |
-
----
-
-## 🟦 DETALLE_STOCK_EGRESO
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| id | bigint | Identificador |
-| control_egreso_id | FK | ControlEgreso |
+| turno_id | FK | Turno |
 | insumo_id | FK | Insumo |
-| cantidadDejada | int | Cantidad entregada |
-
----
-
-## 🟦 INCONSISTENCIA_TICKET
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| id | bigint | Identificador |
-| fechaHoraDeteccion | datetime | Momento de detección |
-| cantidadDejadaAnterior | int | Stock final del turno anterior |
-| cantidadRecibidaActual | int | Stock inicial del turno actual |
-| diferencia | int | Diferencia detectada |
-| estado | enum | PENDIENTE / EN_REVISION / RESUELTO |
-| observacionesAdmin | string | Observaciones |
-| control_ingreso_id | FK | ControlIngreso |
-| control_egreso_anterior_id | FK | ControlEgreso |
-| insumo_id | FK | Insumo |
-| admin_asignado_id | FK | Usuario |
+| cantidadIngreso | int | Cantidad al ingreso |
+| cantidadEgreso | int | Cantidad al egreso |
+| ingresoFaltante | int | Faltantes detectados |
+| cantidadUsada | int | Cantidad utilizada |
 
 ---
 
 # Relaciones del Modelo
 
-- Ambulancia 1–N TurnoGuardia  
-- Usuario 1–N TurnoGuardia (admin)  
-- Usuario N–N TurnoGuardia (personal asignado)  
-- TurnoGuardia 1–1 ControlIngreso  
-- TurnoGuardia 1–1 ControlEgreso  
-- ControlIngreso 1–N DetalleStockIngreso  
-- ControlEgreso 1–N DetalleStockEgreso  
-- Insumo 1–N DetalleStockIngreso  
-- Insumo 1–N DetalleStockEgreso  
-- InconsistenciaTicket N–1 ControlIngreso  
-- InconsistenciaTicket N–1 ControlEgreso  
-- InconsistenciaTicket N–1 Insumo  
-- InconsistenciaTicket N–1 Usuario (admin asignado)
+- Ambulancia 1–N Turno  
+- Usuario 1–N Turno (admin y enfermero)  
+- Turno 1–N ControlInsumo  
+- Insumo 1–N ControlInsumo  
+- Ambulancia N–N Insumo (stock base)  
 
 ---
+
 
 # Diagrama ER (Mermaid)
 
@@ -285,87 +259,73 @@ Un turno puede tener múltiples usuarios asignados (ManyToMany).
 **RN-03 — Faltantes**
 Si un insumo está por debajo del punto de control se marca como faltante.
 
-**RN-04 — Aptitud del móvil**
-Si hay faltantes críticos el movil no esta apto para salir.
+**RN-04 — Trazabilidad de insumo**
+Se compara la cantidad de insumos recibidos y los dejados al final del turno
 
-**RN-05 — Trazabilidad entre turnos**
-Se compara:  
-- cantidadDejadaAnterior (egreso anterior)  
-- cantidadRecibidaActual (ingreso actual)
-
-**RN-06 — Tickets de inconsistencia**
-Toda diferencia genera un ticket.
-
-**RN-07 — Roles**
+**RN-05 — Roles**
 Solo *ADMIN* crea turnos.  
 Solo *ENFERMERO* realiza controles.
 
 --- 
+# Módulos del Backend y Responsabilidades  
 
-# Módulos del Backend y Responsabilidades
-
-A continuación se detallan los módulos funcionales del backend, junto con sus responsabilidades y las entidades que intervienen en cada uno.
-
----
+A continuación se detallan los módulos funcionales del backend según el código provisto.  
+Cada módulo lista únicamente las responsabilidades y entidades que aparecen en el código.
 
 ## 1. Módulo de Usuarios
 ### Responsabilidades
-- Gestión de usuarios del sistema  
-- Administración de roles (ADMINISTRADOR / ENFERMERO)  
-- Control de estado del usuario (activo/inactivo)
+- Representar usuarios del sistema (ADMINISTRADOR / ENFERMERO).  
+- Gestionar datos básicos del usuario: nombre, DNI, email, rol, estado.  
+- Manejar credenciales 
 
 ---
 
 ## 2. Módulo de Ambulancias
 ### Responsabilidades
-- Gestión de ambulancias  
-- Estado operativo del móvil  
-- Datos técnicos (patente, presión de oxígeno, kilometraje)
+- Representar ambulancias del sistema.  
+- Gestionar disponibilidad del móvil.  
+- Asociar insumos base mediante relación ManyToMany.  
+- Exponer datos mediante DTO.
 
 ---
 
 ## 3. Módulo de Insumos
 ### Responsabilidades
-- Catálogo de insumos  
-- Punto de control por insumo  
-- Identificación de insumos críticos  
-- 
----
-
-## 4. Módulo de Turnos de Guardia
-### Responsabilidades
-- Crear turnos de guardia  
-- Asignar ambulancia  
-- Asignar personal  
-- Registrar estado del turno (PROGRAMADO, EN_CURSO, FINALIZADO)
+- Representar insumos utilizados por ambulancias.  
+- Asociar cada insumo a una categoría 
+- Definir punto de control esperado.  
+- Indicar si el insumo es crítico.
 
 ---
 
-## 5. Módulo de Control de Ingreso
+## 4. Módulo de Turnos
 ### Responsabilidades
-- Validar faltantes  
-- Aptitud para salir  
-- Registrar observaciones del ingreso  
-- Registrar stock recibido por insumo
+- Representar el turno operativo (entidad central del dominio).  
+- Asociar ambulancia, enfermero y administrador.  
+- Registrar horario y estado del turno.  
+- Registrar chofer y médico.  
+- Registrar observaciones de ingreso y egreso.  
+- Gestionar el detalle de insumos del turno 
 
 ---
 
-## 6. Módulo de Control de Egreso
+## 5. Módulo de Control de Insumos del Turno
 ### Responsabilidades
-- Registrar egreso del móvil  
-- Registrar stock dejado por insumo  
-- Registrar observaciones finales del turno
-
+- Registrar cantidades de insumos al ingreso.  
+- Registrar cantidades de insumos al egreso.  
+- Registrar faltantes.  
+- Registrar cantidad usada.  
+- Asociar cada registro al turno correspondiente.
 
 ---
 
-## 7. Módulo de Estadísticas / Dashboard
+## 6. Módulo de Estadísticas / Dashboard
 ### Responsabilidades
-- Generar resumen operativo  
-- Mostrar alertas   
-- Listar ambulancias disponibles  
-- Mostrar turnos activos  
-- Mostrar controles
+- Generar resumen operativo del sistema.  
+- Mostrar cantidad de turnos activos.  
+- Mostrar ambulancias disponibles y totales.  
+- Mostrar alertas e inconsistencias.  
+- Listar ambulancias.
 
 ---
 
