@@ -254,17 +254,21 @@ erDiagram
 Una ambulancia no puede estar en dos turnos simultáneamente.
 
 **RN-02 — Personal asignado**
-Un turno puede tener múltiples usuarios asignados (ManyToMany).
+Un turno tiene en todo momento exactamente un (1) administrador, una (1) ambulancia y un (1) enfermero asignado.
 
 **RN-03 — Faltantes**
-Si un insumo está por debajo del punto de control se marca como faltante.
+Al iniciar un turno, si un insumo está por debajo del punto de control se reporta como faltante.
 
 **RN-04 — Trazabilidad de insumo**
-Se compara la cantidad de insumos recibidos y los dejados al final del turno
+Se compara la cantidad de insumos recibidos y los dejados al final del turno para calcular y registrar el uso.
 
 **RN-05 — Roles**
 Solo *ADMIN* crea turnos.  
 Solo *ENFERMERO* realiza controles.
+
+**RN-06 — Colisiones entre Turnos**
+Un enfermero o ambulancia asignada un turno con estado PROGRAMADO o EN_CURSO no puede ser asignado a otro turno en el mismo dia y horario. 
+
 
 --- 
 # Módulos del Backend y Responsabilidades  
@@ -276,7 +280,7 @@ Cada módulo lista únicamente las responsabilidades y entidades que aparecen en
 ### Responsabilidades
 - Representar usuarios del sistema (ADMINISTRADOR / ENFERMERO).  
 - Gestionar datos básicos del usuario: nombre, DNI, email, rol, estado.  
-- Manejar credenciales 
+- Manejar credenciales y permisos
 
 ---
 
@@ -305,24 +309,14 @@ Cada módulo lista únicamente las responsabilidades y entidades que aparecen en
 - Registrar horario y estado del turno.  
 - Registrar chofer y médico.  
 - Registrar observaciones de ingreso y egreso.  
-- Gestionar el detalle de insumos del turno 
-
----
-
-## 5. Módulo de Control de Insumos del Turno
-### Responsabilidades
-- Registrar cantidades de insumos al ingreso.  
-- Registrar cantidades de insumos al egreso.  
-- Registrar faltantes.  
-- Registrar cantidad usada.  
-- Asociar cada registro al turno correspondiente.
+- Gestionar el detalle de insumos del turno (ingreso, egreso, faltantes y cantidad usada)
 
 ---
 
 ## 6. Módulo de Estadísticas / Dashboard
 ### Responsabilidades
 - Generar resumen operativo del sistema.  
-- Mostrar cantidad de turnos activos.  
+- Mostrar turnos activos.  
 - Mostrar ambulancias disponibles y totales.  
 - Mostrar alertas e inconsistencias.  
 - Listar ambulancias.
