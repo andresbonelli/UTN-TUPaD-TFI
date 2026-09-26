@@ -313,7 +313,7 @@ Cada módulo lista únicamente las responsabilidades y entidades que aparecen en
 
 ---
 
-## 6. Módulo de Estadísticas / Dashboard
+## 5. Módulo de Estadísticas / Dashboard
 ### Responsabilidades
 - Generar resumen operativo del sistema.  
 - Mostrar turnos activos.  

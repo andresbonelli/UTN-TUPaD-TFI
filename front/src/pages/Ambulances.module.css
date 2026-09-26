@@ -1,0 +1,388 @@
+.pageHeader,
+.detailHeader {
+  align-items: flex-start;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+}
+.pageHeader h1,
+.detailHeader h1 {
+  font-size: clamp(2.5rem, 6vw, 4.4rem);
+}
+.pageHeader p:not(.eyebrow),
+.detailHeader p:not(.eyebrow) {
+  color: #5c7074;
+  font-size: 1rem;
+  margin: 14px 0 0;
+}
+.headerMetric {
+  border-left: 3px solid var(--color-action);
+  display: grid;
+  gap: 5px;
+  padding: 8px 0 8px 16px;
+}
+.headerMetric span,
+.headerMetric strong {
+  font-size: 0.78rem;
+}
+.mono {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+.fleetGrid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 48px;
+}
+.ambulanceCard {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  color: var(--color-petroleum);
+  display: block;
+  padding: 22px;
+  text-decoration: none;
+  transition:
+    border-color 0.2s,
+    transform 0.2s;
+}
+.ambulanceCard:hover {
+  border-color: var(--color-action);
+  transform: translateY(-2px);
+}
+.cardTop,
+.summaryLabel,
+.cardFooter,
+.oxygenPanelHeader,
+.panelHeading,
+.meterScale {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+.cardTop > svg {
+  color: var(--color-action);
+}
+.ambulanceName {
+  align-items: center;
+  display: flex;
+  gap: 11px;
+}
+.ambulanceName > svg {
+  color: var(--color-action);
+}
+.ambulanceName div {
+  display: grid;
+  gap: 4px;
+}
+.ambulanceName strong {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+}
+.ambulanceName span {
+  align-items: center;
+  color: #6b7d80;
+  display: flex;
+  font-size: 0.76rem;
+  gap: 4px;
+}
+.status {
+  align-items: center;
+  display: inline-flex;
+  font-size: 0.75rem;
+  gap: 6px;
+  margin-top: 20px;
+}
+.available {
+  color: var(--color-complete);
+}
+.service {
+  color: var(--color-info);
+}
+.review {
+  color: var(--color-review);
+}
+.oxygenSummary {
+  border-top: 1px solid #e6eeec;
+  margin-top: 20px;
+  padding-top: 17px;
+}
+.summaryLabel {
+  font-size: 0.75rem;
+}
+.summaryLabel strong {
+  font-size: 0.9rem;
+}
+.progressTrack {
+  background: #e9efed;
+  height: 7px;
+  margin: 11px 0 8px;
+  overflow: hidden;
+}
+.progressTrack span {
+  display: block;
+  height: 100%;
+}
+.progressComplete {
+  background: var(--color-complete);
+}
+.progressReview {
+  background: var(--color-review);
+}
+.progressCritical {
+  background: var(--color-critical);
+}
+.oxygenSummary small,
+.cardFooter {
+  color: #708184;
+  font-size: 0.7rem;
+}
+.cardFooter {
+  border-top: 1px solid #e6eeec;
+  margin-top: 18px;
+  padding-top: 14px;
+}
+.feedback {
+  align-items: center;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 48px;
+  min-height: 150px;
+  padding: 24px;
+}
+.feedbackError {
+  color: var(--color-critical);
+}
+.spinner {
+  border: 2px solid #c9dcda;
+  border-radius: 50%;
+  border-top-color: var(--color-action);
+  height: 18px;
+  width: 18px;
+}
+.backLink {
+  align-items: center;
+  color: var(--color-action);
+  display: inline-flex;
+  font-size: 0.8rem;
+  gap: 7px;
+  text-decoration: none;
+}
+.detailHeader {
+  margin-top: 32px;
+}
+.detailHeader .status {
+  margin-top: 10px;
+}
+.oxygenPanel,
+.historyPanel {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  margin-top: 36px;
+  padding: clamp(22px, 4vw, 36px);
+}
+.oxygenPanel {
+  border-top: 5px solid var(--color-complete);
+}
+.oxygenReview {
+  border-top-color: var(--color-review);
+}
+.oxygenCritical {
+  border-top-color: var(--color-critical);
+}
+.oxygenPanelHeader h2,
+.historyPanel h2 {
+  font-family: var(--font-heading);
+  font-size: 1.7rem;
+  margin: 0;
+}
+.stateBadge {
+  align-items: center;
+  display: inline-flex;
+  font-size: 0.8rem;
+  font-weight: 600;
+  gap: 6px;
+}
+.oxygenComplete .stateBadge {
+  color: var(--color-complete);
+}
+.oxygenReview .stateBadge {
+  color: var(--color-review);
+}
+.oxygenCritical .stateBadge {
+  color: var(--color-critical);
+}
+.meterLayout {
+  align-items: center;
+  display: flex;
+  gap: clamp(30px, 8vw, 100px);
+  justify-content: center;
+  padding: 38px 0 28px;
+}
+.meterRing {
+  align-items: center;
+  background: conic-gradient(
+    var(--meter-color, var(--color-complete)) var(--oxygen-progress),
+    #e7efed 0
+  );
+  border-radius: 50%;
+  display: flex;
+  height: 210px;
+  justify-content: center;
+  position: relative;
+  width: 210px;
+}
+.oxygenReview .meterRing {
+  --meter-color: var(--color-review);
+}
+.oxygenCritical .meterRing {
+  --meter-color: var(--color-critical);
+}
+.meterRing::before {
+  background: var(--color-white);
+  border-radius: 50%;
+  content: "";
+  height: 176px;
+  position: absolute;
+  width: 176px;
+}
+.meterInner {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.meterValue {
+  font-family: var(--font-mono);
+  font-size: 2.6rem;
+  font-weight: 500;
+  line-height: 1;
+}
+.meterInner span {
+  color: #6a7b7e;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  margin-top: 8px;
+}
+.meterInfo {
+  display: grid;
+  gap: 9px;
+  max-width: 260px;
+}
+.meterInfo span,
+.meterInfo p {
+  color: #6a7b7e;
+  font-size: 0.82rem;
+  margin: 0;
+}
+.meterInfo strong {
+  font-size: 1.3rem;
+}
+.meterScale {
+  border-top: 1px solid #e6eeec;
+  color: #7a8b8d;
+  font-family: var(--font-mono);
+  font-size: 0.67rem;
+  padding-top: 14px;
+}
+.meterScale strong {
+  color: var(--color-petroleum);
+}
+.lastUpdate {
+  color: #708184;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+.historyList {
+  margin-top: 20px;
+}
+.historyRow {
+  align-items: center;
+  border-top: 1px solid #e6eeec;
+  display: grid;
+  gap: 13px;
+  grid-template-columns: auto 1fr auto;
+  padding: 16px 0;
+}
+.historyIcon {
+  align-items: center;
+  background: #e7f4f5;
+  color: var(--color-action);
+  display: flex;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+.historyRow strong {
+  font-size: 0.84rem;
+}
+.historyRow p {
+  color: #66797b;
+  font-size: 0.76rem;
+  margin: 4px 0 0;
+}
+.historyMeta {
+  display: grid;
+  gap: 4px;
+  text-align: right;
+}
+.historyMeta span {
+  color: #708184;
+  font-size: 0.7rem;
+}
+.detailStats {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 16px;
+}
+.detailStats div {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  display: grid;
+  gap: 8px;
+  padding: 17px;
+}
+.detailStats span {
+  color: #708184;
+  font-size: 0.74rem;
+}
+.detailStats strong {
+  font-size: 0.88rem;
+}
+@media (max-width: 720px) {
+  .pageHeader,
+  .detailHeader,
+  .oxygenPanelHeader {
+    display: block;
+  }
+  .headerMetric,
+  .detailHeader .status {
+    margin-top: 24px;
+  }
+  .fleetGrid,
+  .detailStats {
+    grid-template-columns: 1fr;
+    margin-top: 36px;
+  }
+  .meterLayout {
+    flex-direction: column;
+    gap: 24px;
+  }
+  .meterInfo {
+    text-align: center;
+  }
+  .meterScale {
+    font-size: 0.6rem;
+  }
+  .historyRow {
+    grid-template-columns: auto 1fr;
+  }
+  .historyMeta {
+    grid-column: 2;
+    text-align: left;
+  }
+}
