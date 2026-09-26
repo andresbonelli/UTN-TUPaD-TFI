@@ -10,3 +10,12 @@ logs/
 
 ### MAC OS ###
 .DS_Store
+
+### Backend ###
+target/
+data/
+
+### Frontend ###
+node_modules/
+**/node_modules/
+front/node_modules/
