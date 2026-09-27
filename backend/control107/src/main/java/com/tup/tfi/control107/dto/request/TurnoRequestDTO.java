@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -37,5 +38,27 @@ public class TurnoRequestDTO {
 
         turno.setAmbulancia(ambulancia);
         return turno;
+    }
+
+    public void aplicar(Turno t, Ambulancia ambulancia, Usuario enfermero) {
+        if (null != ambulancia) {
+            t.setAmbulancia(ambulancia);
+        }
+        if (null != enfermero) {
+            t.setEnfermero(enfermero);
+        }
+        if (null != fecha) {
+            t.setFecha(fecha);
+        }
+        if (null != horario) {
+            t.setHorario(horario);
+        }
+        if (null != nombreChofer) {
+            t.setNombreChofer(nombreChofer);
+        }
+        if (null != nombreMedico) {
+            t.setNombreMedico(nombreMedico);
+        }
+        t.setUpdatedAt(LocalDateTime.now());
     }
 }

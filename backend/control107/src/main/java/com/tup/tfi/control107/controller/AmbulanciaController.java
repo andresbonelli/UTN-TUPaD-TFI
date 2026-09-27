@@ -30,13 +30,13 @@ public class AmbulanciaController {
 
     @PostMapping
     public ResponseEntity<AmbulanciaDTO> guardar(@RequestBody AmbulanciaRequestDTO ambulancia) {
-        var guardada = ambulanciaService.guardar(ambulancia);
+        var guardada = ambulanciaService.crearAmbulancia(ambulancia);
         return ResponseEntity.ok(guardada);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<AmbulanciaDTO> actualizar(@PathVariable Long id, @RequestBody AmbulanciaRequestDTO ambulancia) {
-        var guardada = ambulanciaService.actualizar(id, ambulancia);
+        var guardada = ambulanciaService.actualizarAmbulancia(id, ambulancia);
         return ResponseEntity.ok(guardada);
     }
 

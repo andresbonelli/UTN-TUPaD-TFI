@@ -10,7 +10,8 @@ import java.util.List;
 
 @Repository
 public interface TurnoRepository extends JpaRepository<Turno, Long> {
-    List<Turno> findByEstado(EstadoTurno estado);
-    List<Turno> findByFecha(LocalDate fecha);
-    List<Turno> findByAmbulanciaId(Long ambulanciaId);
+    List<Turno> findByEstadoAndEliminadoIsFalse(EstadoTurno estado);
+    List<Turno> findByFechaAndEliminadoIsFalse(LocalDate fecha);
+    List<Turno> findByAmbulanciaIdAndEliminadoIsFalse(Long ambulanciaId);
+    List<Turno> findAllByEliminadoIsFalse();
 }

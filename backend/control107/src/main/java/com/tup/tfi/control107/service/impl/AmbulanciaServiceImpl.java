@@ -11,6 +11,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,41 +29,29 @@ public class AmbulanciaServiceImpl extends AbstractService<Ambulancia> implement
 
     @Override
     public List<AmbulanciaDTO> listarTodas() {
-        return repository.findAll().stream()
-                .map(AmbulanciaDTO::new)
-                .collect(Collectors.toList());
+        return repository.findAll().stream().map(AmbulanciaDTO::new).toList();
     }
 
     @Override
     public AmbulanciaDTO obtenerPorId(Long id) {
-        return repository.findById(id)
-                .map(AmbulanciaDTO::new)
-                .orElse(null);
+        Ambulancia a = obtener(id);
+        return new AmbulanciaDTO(a);
     }
 
     @Override
-    public AmbulanciaDTO guardar(AmbulanciaRequestDTO request) {
-        var ambulancia = Ambulancia.builder()
-                .patente(request.getPatente())
-                .disponible(request.isDisponible())
-                .insumos(obtenerInsumos(request))
-                .build();
-        var guardada = repository.save(ambulancia);
+    public AmbulanciaDTO crearAmbulancia(AmbulanciaRequestDTO request) {
+        var insumos = obtenerInsumos(request);
+        var guardada = repository.save(request.toAmbulancia(insumos));
         return new AmbulanciaDTO(guardada);
     }
 
     @Override
-    public AmbulanciaDTO actualizar(Long id, AmbulanciaRequestDTO request) {
-        var ambulancia = repository.findById(id).orElse(null);
-        if (ambulancia != null) {
-            ambulancia.setPatente(request.getPatente());
-            ambulancia.setDisponible(request.isDisponible());
-            ambulancia.setInsumos(obtenerInsumos(request)
-            );
-            var actualizada = repository.save(ambulancia);
-            return new AmbulanciaDTO(actualizada);
-        }
-        return null;
+    public AmbulanciaDTO actualizarAmbulancia(Long id, AmbulanciaRequestDTO request) {
+        Ambulancia a = obtener(id);
+        var insumos = obtenerInsumos(request);
+        request.aplicar(a, insumos);
+        repository.save(a);
+        return new AmbulanciaDTO(a);
     }
 
     @Override
@@ -72,8 +61,8 @@ public class AmbulanciaServiceImpl extends AbstractService<Ambulancia> implement
 
     private @NonNull Set<Insumo> obtenerInsumos(AmbulanciaRequestDTO request) {
         return request.getInsumos().stream()
-                .map(i -> insumoRepository.findById(i)
-                        .orElse(null))
+                .map(i -> insumoRepository.findByIdAndEliminadoIsFalse(i)
+                        .orElseThrow(() -> new NoSuchElementException("No se encontró el insumo con id " + i)))
                 .collect(Collectors.toSet());
     }
 }

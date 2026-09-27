@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -126,14 +125,4 @@ public class DataLoader implements CommandLineRunner {
         return ambulanciaRepository.save(amb);
     }
 
-    private void cargarInsumosTurno(Turno t) {
-        t.setControlInsumos(t.getAmbulancia().getInsumos().stream()
-                .map(i -> ControlInsumo.builder()
-                        .insumo(i)
-                        .turno(t)
-                        .cantidadIngreso(i.getPuntoControl())
-                        .ingresoFaltante(0)
-                        .build())
-                .toList());
-    }
 }

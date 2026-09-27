@@ -20,7 +20,7 @@ public class TurnoController {
 
     @GetMapping
     public ResponseEntity<List<TurnoDTO>> mostrarTurnos() {
-        List<TurnoDTO> turnos = turnoService.obtenerTurnos();
+        List<TurnoDTO> turnos = turnoService.obtenerTodos();
         return ResponseEntity.ok(turnos);
     }
 

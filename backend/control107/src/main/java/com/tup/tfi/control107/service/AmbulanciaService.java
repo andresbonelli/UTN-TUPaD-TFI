@@ -8,7 +8,7 @@ import java.util.List;
 public interface AmbulanciaService {
     List<AmbulanciaDTO> listarTodas();
     AmbulanciaDTO obtenerPorId(Long id);
-    AmbulanciaDTO guardar(AmbulanciaRequestDTO request);
-    AmbulanciaDTO actualizar(Long id, AmbulanciaRequestDTO request);
+    AmbulanciaDTO crearAmbulancia(AmbulanciaRequestDTO request);
+    AmbulanciaDTO actualizarAmbulancia(Long id, AmbulanciaRequestDTO request);
     void eliminarPorId(Long id);
 }

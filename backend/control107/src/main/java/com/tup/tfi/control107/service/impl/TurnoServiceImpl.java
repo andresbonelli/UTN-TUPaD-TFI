@@ -41,8 +41,8 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
     @Transactional(readOnly = true)
     @Override
     public ResumenOperativoDTO obtenerResumenOperativo() {
-        var turnosActivos = repository.findByEstado(EstadoTurno.EN_CURSO);
-        var ambulancias = ambulanciaRepository.findAll();
+        var turnosActivos = obtenerActivos();
+        var ambulancias = ambulanciaRepository.findAllByEliminadoIsFalse();
 
         return ResumenOperativoDTO.builder()
                 .turnosActivos(turnosActivos.size())
@@ -65,9 +65,9 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
     @Transactional
     @Override
     public TurnoDTO crearTurno(TurnoRequestDTO request) {
-        Usuario admin = usuarioRepository.findById(request.getAdminId()).orElseThrow();
-        Usuario enfermero = usuarioRepository.findById(request.getEnfermeroId()).orElseThrow();
-        Ambulancia ambulancia = ambulanciaRepository.findById(request.getAmbulanciaId()).orElseThrow();
+        Usuario admin = obtenerUsuario(request.getAdminId());
+        Usuario enfermero = obtenerUsuario(request.getEnfermeroId());
+        Ambulancia ambulancia = obtenerAmbulancia(request.getAmbulanciaId());
         Turno t = request.toTurno(admin, enfermero, ambulancia);
         repository.save(t);
         return new TurnoDTO(t);
@@ -108,8 +108,35 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
     }
 
     @Override
-    public List<TurnoDTO> obtenerTurnos() {
-        return repository.findAll().stream().map(TurnoDTO::new).toList();
+    public List<TurnoDTO> obtenerTodos() {
+        return repository.findAllByEliminadoIsFalse().stream().map(TurnoDTO::new).toList();
+    }
+
+    @Override
+    public List<TurnoDTO> obtenerTurnosActivos() {
+        return obtenerActivos().stream().map(TurnoDTO::new).toList();
+    }
+
+    @Transactional
+    @Override
+    public TurnoDTO cancelarTurno(Long turnoId) {
+        Turno t = obtener(turnoId);
+        t.setEstado(EstadoTurno.CANCELADO);
+        t.setObservacionesEgreso("Turno cancelado por administrador");
+        t.setUpdatedAt(LocalDateTime.now());
+        repository.save(t);
+        return new TurnoDTO(t);
+    }
+
+    @Transactional
+    @Override
+    public TurnoDTO modificarTurno(Long turnoId, TurnoRequestDTO request) {
+        Turno t = obtener(turnoId);
+        Ambulancia ambulancia = request.getAmbulanciaId() != null ? obtenerAmbulancia(request.getAmbulanciaId()) : null;
+        Usuario enfermero = request.getEnfermeroId() != null ? obtenerUsuario(request.getEnfermeroId()) : null;
+        request.aplicar(t, ambulancia, enfermero);
+        repository.save(t);
+        return new TurnoDTO(t);
     }
 
     /**
@@ -135,6 +162,22 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
             throw new IllegalArgumentException("Los insumos enviados no coinciden con el control del Turno.");
         }
         return mapaControl;
+    }
+
+    private List<Turno> obtenerActivos() {
+        return repository.findByEstadoAndEliminadoIsFalse(EstadoTurno.EN_CURSO);
+    }
+
+    private Ambulancia obtenerAmbulancia(Long ambulanciaId) {
+        return ambulanciaRepository.findByIdAndEliminadoIsFalse(ambulanciaId).orElseThrow(
+                () -> new IllegalArgumentException("Ambulancia no encontrada")
+        );
+    }
+
+    private Usuario obtenerUsuario(Long usuarioId) {
+        return usuarioRepository.findByIdAndEliminadoIsFalse(usuarioId).orElseThrow(
+                () -> new IllegalArgumentException("Usuario no encontrado")
+        );
     }
 
 }
