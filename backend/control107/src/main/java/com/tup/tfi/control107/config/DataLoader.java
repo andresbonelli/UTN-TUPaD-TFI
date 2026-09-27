@@ -1,14 +1,19 @@
 package com.tup.tfi.control107.config;
 
+import com.tup.tfi.control107.dto.request.InsumoRequestDTO;
+import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
 import com.tup.tfi.control107.model.entity.*;
 import com.tup.tfi.control107.model.enums.*;
 import com.tup.tfi.control107.repository.*;
+import com.tup.tfi.control107.service.TurnoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -21,6 +26,7 @@ public class DataLoader implements CommandLineRunner {
     private final CategoriaRepository categoriaRepository;
     private final InsumoRepository insumoRepository;
     private final AmbulanciaRepository ambulanciaRepository;
+    private final TurnoService turnoService;
 
     @Override
     public void run(String... args) {
@@ -64,47 +70,52 @@ public class DataLoader implements CommandLineRunner {
         Insumo tuboO2Portatil = insumoRepository.save(Insumo.builder().nombre("Tubo O2 Portátil 415L").categoria(viaAerea).puntoControl(2).critico(true).build());
         Insumo tuboO2Pesado = insumoRepository.save(Insumo.builder().nombre("Tubo O2 Pesado 3m³").categoria(oxigeno).puntoControl(1).critico(true).build());
 
-        var insumos = Set.of(adrenalina, atropina, gasas, guantes, tuboO2Portatil, tuboO2Pesado);
+        var insumos = List.of(adrenalina, atropina, gasas, guantes, tuboO2Portatil, tuboO2Pesado);
+        var insumosSet = Set.of(adrenalina, atropina, gasas, guantes, tuboO2Portatil, tuboO2Pesado);
 
         // 4. Cargar Ambulancias
-        Ambulancia m01 = crearAmbulanciaConInsumos("AE 107 AB", insumos);
-        Ambulancia m02 = crearAmbulanciaConInsumos("AE 107 CD", insumos);
-        Ambulancia m03 = crearAmbulanciaConInsumos("AE 107 EF", insumos);
-        Ambulancia m04 = crearAmbulanciaConInsumos("AE 107 GH", insumos);
+        Ambulancia m01 = crearAmbulanciaConInsumos("AE 107 AB", insumosSet);
+        Ambulancia m02 = crearAmbulanciaConInsumos("AE 107 CD", insumosSet);
+        Ambulancia m03 = crearAmbulanciaConInsumos("AE 107 EF", insumosSet);
+        Ambulancia m04 = crearAmbulanciaConInsumos("AE 107 GH", insumosSet);
 
 
         // 5. Crear Turno de Guardia
-        Turno turno1 = Turno.builder()
-                .fecha(LocalDate.now())
-                .horario(HorarioTurno.MANIANA)
-                .estado(EstadoTurno.FINALIZADO)
-                .ambulancia(m04)
-                .nombreChofer(chofer)
-                .enfermero(enfermero)
-                .nombreMedico(medico)
-                .admin(admin)
-                .build();
-        cargarInsumosTurno(turno1);
-        // Simular egreso
-        turno1.getControlInsumos().forEach(ci -> ci.informarEgreso(ci.getCantidadIngreso() - 1));
-        turnoRepository.save(turno1);
+        TurnoRequestDTO turnoReq1 = new TurnoRequestDTO();
+        turnoReq1.setAdminId(admin.getId());
+        turnoReq1.setEnfermeroId(enfermero.getId());
+        turnoReq1.setAmbulanciaId(m04.getId());
+        turnoReq1.setNombreChofer(chofer);
+        turnoReq1.setNombreMedico(medico);
+        turnoReq1.setFecha(LocalDate.now());
+        turnoReq1.setHorario(HorarioTurno.MANIANA);
 
-        Turno turno2 = Turno.builder()
-                .fecha(LocalDate.now())
-                .horario(HorarioTurno.MANIANA)
-                .estado(EstadoTurno.FINALIZADO)
-                .ambulancia(m04)
-                .nombreChofer(chofer)
-                .enfermero(enfermero)
-                .nombreMedico(medico)
-                .admin(admin)
-                .build();
-        cargarInsumosTurno(turno2);
-        // Simular ingreso con inconsistencia en gasas
-        turno2.getControlInsumos().stream()
-                .filter(i -> gasas.equals(i.getInsumo()))
-                .findAny().ifPresent(i -> i.informarIngreso(20));
-        turnoRepository.save(turno2);
+        var turnoResp1 = turnoService.crearTurno(turnoReq1);
+        // Simular ingreso y egreso
+        var listaInsumosIngreso1 = insumos.stream().map(i -> new InsumoRequestDTO(i.getId(),i.getPuntoControl())).toList();
+        turnoService.registrarIngreso(turnoResp1.getId(), listaInsumosIngreso1);
+
+        var listaInsumosEgreso1 = List.copyOf(listaInsumosIngreso1);
+        listaInsumosEgreso1.get(0).setCantidad(listaInsumosEgreso1.get(0).getCantidad() - 1);
+        listaInsumosEgreso1.get(1).setCantidad(listaInsumosEgreso1.get(1).getCantidad() - 2);
+        turnoService.registrarEgreso(turnoResp1.getId(), listaInsumosEgreso1);
+
+        TurnoRequestDTO turnoReq2 = new TurnoRequestDTO();
+        turnoReq2.setAdminId(admin.getId());
+        turnoReq2.setEnfermeroId(enfermero.getId());
+        turnoReq2.setAmbulanciaId(m04.getId());
+        turnoReq2.setNombreChofer(chofer);
+        turnoReq2.setNombreMedico(medico);
+        turnoReq2.setFecha(LocalDate.now());
+        turnoReq2.setHorario(HorarioTurno.TARDE);
+
+        var turnoResp2 = turnoService.crearTurno(turnoReq2);
+
+        // Simular ingreso con inconsistencia en adrenalina
+        var listaInsumosIngreso2 = insumos.stream().map(i -> new InsumoRequestDTO(i.getId(),i.getPuntoControl())).toList();
+        listaInsumosIngreso2.get(0).setCantidad(listaInsumosEgreso1.get(0).getCantidad() - 10);
+
+        turnoService.registrarIngreso(turnoResp2.getId(), listaInsumosIngreso2);
     }
 
     private Ambulancia crearAmbulanciaConInsumos(String patente, Set<Insumo> insumosBase) {
