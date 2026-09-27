@@ -17,4 +17,6 @@ public interface InsumoService {
     InsumoDTO actualizarInsumo(Long id, InsumoRequestDTO request);
 
     void eliminarPorId(Long id);
+
+    List<InsumoDTO> listarPorCategoria(Long categoriaId);
 }

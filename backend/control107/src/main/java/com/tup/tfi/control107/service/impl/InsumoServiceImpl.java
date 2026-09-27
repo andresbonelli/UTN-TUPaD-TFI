@@ -36,6 +36,11 @@ public class InsumoServiceImpl extends AbstractService<Insumo> implements Insumo
     }
 
     @Override
+    public List<InsumoDTO> listarPorCategoria(Long categoriaId) {
+        return repository.findByCategoriaIdAndEliminadoIsFalse(categoriaId).stream().map(InsumoDTO::new).toList();
+    }
+
+    @Override
     public InsumoDTO obtenerPorId(Long id) {
         Insumo i = obtener(id);
         return new InsumoDTO(i);
