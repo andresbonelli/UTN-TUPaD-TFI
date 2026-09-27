@@ -5,6 +5,7 @@ import com.tup.tfi.control107.model.entity.Turno;
 import com.tup.tfi.control107.model.entity.Usuario;
 import com.tup.tfi.control107.model.enums.EstadoTurno;
 import com.tup.tfi.control107.model.enums.HorarioTurno;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,7 +25,7 @@ public class TurnoRequestDTO {
     private String nombreChofer;
     private String nombreMedico;
 
-    public Turno toTurno(Usuario admin, Usuario enfermero, Ambulancia ambulancia) {
+    public Turno toTurno(@NotNull Usuario admin, @NotNull Usuario enfermero, @NotNull Ambulancia ambulancia) {
         Turno turno = Turno.builder()
                 .fecha(fecha)
                 .horario(horario)

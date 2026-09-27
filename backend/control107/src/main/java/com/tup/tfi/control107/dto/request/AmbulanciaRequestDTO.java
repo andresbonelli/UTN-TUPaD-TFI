@@ -2,6 +2,7 @@ package com.tup.tfi.control107.dto.request;
 
 import com.tup.tfi.control107.model.entity.Ambulancia;
 import com.tup.tfi.control107.model.entity.Insumo;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class AmbulanciaRequestDTO {
     private boolean disponible = true;
     private Set<Long> insumos = Set.of();
 
-    public Ambulancia toAmbulancia(Set<Insumo> insumos) {
+    public Ambulancia toAmbulancia(@NotNull Set<Insumo> insumos) {
         return new Ambulancia(patente, disponible, insumos);
     }
 

@@ -4,7 +4,7 @@ import com.tup.tfi.control107.dto.AmbulanciaDTO;
 import com.tup.tfi.control107.dto.ResumenOperativoDTO;
 import com.tup.tfi.control107.dto.TurnoDTO;
 import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
-import com.tup.tfi.control107.dto.request.InsumoRequestDTO;
+import com.tup.tfi.control107.dto.request.ControlInsumoRequestDTO;
 import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
 import com.tup.tfi.control107.model.entity.*;
 import com.tup.tfi.control107.model.enums.EstadoTurno;
@@ -85,7 +85,7 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
                     ));
         }
         var mapaControl = verificarInsumos(request.getInsumos(), t);
-        for (InsumoRequestDTO dto : request.getInsumos()) {
+        for (ControlInsumoRequestDTO dto : request.getInsumos()) {
             ControlInsumo control = mapaControl.get(dto.getId());
             control.informarIngreso(dto.getCantidad());
         }
@@ -106,7 +106,7 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
                     ));
         }
         var mapaControl = verificarInsumos(request.getInsumos(), t);
-        for (InsumoRequestDTO dto : request.getInsumos()) {
+        for (ControlInsumoRequestDTO dto : request.getInsumos()) {
             ControlInsumo control = mapaControl.get(dto.getId());
             control.informarEgreso(dto.getCantidad());
         }
@@ -155,14 +155,14 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
      * @param insumos Lista de Ids de insumos y cantidades
      * @return Mapa de Ids de insumos a registros de control
      */
-    private Map<Long, ControlInsumo> verificarInsumos(List<InsumoRequestDTO> insumos, Turno t) {
+    private Map<Long, ControlInsumo> verificarInsumos(List<ControlInsumoRequestDTO> insumos, Turno t) {
         if (null == insumos || insumos.isEmpty()) {
             throw new IllegalArgumentException("Lista de insumos para control de ingreso/egreso vacia o nula.");
         }
         Map<Long, ControlInsumo> mapaControl = t.getControlInsumos().stream()
                 .collect(Collectors.toMap(c -> c.getInsumo().getId(), c -> c));
         Set<Long> idsRecibidos = insumos.stream()
-                .map(InsumoRequestDTO::getId)
+                .map(ControlInsumoRequestDTO::getId)
                 .collect(Collectors.toSet());
         if (idsRecibidos.size() != insumos.size()) {
             throw new IllegalArgumentException("La lista enviada contiene insumos duplicados.");

@@ -11,6 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 public class IngresoEgresoDTO {
     private Long turnoId;
-    private List<InsumoRequestDTO> insumos;
+    private List<ControlInsumoRequestDTO> insumos;
     private String observaciones;
 }

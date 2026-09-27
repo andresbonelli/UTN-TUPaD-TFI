@@ -1,7 +1,7 @@
 package com.tup.tfi.control107.config;
 
 import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
-import com.tup.tfi.control107.dto.request.InsumoRequestDTO;
+import com.tup.tfi.control107.dto.request.ControlInsumoRequestDTO;
 import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
 import com.tup.tfi.control107.model.entity.*;
 import com.tup.tfi.control107.model.enums.*;
@@ -91,7 +91,7 @@ public class DataLoader implements CommandLineRunner {
 
         var turnoResp1 = turnoService.crearTurno(turnoReq1);
         // Simular ingreso y egreso
-        var listaInsumosIngreso1 = insumos.stream().map(i -> new InsumoRequestDTO(i.getId(),i.getPuntoControl())).toList();
+        var listaInsumosIngreso1 = insumos.stream().map(i -> new ControlInsumoRequestDTO(i.getId(),i.getPuntoControl())).toList();
         turnoService.registrarIngreso(new IngresoEgresoDTO(turnoResp1.getId(), listaInsumosIngreso1, null));
 
         var listaInsumosEgreso1 = List.copyOf(listaInsumosIngreso1);
@@ -111,7 +111,7 @@ public class DataLoader implements CommandLineRunner {
         var turnoResp2 = turnoService.crearTurno(turnoReq2);
 
         // Simular ingreso con inconsistencia en adrenalina
-        var listaInsumosIngreso2 = insumos.stream().map(i -> new InsumoRequestDTO(i.getId(),i.getPuntoControl())).toList();
+        var listaInsumosIngreso2 = insumos.stream().map(i -> new ControlInsumoRequestDTO(i.getId(),i.getPuntoControl())).toList();
         listaInsumosIngreso2.get(0).setCantidad(listaInsumosIngreso2.get(0).getCantidad() - 10);
 
         turnoService.registrarIngreso(new IngresoEgresoDTO(turnoResp2.getId(), listaInsumosIngreso2, "Faltan 10 adrenalina"));

@@ -9,6 +9,7 @@ import com.tup.tfi.control107.repository.InsumoRepository;
 import com.tup.tfi.control107.service.AmbulanciaService;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -38,22 +39,25 @@ public class AmbulanciaServiceImpl extends AbstractService<Ambulancia> implement
         return new AmbulanciaDTO(a);
     }
 
+    @Transactional
     @Override
     public AmbulanciaDTO crearAmbulancia(AmbulanciaRequestDTO request) {
         var insumos = obtenerInsumos(request);
-        var guardada = repository.save(request.toAmbulancia(insumos));
+        Ambulancia guardada = repository.save(request.toAmbulancia(insumos));
         return new AmbulanciaDTO(guardada);
     }
 
+    @Transactional
     @Override
     public AmbulanciaDTO actualizarAmbulancia(Long id, AmbulanciaRequestDTO request) {
         Ambulancia a = obtener(id);
-        var insumos = obtenerInsumos(request);
+        var insumos = request.getInsumos() != null ? obtenerInsumos(request) : null;
         request.aplicar(a, insumos);
         repository.save(a);
         return new AmbulanciaDTO(a);
     }
 
+    @Transactional
     @Override
     public void eliminarPorId(Long id) {
         eliminar(id);
