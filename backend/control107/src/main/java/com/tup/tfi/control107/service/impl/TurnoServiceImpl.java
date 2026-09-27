@@ -3,6 +3,7 @@ package com.tup.tfi.control107.service.impl;
 import com.tup.tfi.control107.dto.AmbulanciaDTO;
 import com.tup.tfi.control107.dto.ResumenOperativoDTO;
 import com.tup.tfi.control107.dto.TurnoDTO;
+import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
 import com.tup.tfi.control107.dto.request.InsumoRequestDTO;
 import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
 import com.tup.tfi.control107.model.entity.*;
@@ -75,16 +76,20 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
 
     @Transactional
     @Override
-    public void registrarIngreso(Long turnoId, List<InsumoRequestDTO> insumos) {
-        Turno t = obtener(turnoId);
+    public void registrarIngreso(IngresoEgresoDTO request) {
+        Turno t = obtener(request.getTurnoId());
         if (!EstadoTurno.PROGRAMADO.equals(t.getEstado())) {
-            throw new IllegalArgumentException(String.format("No es posible registrar ingreso de turno %d con estado %s", turnoId, t.getEstado()));
+            throw new IllegalArgumentException(
+                    String.format("No es posible registrar ingreso de turno %d con estado %s",
+                            request.getTurnoId(), t.getEstado()
+                    ));
         }
-        var mapaControl = verificarInsumos(insumos, t);
-        for (InsumoRequestDTO dto : insumos) {
+        var mapaControl = verificarInsumos(request.getInsumos(), t);
+        for (InsumoRequestDTO dto : request.getInsumos()) {
             ControlInsumo control = mapaControl.get(dto.getId());
             control.informarIngreso(dto.getCantidad());
         }
+        t.setObservacionesIngreso(request.getObservaciones());
         t.setEstado(EstadoTurno.EN_CURSO);
         t.setUpdatedAt(LocalDateTime.now());
         repository.save(t);
@@ -92,16 +97,20 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
 
     @Transactional
     @Override
-    public void registrarEgreso(Long turnoId, List<InsumoRequestDTO> insumos) {
-        Turno t = obtener(turnoId);
+    public void registrarEgreso(IngresoEgresoDTO request) {
+        Turno t = obtener(request.getTurnoId());
         if (!EstadoTurno.EN_CURSO.equals(t.getEstado())) {
-            throw new IllegalArgumentException(String.format("No es posible registrar egreso de turno %d con estado %s", turnoId, t.getEstado()));
+            throw new IllegalArgumentException(
+                    String.format("No es posible registrar egreso de turno %d con estado %s",
+                            request.getTurnoId(), t.getEstado()
+                    ));
         }
-        var mapaControl = verificarInsumos(insumos, t);
-        for (InsumoRequestDTO dto : insumos) {
+        var mapaControl = verificarInsumos(request.getInsumos(), t);
+        for (InsumoRequestDTO dto : request.getInsumos()) {
             ControlInsumo control = mapaControl.get(dto.getId());
             control.informarEgreso(dto.getCantidad());
         }
+        t.setObservacionesEgreso(request.getObservaciones());
         t.setEstado(EstadoTurno.FINALIZADO);
         t.setUpdatedAt(LocalDateTime.now());
         repository.save(t);

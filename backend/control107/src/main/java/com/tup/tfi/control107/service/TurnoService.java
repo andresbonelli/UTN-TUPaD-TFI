@@ -2,6 +2,7 @@ package com.tup.tfi.control107.service;
 
 import com.tup.tfi.control107.dto.ResumenOperativoDTO;
 import com.tup.tfi.control107.dto.TurnoDTO;
+import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
 import com.tup.tfi.control107.dto.request.InsumoRequestDTO;
 import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
 
@@ -16,9 +17,9 @@ public interface TurnoService {
 
     TurnoDTO crearTurno(TurnoRequestDTO request);
 
-    void registrarIngreso(Long turnoId, List<InsumoRequestDTO> insumos);
+    void registrarIngreso(IngresoEgresoDTO request);
 
-    void registrarEgreso(Long turnoId, List<InsumoRequestDTO> insumos);
+    void registrarEgreso(IngresoEgresoDTO request);
 
     List<TurnoDTO> obtenerTodos();
 

@@ -1,5 +1,6 @@
 package com.tup.tfi.control107.config;
 
+import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
 import com.tup.tfi.control107.dto.request.InsumoRequestDTO;
 import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
 import com.tup.tfi.control107.model.entity.*;
@@ -92,12 +93,12 @@ public class DataLoader implements CommandLineRunner {
         var turnoResp1 = turnoService.crearTurno(turnoReq1);
         // Simular ingreso y egreso
         var listaInsumosIngreso1 = insumos.stream().map(i -> new InsumoRequestDTO(i.getId(),i.getPuntoControl())).toList();
-        turnoService.registrarIngreso(turnoResp1.getId(), listaInsumosIngreso1);
+        turnoService.registrarIngreso(new IngresoEgresoDTO(turnoResp1.getId(), listaInsumosIngreso1, null));
 
         var listaInsumosEgreso1 = List.copyOf(listaInsumosIngreso1);
         listaInsumosEgreso1.get(0).setCantidad(listaInsumosEgreso1.get(0).getCantidad() - 1);
         listaInsumosEgreso1.get(1).setCantidad(listaInsumosEgreso1.get(1).getCantidad() - 2);
-        turnoService.registrarEgreso(turnoResp1.getId(), listaInsumosEgreso1);
+        turnoService.registrarEgreso(new IngresoEgresoDTO(turnoResp1.getId(), listaInsumosEgreso1, null));
 
         TurnoRequestDTO turnoReq2 = new TurnoRequestDTO();
         turnoReq2.setAdminId(admin.getId());
@@ -112,9 +113,9 @@ public class DataLoader implements CommandLineRunner {
 
         // Simular ingreso con inconsistencia en adrenalina
         var listaInsumosIngreso2 = insumos.stream().map(i -> new InsumoRequestDTO(i.getId(),i.getPuntoControl())).toList();
-        listaInsumosIngreso2.get(0).setCantidad(listaInsumosEgreso1.get(0).getCantidad() - 10);
+        listaInsumosIngreso2.get(0).setCantidad(listaInsumosIngreso2.get(0).getCantidad() - 10);
 
-        turnoService.registrarIngreso(turnoResp2.getId(), listaInsumosIngreso2);
+        turnoService.registrarIngreso(new IngresoEgresoDTO(turnoResp2.getId(), listaInsumosIngreso2, "Faltan 10 adrenalina"));
     }
 
     private Ambulancia crearAmbulanciaConInsumos(String patente, Set<Insumo> insumosBase) {
