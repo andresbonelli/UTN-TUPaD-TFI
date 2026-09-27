@@ -3,7 +3,6 @@ package com.tup.tfi.control107.service;
 import com.tup.tfi.control107.dto.ResumenOperativoDTO;
 import com.tup.tfi.control107.dto.TurnoDTO;
 import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
-import com.tup.tfi.control107.dto.request.InsumoRequestDTO;
 import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
 
 import java.util.List;

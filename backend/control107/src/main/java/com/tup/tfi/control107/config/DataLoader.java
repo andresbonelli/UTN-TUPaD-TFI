@@ -22,7 +22,6 @@ import java.util.Set;
 public class DataLoader implements CommandLineRunner {
 
     private final UsuarioRepository usuarioRepository;
-    private final TurnoRepository turnoRepository;
     private final CategoriaRepository categoriaRepository;
     private final InsumoRepository insumoRepository;
     private final AmbulanciaRepository ambulanciaRepository;
