@@ -2,7 +2,7 @@ package com.tup.tfi.control107.service;
 
 import com.tup.tfi.control107.dto.ResumenOperativoDTO;
 import com.tup.tfi.control107.dto.TurnoDTO;
-import com.tup.tfi.control107.model.entity.Turno;
+import com.tup.tfi.control107.dto.request.InsumoRequestDTO;
 
 import java.util.List;
 
@@ -16,9 +16,9 @@ public interface TurnoService {
     /**
      * Registrar un control de ingreso.
      */
-    void registrarIngreso(Turno turno);
+    void registrarIngreso(Long turnoId, List<InsumoRequestDTO> insumos);
 
-    void registrarEgreso(Turno turno);
+    void registrarEgreso(Long turnoId, List<InsumoRequestDTO> insumos);
 
     List<TurnoDTO> obtenerTurnos();
 }

@@ -42,7 +42,7 @@ public class AmbulanciaController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        ambulanciaService.eliminar(id);
+        ambulanciaService.eliminarPorId(id);
         return ResponseEntity.noContent().build();
     }
 }

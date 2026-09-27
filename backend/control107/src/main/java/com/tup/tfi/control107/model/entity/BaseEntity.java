@@ -21,7 +21,7 @@ public abstract class BaseEntity {
 
     @Builder.Default
     @Column(name = "created_at", nullable = false)
-    protected LocalDateTime createdAt = LocalDateTime.now();
+    protected final LocalDateTime createdAt = LocalDateTime.now();
 
     @Builder.Default
     @Column(name = "updated_at", nullable = false)

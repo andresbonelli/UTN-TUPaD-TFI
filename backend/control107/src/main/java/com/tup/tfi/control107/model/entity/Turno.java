@@ -61,4 +61,25 @@ public class Turno extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy = "turno", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ControlInsumo> controlInsumos = new ArrayList<>();
+
+
+    /**
+     * Asigna la ambulancia al turno y carga la lista base de control de insumos
+     * a partir de los de la ambulancia
+     * @throws IllegalStateException si el turno ya tiene una lista de control cargada
+     */
+    public void setAmbulancia(Ambulancia ambulancia) {
+        if (!controlInsumos.isEmpty()) {
+            throw new IllegalStateException("No se puede cambiar la ambulancia de un turno que ya tiene control de insumos");
+        }
+        this.ambulancia = ambulancia;
+        this.controlInsumos = ambulancia.getInsumos().stream()
+                .map(i -> ControlInsumo.builder()
+                        .insumo(i)
+                        .turno(this)
+                        .cantidadIngreso(i.getPuntoControl())
+                        .ingresoFaltante(0)
+                        .build())
+                .toList();
+    }
 }

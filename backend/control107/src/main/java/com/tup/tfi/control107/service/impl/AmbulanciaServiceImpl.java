@@ -7,7 +7,6 @@ import com.tup.tfi.control107.model.entity.Insumo;
 import com.tup.tfi.control107.repository.AmbulanciaRepository;
 import com.tup.tfi.control107.repository.InsumoRepository;
 import com.tup.tfi.control107.service.AmbulanciaService;
-import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
@@ -16,22 +15,27 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
-public class AmbulanciaServiceImpl implements AmbulanciaService {
+public class AmbulanciaServiceImpl extends AbstractService<Ambulancia> implements AmbulanciaService {
 
-    private final AmbulanciaRepository ambulanciaRepository;
+    private final AmbulanciaRepository repository;
     private final InsumoRepository insumoRepository;
+
+    public AmbulanciaServiceImpl(AmbulanciaRepository ambulanciaRepository, InsumoRepository insumoRepository) {
+        super(ambulanciaRepository, Ambulancia.class);
+        this.repository = ambulanciaRepository;
+        this.insumoRepository = insumoRepository;
+    }
 
     @Override
     public List<AmbulanciaDTO> listarTodas() {
-        return ambulanciaRepository.findAll().stream()
+        return repository.findAll().stream()
                 .map(AmbulanciaDTO::new)
                 .collect(Collectors.toList());
     }
 
     @Override
     public AmbulanciaDTO obtenerPorId(Long id) {
-        return ambulanciaRepository.findById(id)
+        return repository.findById(id)
                 .map(AmbulanciaDTO::new)
                 .orElse(null);
     }
@@ -43,31 +47,27 @@ public class AmbulanciaServiceImpl implements AmbulanciaService {
                 .disponible(request.isDisponible())
                 .insumos(obtenerInsumos(request))
                 .build();
-        var guardada = ambulanciaRepository.save(ambulancia);
+        var guardada = repository.save(ambulancia);
         return new AmbulanciaDTO(guardada);
     }
 
     @Override
     public AmbulanciaDTO actualizar(Long id, AmbulanciaRequestDTO request) {
-        var ambulancia = ambulanciaRepository.findById(id).orElse(null);
+        var ambulancia = repository.findById(id).orElse(null);
         if (ambulancia != null) {
             ambulancia.setPatente(request.getPatente());
             ambulancia.setDisponible(request.isDisponible());
             ambulancia.setInsumos(obtenerInsumos(request)
             );
-            var actualizada = ambulanciaRepository.save(ambulancia);
+            var actualizada = repository.save(ambulancia);
             return new AmbulanciaDTO(actualizada);
         }
         return null;
     }
 
     @Override
-    public void eliminar(Long id) {
-        var ambulancia = ambulanciaRepository.findById(id).orElse(null);
-        if (ambulancia != null) {
-            ambulancia.borradoLogico();
-            ambulanciaRepository.save(ambulancia);
-        }
+    public void eliminarPorId(Long id) {
+        eliminar(id);
     }
 
     private @NonNull Set<Insumo> obtenerInsumos(AmbulanciaRequestDTO request) {

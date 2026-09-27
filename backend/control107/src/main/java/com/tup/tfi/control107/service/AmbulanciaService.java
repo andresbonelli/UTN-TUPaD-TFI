@@ -10,5 +10,5 @@ public interface AmbulanciaService {
     AmbulanciaDTO obtenerPorId(Long id);
     AmbulanciaDTO guardar(AmbulanciaRequestDTO request);
     AmbulanciaDTO actualizar(Long id, AmbulanciaRequestDTO request);
-    void eliminar(Long id);
+    void eliminarPorId(Long id);
 }
