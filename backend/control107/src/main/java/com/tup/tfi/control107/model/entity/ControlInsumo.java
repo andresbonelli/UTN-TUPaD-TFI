@@ -42,6 +42,6 @@ public class ControlInsumo extends BaseEntity{
 
     public void informarEgreso(int cantidadEgreso) {
         this.cantidadEgreso = cantidadEgreso;
-        this.cantidadUsada = this.cantidadIngreso - this.cantidadEgreso;
+        this.cantidadUsada = Math.max(0, this.cantidadIngreso - cantidadEgreso);
     }
 }

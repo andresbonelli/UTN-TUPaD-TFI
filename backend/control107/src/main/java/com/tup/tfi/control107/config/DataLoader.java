@@ -66,8 +66,8 @@ public class DataLoader implements CommandLineRunner {
         Insumo atropina = insumoRepository.save(Insumo.builder().nombre("Atropina 1mg").categoria(farma).puntoControl(5).critico(false).build());
         Insumo gasas = insumoRepository.save(Insumo.builder().nombre("Gasas Estériles (Sobres)").categoria(curacion).puntoControl(30).critico(false).build());
         Insumo guantes = insumoRepository.save(Insumo.builder().nombre("Guantes de Nitrilo M").categoria(descartables).puntoControl(100).critico(false).build());
-        Insumo tuboO2Portatil = insumoRepository.save(Insumo.builder().nombre("Tubo O2 Portátil 415L").categoria(viaAerea).puntoControl(2).critico(true).build());
-        Insumo tuboO2Pesado = insumoRepository.save(Insumo.builder().nombre("Tubo O2 Pesado 3m³").categoria(oxigeno).puntoControl(1).critico(true).build());
+        Insumo tuboO2Portatil = insumoRepository.save(Insumo.builder().nombre("Tubo Portátil Presion de oxigeno medido en bares").categoria(viaAerea).puntoControl(60).critico(true).build());
+        Insumo tuboO2Pesado = insumoRepository.save(Insumo.builder().nombre("Tubo grande Presion de oxigeno, medido en Bares").categoria(oxigeno).puntoControl(60).critico(true).build());
 
         var insumos = List.of(adrenalina, atropina, gasas, guantes, tuboO2Portatil, tuboO2Pesado);
         var insumosSet = Set.of(adrenalina, atropina, gasas, guantes, tuboO2Portatil, tuboO2Pesado);
@@ -92,11 +92,13 @@ public class DataLoader implements CommandLineRunner {
         var turnoResp1 = turnoService.crearTurno(turnoReq1);
         // Simular ingreso y egreso
         var listaInsumosIngreso1 = insumos.stream().map(i -> new ControlInsumoRequestDTO(i.getId(),i.getPuntoControl())).toList();
+        listaInsumosIngreso1.get(5).setCantidad(50);
         turnoService.registrarIngreso(new IngresoEgresoDTO(turnoResp1.getId(), listaInsumosIngreso1, null));
 
         var listaInsumosEgreso1 = List.copyOf(listaInsumosIngreso1);
         listaInsumosEgreso1.get(0).setCantidad(listaInsumosEgreso1.get(0).getCantidad() - 1);
         listaInsumosEgreso1.get(1).setCantidad(listaInsumosEgreso1.get(1).getCantidad() - 2);
+        listaInsumosEgreso1.get(5).setCantidad(100);
         turnoService.registrarEgreso(new IngresoEgresoDTO(turnoResp1.getId(), listaInsumosEgreso1, null));
 
         TurnoRequestDTO turnoReq2 = new TurnoRequestDTO();

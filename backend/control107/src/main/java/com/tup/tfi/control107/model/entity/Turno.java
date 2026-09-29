@@ -73,13 +73,13 @@ public class Turno extends BaseEntity {
             throw new IllegalStateException("No se puede cambiar la ambulancia de un turno que ya tiene control de insumos");
         }
         this.ambulancia = ambulancia;
-        this.controlInsumos = ambulancia.getInsumos().stream()
+        ambulancia.getInsumos().stream()
                 .map(i -> ControlInsumo.builder()
                         .insumo(i)
                         .turno(this)
                         .cantidadIngreso(i.getPuntoControl())
                         .ingresoFaltante(0)
                         .build())
-                .toList();
+                .forEach(controlInsumos::add);
     }
 }

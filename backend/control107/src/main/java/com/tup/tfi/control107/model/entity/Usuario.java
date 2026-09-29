@@ -39,6 +39,7 @@ public class Usuario extends BaseEntity {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
+    @Embeddable
     public static class Clave {
 
         @Column(nullable = true)
