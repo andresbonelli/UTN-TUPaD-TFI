@@ -1,3 +1,35 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules/
+**/node_modules/
+front/node_modules/
+node_modules
+pnpm-lock.yaml
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+
+### Backend ###
+data/
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
@@ -28,25 +60,5 @@ target/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
-
-### VS Code ###
-.vscode/
-
-data/
-
-### Frontend ###
-pnpm-lock.yaml
-node_modules/
-
-.DS_Store
-
-### Backend ###
-target/
-data/
-
-### Frontend ###
-node_modules/
-**/node_modules/
-front/node_modules/
 
 .agents
