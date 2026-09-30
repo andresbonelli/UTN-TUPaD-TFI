@@ -1,4 +1,4 @@
-# Listado de Módulos del Sistema – MVP TFI 107
+# Listado de Módulos del Sistema – MVP - Sistema Gestion 107
 
 Este documento enumera los módulos funcionales incluidos en el MVP del Sistema de Gestión 107.  
 Cada módulo se corresponde directamente con las pantallas y responsabilidades reales del sistema.
