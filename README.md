@@ -46,6 +46,7 @@ El sistema implementa:
 
 ### **Base de Datos**
 - SQL relacional (MySQL)
+  
   Nota: H2 solo se usa en entorno de desarrollo y pruebas, en produccion se utilizara MySQL
 
 ---
