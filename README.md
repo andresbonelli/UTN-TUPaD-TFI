@@ -112,8 +112,8 @@ Todo el comportamiento está definido en el documento de requerimientos dentro d
 
 - 📄 [Documentación Previa al Proyecto (PDF)](docs/Documentacion%20Previa%20al%20proyecto.pdf)
 - 🗺️ [Diagrama Entidad–Relación (DER)](docs/DER.md)
-- 🏗️ [Arquitectura del Proyecto](./docs/arquitectura.md)
-- 🧩 [Listado de Módulos](./docs/modulos.md)
+- 🏗️ [Arquitectura del Proyecto](./docs/Arquitectura.md)
+- 🧩 [Listado de Módulos](./docs/Modulos.md)
 
 Esta entrega incluye:
 
