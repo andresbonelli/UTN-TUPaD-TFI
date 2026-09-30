@@ -106,7 +106,31 @@ Todo el comportamiento está definido en el documento de requerimientos dentro d
 ```
 
 ---
+### Backend
+```
+/control107
+│
+├── src
+│   ├── main
+│   │   ├── java/com/tup/tfi/control107
+│   │   │   ├── controller    → Controladores REST (endpoints de la API)
+│   │   │   ├── service       → Lógica de negocio e interfaces de servicio
+│   │   │   ├── repository    → Capa de acceso a datos e interfaces JPA
+│   │   │   ├── model         → Entidades JPA y enums del dominio
+│   │   │   ├── dto           → Data Transfer Objects (request/response)
+│   │   │   ├── config        → Configuraciones de Spring (Seguridad, CORS, etc.)
+│   │   │   └── exception     → Clases de Excepcion personalizadas
+│   │   │
+│   │   └── resources         → Archivos de configuración (application.yml, properties)
+│   │
+│   └── test                  → Pruebas unitarias y de integración
+│
+├── pom.xml                   → Configuración inicial de Maven (placeholder)
+└── README.md                 → Documentación del backend
 
+```
+
+---
 
 ## Documentacion
 
