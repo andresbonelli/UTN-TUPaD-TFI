@@ -96,7 +96,9 @@ Todo el comportamiento está definido en el documento de requerimientos dentro d
 │   │
 │   ├── hooks             → Hooks personalizados 
 │   │
-│   └── assets            → Imágenes, íconos, estilos globales
+│   ├── assets            → Imágenes, íconos, estilos globales
+│   │
+│   └── interfaces        → Tipos e interfaces TypeScript del dominio (Turno, Usuario, Insumo, etc.)
 │
 ├── public                → Archivos estáticos servidos por Vite
 │
