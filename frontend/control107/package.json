@@ -1,0 +1,11 @@
+{
+  "name": "control107",
+  "version": "0.1.0",
+  "private": true,
+  "comment": "Este archivo es un placeholder para la estructura del frontend. Las dependencias se agregarán en la etapa de desarrollo.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}

@@ -57,7 +57,7 @@ erDiagram
         boolean eliminado "NOT NULL"
         date fecha "NOT NULL"
         varchar(20) horario "Enum: MANIANA, TARDE, NOCHE | NOT NULL"
-        varchar(20) estado "Enum: PROGRAMADO, EN_CURSO, FINALIZADO | NOT NULL"
+        varchar(20) estado "Enum: PROGRAMADO, EN_CURSO, FINALIZADO, CANCELADO | NOT NULL"
         varchar(100) nombre_chofer "NOT NULL"
         varchar(100) nombre_medico "NOT NULL"
         text observaciones_ingreso
