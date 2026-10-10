@@ -30,7 +30,7 @@ public class AmbulanciaServiceImpl extends AbstractService<Ambulancia> implement
 
     @Override
     public List<AmbulanciaDTO> listarTodas() {
-        return repository.findAll().stream().map(AmbulanciaDTO::new).toList();
+        return repository.findAllByEliminadoIsFalse().stream().map(AmbulanciaDTO::new).toList();
     }
 
     @Override

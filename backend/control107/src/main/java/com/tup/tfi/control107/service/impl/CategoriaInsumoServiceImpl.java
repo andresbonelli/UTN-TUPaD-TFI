@@ -22,7 +22,7 @@ public class CategoriaInsumoServiceImpl extends AbstractService<CategoriaInsumo>
 
     @Override
     public List<CategoriaInsumoDTO> listarTodas() {
-        return repository.findAll().stream().map(CategoriaInsumoDTO::new).toList();
+        return repository.findAllByEliminadoIsFalse().stream().map(CategoriaInsumoDTO::new).toList();
     }
 
     @Override

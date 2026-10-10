@@ -28,12 +28,12 @@ public class InsumoServiceImpl extends AbstractService<Insumo> implements Insumo
 
     @Override
     public List<InsumoDTO> listarTodos() {
-        return repository.findAll().stream().map(InsumoDTO::new).toList();
+        return repository.findAllByEliminadoIsFalse().stream().map(InsumoDTO::new).toList();
     }
 
     @Override
     public List<InsumoDTO> listarCriticos() {
-        return repository.findByCriticoIsTrue().stream().map(InsumoDTO::new).toList();
+        return repository.findByCriticoIsTrueAndEliminadoIsFalse().stream().map(InsumoDTO::new).toList();
     }
 
     @Override

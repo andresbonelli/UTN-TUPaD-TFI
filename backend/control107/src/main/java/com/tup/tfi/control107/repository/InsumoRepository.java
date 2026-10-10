@@ -10,8 +10,9 @@ import java.util.Optional;
 
 @Repository
 public interface InsumoRepository extends JpaRepository<Insumo, Long> {
-    List<Insumo> findByCategoriaId(Long categoriaId);
-    List<Insumo> findByCriticoIsTrue();
+
+    List<Insumo> findAllByEliminadoIsFalse();
+    List<Insumo> findByCriticoIsTrueAndEliminadoIsFalse();
     Optional<Insumo> findByIdAndEliminadoIsFalse(Long i);
     List<Insumo> findByCategoriaIdAndEliminadoIsFalse(Long categoriaId);
 }

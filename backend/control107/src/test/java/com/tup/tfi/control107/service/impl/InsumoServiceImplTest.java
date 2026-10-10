@@ -58,26 +58,26 @@ class InsumoServiceImplTest {
 
     @Test
     void listarTodos_ok() {
-        when(insumoRepository.findAll()).thenReturn(List.of(insumo));
+        when(insumoRepository.findAllByEliminadoIsFalse()).thenReturn(List.of(insumo));
 
         List<InsumoDTO> resultado = insumoService.listarTodos();
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
         assertEquals("Adrenalina 1mg", resultado.get(0).getNombre());
-        verify(insumoRepository, times(1)).findAll();
+        verify(insumoRepository, times(1)).findAllByEliminadoIsFalse();
     }
 
     @Test
     void listarCriticos_ok() {
-        when(insumoRepository.findByCriticoIsTrue()).thenReturn(List.of(insumo));
+        when(insumoRepository.findByCriticoIsTrueAndEliminadoIsFalse()).thenReturn(List.of(insumo));
 
         List<InsumoDTO> resultado = insumoService.listarCriticos();
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
         assertTrue(resultado.get(0).isEsCritico());
-        verify(insumoRepository, times(1)).findByCriticoIsTrue();
+        verify(insumoRepository, times(1)).findByCriticoIsTrueAndEliminadoIsFalse();
     }
 
     @Test

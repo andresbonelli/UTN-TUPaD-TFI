@@ -21,7 +21,7 @@ public class UsuarioServiceImpl extends AbstractService<Usuario> implements Usua
 
     @Override
     public List<UsuarioDTO> listarTodos() {
-        return repository.findAll().stream().map(UsuarioDTO::new).toList();
+        return repository.findAllByEliminadoIsFalse().stream().map(UsuarioDTO::new).toList();
     }
 
     @Override

@@ -59,14 +59,14 @@ class AmbulanciaServiceImplTest {
 
     @Test
     void listarTodas_ok() {
-        when(ambulanciaRepository.findAll()).thenReturn(List.of(ambulancia));
+        when(ambulanciaRepository.findAllByEliminadoIsFalse()).thenReturn(List.of(ambulancia));
 
         List<AmbulanciaDTO> resultado = ambulanciaServiceImpl.listarTodas();
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
         assertEquals("AB 123 CD", resultado.get(0).getPatente());
-        verify(ambulanciaRepository, times(1)).findAll();
+        verify(ambulanciaRepository, times(1)).findAllByEliminadoIsFalse();
     }
 
     @Test

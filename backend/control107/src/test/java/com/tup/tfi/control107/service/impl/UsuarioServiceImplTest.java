@@ -48,14 +48,14 @@ class UsuarioServiceImplTest {
 
     @Test
     void listarTodos_ok() {
-        when(repository.findAll()).thenReturn(List.of(usuario));
+        when(repository.findAllByEliminadoIsFalse()).thenReturn(List.of(usuario));
 
         List<UsuarioDTO> resultado = usuarioService.listarTodos();
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
         assertEquals("Hugo Catalan", resultado.get(0).getNombre());
-        verify(repository, times(1)).findAll();
+        verify(repository, times(1)).findAllByEliminadoIsFalse();
     }
 
     @Test

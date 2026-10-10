@@ -44,14 +44,14 @@ class CategoriaInsumoServiceImplTest {
 
     @Test
     void listarTodas_ok() {
-        when(repository.findAll()).thenReturn(List.of(categoria));
+        when(repository.findAllByEliminadoIsFalse()).thenReturn(List.of(categoria));
 
         List<CategoriaInsumoDTO> resultado = categoriaService.listarTodas();
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
         assertEquals("FARMACOLOGICOS", resultado.get(0).getNombre());
-        verify(repository, times(1)).findAll();
+        verify(repository, times(1)).findAllByEliminadoIsFalse();
     }
 
     @Test
