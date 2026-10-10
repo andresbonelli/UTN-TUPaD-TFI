@@ -91,7 +91,7 @@ public class DataLoader implements CommandLineRunner {
 
         var turnoResp1 = turnoService.crearTurno(turnoReq1);
         // Simular ingreso y egreso
-        var listaInsumosIngreso1 = insumos.stream().map(i -> new ControlInsumoRequestDTO(i.getId(),i.getPuntoControl())).toList();
+        var listaInsumosIngreso1 = insumos.stream().map(i -> new ControlInsumoRequestDTO(i.getId(),i.getPuntoControl(), null)).toList();
         listaInsumosIngreso1.get(5).setCantidad(50);
         turnoService.registrarIngreso(new IngresoEgresoDTO(turnoResp1.getId(), listaInsumosIngreso1, null));
 
@@ -113,7 +113,7 @@ public class DataLoader implements CommandLineRunner {
         var turnoResp2 = turnoService.crearTurno(turnoReq2);
 
         // Simular ingreso con inconsistencia en adrenalina
-        var listaInsumosIngreso2 = insumos.stream().map(i -> new ControlInsumoRequestDTO(i.getId(),i.getPuntoControl())).toList();
+        var listaInsumosIngreso2 = insumos.stream().map(i -> new ControlInsumoRequestDTO(i.getId(),i.getPuntoControl(),0)).toList();
         listaInsumosIngreso2.get(0).setCantidad(listaInsumosIngreso2.get(0).getCantidad() - 10);
 
         turnoService.registrarIngreso(new IngresoEgresoDTO(turnoResp2.getId(), listaInsumosIngreso2, "Faltan 10 adrenalina"));

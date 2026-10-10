@@ -7,6 +7,7 @@ import com.tup.tfi.control107.model.entity.Insumo;
 import com.tup.tfi.control107.repository.CategoriaRepository;
 import com.tup.tfi.control107.repository.InsumoRepository;
 import com.tup.tfi.control107.service.InsumoService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,7 +73,7 @@ public class InsumoServiceImpl extends AbstractService<Insumo> implements Insumo
 
     private CategoriaInsumo obtenerCategoria(Long id) {
         return categoriaRepository.findByIdAndEliminadoIsFalse(id).orElseThrow(
-                () -> new NoSuchElementException("No se encontro categoria con id " + id)
+                () -> new EntityNotFoundException("No se encontro categoria con id " + id)
         );
     }
 }

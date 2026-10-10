@@ -79,6 +79,7 @@ public class Turno extends BaseEntity {
                         .turno(this)
                         .cantidadIngreso(i.getPuntoControl())
                         .ingresoFaltante(0)
+                        .cantidadRestockeo(0)
                         .build())
                 .forEach(controlInsumos::add);
     }

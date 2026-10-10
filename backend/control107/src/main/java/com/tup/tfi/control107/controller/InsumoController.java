@@ -1,6 +1,7 @@
 package com.tup.tfi.control107.controller;
 
 import com.tup.tfi.control107.dto.InsumoDTO;
+import com.tup.tfi.control107.dto.request.InsumoRequestDTO;
 import com.tup.tfi.control107.service.InsumoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +21,34 @@ public class InsumoController {
         return ResponseEntity.ok(insumoService.listarTodos());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<InsumoDTO> obtenerPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(insumoService.obtenerPorId(id));
+    }
+
+    @GetMapping("/criticos")
+    public ResponseEntity<List<InsumoDTO>> listarCriticos() {
+        return ResponseEntity.ok(insumoService.listarCriticos());
+    }
+
     @GetMapping("/categoria/{categoriaId}")
     public ResponseEntity<List<InsumoDTO>> listarPorCategoria(@PathVariable Long categoriaId) {
         return ResponseEntity.ok(insumoService.listarPorCategoria(categoriaId));
+    }
+
+    @PostMapping
+    public ResponseEntity<InsumoDTO> crear(@RequestBody InsumoRequestDTO request) {
+        return ResponseEntity.ok(insumoService.crearInsumo(request));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<InsumoDTO> actualizar(@PathVariable Long id, @RequestBody InsumoRequestDTO request) {
+        return ResponseEntity.ok(insumoService.actualizarInsumo(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        insumoService.eliminarPorId(id);
+        return ResponseEntity.noContent().build();
     }
 }

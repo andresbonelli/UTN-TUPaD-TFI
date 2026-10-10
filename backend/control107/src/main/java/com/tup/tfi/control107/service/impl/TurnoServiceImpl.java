@@ -13,6 +13,9 @@ import com.tup.tfi.control107.repository.InsumoRepository;
 import com.tup.tfi.control107.repository.TurnoRepository;
 import com.tup.tfi.control107.repository.UsuarioRepository;
 import com.tup.tfi.control107.service.TurnoService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.constraints.NotNull;
+import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,8 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
     private final AmbulanciaRepository ambulanciaRepository;
     private final InsumoRepository insumoRepository;
     private final UsuarioRepository usuarioRepository;
+
+    private static final String OBSERVACIONES_CANCELADO = "Turno cancelado";
 
     public TurnoServiceImpl(TurnoRepository repository, AmbulanciaRepository ambulanciaRepository, InsumoRepository insumoRepository, UsuarioRepository usuarioRepository) {
         super(repository, Turno.class);
@@ -108,7 +113,10 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
         var mapaControl = verificarInsumos(request.getInsumos(), t);
         for (ControlInsumoRequestDTO dto : request.getInsumos()) {
             ControlInsumo control = mapaControl.get(dto.getId());
-            control.informarEgreso(dto.getCantidad());
+            control.informarEgreso(
+                    dto.getCantidad(),
+                    null != dto.getCantidadRestockeo() ? dto.getCantidadRestockeo() : 0
+            );
         }
         t.setObservacionesEgreso(request.getObservaciones());
         t.setEstado(EstadoTurno.FINALIZADO);
@@ -122,16 +130,28 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
     }
 
     @Override
+    public TurnoDTO obtenerPorId(Long id) {
+        Turno t = obtener(id);
+        return new TurnoDTO(t);
+    }
+
+    @Override
     public List<TurnoDTO> obtenerTurnosActivos() {
         return obtenerActivos().stream().map(TurnoDTO::new).toList();
     }
 
     @Transactional
     @Override
-    public TurnoDTO cancelarTurno(Long turnoId) {
+    public TurnoDTO cancelarTurno(Long turnoId, String observaciones) {
         Turno t = obtener(turnoId);
+        if (!EstadoTurno.PROGRAMADO.equals(t.getEstado())) {
+            throw new IllegalArgumentException(
+                    String.format("No es posible cancelar turno %d con estado %s",
+                            turnoId, t.getEstado()
+                    ));
+        }
         t.setEstado(EstadoTurno.CANCELADO);
-        t.setObservacionesEgreso("Turno cancelado por administrador");
+        t.setObservacionesEgreso(null != observaciones ? observaciones : OBSERVACIONES_CANCELADO);
         t.setUpdatedAt(LocalDateTime.now());
         repository.save(t);
         return new TurnoDTO(t);
@@ -179,13 +199,13 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
 
     private Ambulancia obtenerAmbulancia(Long ambulanciaId) {
         return ambulanciaRepository.findByIdAndEliminadoIsFalse(ambulanciaId).orElseThrow(
-                () -> new IllegalArgumentException("Ambulancia no encontrada")
+                () -> new EntityNotFoundException("Ambulancia no encontrada")
         );
     }
 
     private Usuario obtenerUsuario(Long usuarioId) {
         return usuarioRepository.findByIdAndEliminadoIsFalse(usuarioId).orElseThrow(
-                () -> new IllegalArgumentException("Usuario no encontrado")
+                () -> new EntityNotFoundException("Usuario no encontrado")
         );
     }
 

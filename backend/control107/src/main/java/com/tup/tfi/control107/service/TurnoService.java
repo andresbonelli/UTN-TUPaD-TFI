@@ -22,9 +22,11 @@ public interface TurnoService {
 
     List<TurnoDTO> obtenerTodos();
 
+    TurnoDTO obtenerPorId(Long id);
+
     List<TurnoDTO> obtenerTurnosActivos();
 
-    TurnoDTO cancelarTurno(Long turnoId);
+    TurnoDTO cancelarTurno(Long turnoId, String observaciones);
 
     TurnoDTO modificarTurno(Long turnoId, TurnoRequestDTO request);
 }
