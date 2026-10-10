@@ -7,12 +7,12 @@ import com.tup.tfi.control107.model.entity.Insumo;
 import com.tup.tfi.control107.repository.AmbulanciaRepository;
 import com.tup.tfi.control107.repository.InsumoRepository;
 import com.tup.tfi.control107.service.AmbulanciaService;
+import jakarta.persistence.EntityNotFoundException;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,7 +66,7 @@ public class AmbulanciaServiceImpl extends AbstractService<Ambulancia> implement
     private @NonNull Set<Insumo> obtenerInsumos(AmbulanciaRequestDTO request) {
         return request.getInsumos().stream()
                 .map(i -> insumoRepository.findByIdAndEliminadoIsFalse(i)
-                        .orElseThrow(() -> new NoSuchElementException("No se encontró el insumo con id " + i)))
+                        .orElseThrow(() -> new EntityNotFoundException("No se encontró el insumo con id " + i)))
                 .collect(Collectors.toSet());
     }
 }

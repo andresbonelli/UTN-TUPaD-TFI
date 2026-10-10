@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class ControlInsumoRequestDTO {
     private Long id;
     private int cantidad;
+    private Integer cantidadRestockeo;
 }

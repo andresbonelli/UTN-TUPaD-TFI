@@ -29,6 +29,9 @@ public class ControlInsumo extends BaseEntity{
     @Column(name = "cantidad_egreso")
     private Integer cantidadEgreso;
 
+    @Column(name = "cantidad_restockeo")
+    private int cantidadRestockeo;
+
     @Column(name = "ingreso_faltante")
     private int ingresoFaltante;
 
@@ -40,8 +43,9 @@ public class ControlInsumo extends BaseEntity{
         this.ingresoFaltante = Math.max(0, this.insumo.getPuntoControl() - cantidadIngreso);
     }
 
-    public void informarEgreso(int cantidadEgreso) {
+    public void informarEgreso(int cantidadEgreso, int cantidadRestockeo) {
         this.cantidadEgreso = cantidadEgreso;
-        this.cantidadUsada = Math.max(0, this.cantidadIngreso - cantidadEgreso);
+        this.cantidadRestockeo = cantidadRestockeo;
+        this.cantidadUsada = Math.max(0, this.cantidadIngreso + cantidadRestockeo - cantidadEgreso);
     }
 }
