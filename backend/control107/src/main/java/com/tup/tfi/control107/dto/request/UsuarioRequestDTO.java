@@ -16,14 +16,16 @@ public class UsuarioRequestDTO {
     private String dni;
     private String email;
     private RolUsuario rol;
+    private String clave;
     private boolean activo = true;
 
-    public Usuario toUsuario() {
+    public Usuario toUsuario(Usuario.Clave clave) {
         return Usuario.builder()
                 .nombre(nombre)
                 .dni(dni)
                 .email(email)
                 .rol(rol)
+                .clave(clave)
                 .activo(activo)
                 .build();
     }

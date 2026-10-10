@@ -1,12 +1,15 @@
 package com.tup.tfi.control107.config;
 
+import com.tup.tfi.control107.dto.UsuarioDTO;
 import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
 import com.tup.tfi.control107.dto.request.ControlInsumoRequestDTO;
 import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
+import com.tup.tfi.control107.dto.request.UsuarioRequestDTO;
 import com.tup.tfi.control107.model.entity.*;
 import com.tup.tfi.control107.model.enums.*;
 import com.tup.tfi.control107.repository.*;
 import com.tup.tfi.control107.service.TurnoService;
+import com.tup.tfi.control107.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -22,6 +25,7 @@ import java.util.Set;
 public class DataLoader implements CommandLineRunner {
 
     private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
     private final CategoriaRepository categoriaRepository;
     private final InsumoRepository insumoRepository;
     private final AmbulanciaRepository ambulanciaRepository;
@@ -34,21 +38,26 @@ public class DataLoader implements CommandLineRunner {
         }
 
         // 1. Cargar Usuarios
-        Usuario admin = usuarioRepository.save(Usuario.builder()
-                .nombre("Hugo Catalan")
-                .dni("30111222")
-                .email("hugo.catalan@control107.gob.ar")
-                .rol(RolUsuario.ADMINISTRADOR)
-                .activo(true)
-                .build());
+        UsuarioRequestDTO adminDto = new UsuarioRequestDTO(
+                "Hugo Catalan",
+                "30111222",
+                "hugo.catalan@control107.gob.ar",
+                RolUsuario.ADMINISTRADOR,
+                "1234",
+                true
+        );
 
-        Usuario enfermero = usuarioRepository.save(Usuario.builder()
-                .nombre("Andrés Bonelli")
-                .dni("32333444")
-                .email("andres.bonelli@control107.gob.ar")
-                .rol(RolUsuario.ENFERMERO)
-                .activo(true)
-                .build());
+        UsuarioRequestDTO enfermeroDto = new UsuarioRequestDTO(
+                "Andrés Bonelli",
+                "32333444",
+                "andres.bonelli@control107.gob.ar",
+                RolUsuario.ENFERMERO,
+                "1234",
+                true
+        );
+
+        UsuarioDTO admin = usuarioService.crearUsuario(adminDto);
+        UsuarioDTO enfermero = usuarioService.crearUsuario(enfermeroDto);
 
         String medico = "Matías Carro";
         String chofer = "Juan Perez";

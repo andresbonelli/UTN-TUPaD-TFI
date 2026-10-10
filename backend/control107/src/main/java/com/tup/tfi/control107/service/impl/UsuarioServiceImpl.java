@@ -1,10 +1,12 @@
 package com.tup.tfi.control107.service.impl;
 
+import com.tup.tfi.control107.config.PasswordUtil;
 import com.tup.tfi.control107.dto.UsuarioDTO;
 import com.tup.tfi.control107.dto.request.UsuarioRequestDTO;
 import com.tup.tfi.control107.model.entity.Usuario;
 import com.tup.tfi.control107.repository.UsuarioRepository;
 import com.tup.tfi.control107.service.UsuarioService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,10 +15,12 @@ import java.util.List;
 public class UsuarioServiceImpl extends AbstractService<Usuario> implements UsuarioService {
 
     private final UsuarioRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioServiceImpl(UsuarioRepository repository) {
+    public UsuarioServiceImpl(UsuarioRepository repository, PasswordEncoder passwordEncoder) {
         super(repository, Usuario.class);
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -32,7 +36,8 @@ public class UsuarioServiceImpl extends AbstractService<Usuario> implements Usua
 
     @Override
     public UsuarioDTO crearUsuario(UsuarioRequestDTO request) {
-        Usuario guardado = repository.save(request.toUsuario());
+        var clave = PasswordUtil.hash(request.getClave().toCharArray(), null);
+        Usuario guardado = repository.save(request.toUsuario(clave));
         return new UsuarioDTO(guardado);
     }
 
