@@ -220,6 +220,35 @@ class TurnoServiceImplTest {
     }
 
     @Test
+    void crearTurno_errorAmbulanciaOcupada() {
+        when(usuarioRepository.findByIdAndEliminadoIsFalse(1L)).thenReturn(Optional.of(admin));
+        when(usuarioRepository.findByIdAndEliminadoIsFalse(2L)).thenReturn(Optional.of(enfermero));
+        when(ambulanciaRepository.findByIdAndEliminadoIsFalse(5L)).thenReturn(Optional.of(ambulancia));
+        when(repository.existsByAmbulanciaIdAndFechaAndHorarioAndEstadoNotAndEliminadoIsFalse(
+                eq(5L), any(LocalDate.class), any(HorarioTurno.class), eq(EstadoTurno.CANCELADO)
+        )).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () -> turnoService.crearTurno(turnoRequestDTO));
+        verify(repository, never()).save(any(Turno.class));
+    }
+
+    @Test
+    void crearTurno_errorEnfermeroOcupado() {
+        when(usuarioRepository.findByIdAndEliminadoIsFalse(1L)).thenReturn(Optional.of(admin));
+        when(usuarioRepository.findByIdAndEliminadoIsFalse(2L)).thenReturn(Optional.of(enfermero));
+        when(ambulanciaRepository.findByIdAndEliminadoIsFalse(5L)).thenReturn(Optional.of(ambulancia));
+        when(repository.existsByAmbulanciaIdAndFechaAndHorarioAndEstadoNotAndEliminadoIsFalse(
+                eq(5L), any(LocalDate.class), any(HorarioTurno.class), eq(EstadoTurno.CANCELADO)
+        )).thenReturn(false);
+        when(repository.existsByEnfermeroIdAndFechaAndHorarioAndEstadoNotAndEliminadoIsFalse(
+                eq(2L), any(LocalDate.class), any(HorarioTurno.class), eq(EstadoTurno.CANCELADO)
+        )).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () -> turnoService.crearTurno(turnoRequestDTO));
+        verify(repository, never()).save(any(Turno.class));
+    }
+
+    @Test
     void registrarIngreso_ok() {
         when(repository.findById(20L)).thenReturn(Optional.of(turno));
         when(repository.save(any(Turno.class))).thenReturn(turno);

@@ -8,17 +8,17 @@ import com.tup.tfi.control107.dto.request.ControlInsumoRequestDTO;
 import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
 import com.tup.tfi.control107.model.entity.*;
 import com.tup.tfi.control107.model.enums.EstadoTurno;
+import com.tup.tfi.control107.model.enums.HorarioTurno;
 import com.tup.tfi.control107.repository.AmbulanciaRepository;
 import com.tup.tfi.control107.repository.InsumoRepository;
 import com.tup.tfi.control107.repository.TurnoRepository;
 import com.tup.tfi.control107.repository.UsuarioRepository;
 import com.tup.tfi.control107.service.TurnoService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.constraints.NotNull;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +74,7 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
         Usuario admin = obtenerUsuario(request.getAdminId());
         Usuario enfermero = obtenerUsuario(request.getEnfermeroId());
         Ambulancia ambulancia = obtenerAmbulancia(request.getAmbulanciaId());
+        validarDisponibilidad(request.getAmbulanciaId(), request.getEnfermeroId(), request.getFecha(), request.getHorario(), null);
         Turno t = request.toTurno(admin, enfermero, ambulancia);
         repository.save(t);
         return new TurnoDTO(t);
@@ -161,11 +162,51 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
     @Override
     public TurnoDTO modificarTurno(Long turnoId, TurnoRequestDTO request) {
         Turno t = obtener(turnoId);
+        if (!EstadoTurno.PROGRAMADO.equals(t.getEstado())) {
+            throw new IllegalArgumentException(
+                    String.format("No es posible modificar turno %d con estado %s",
+                            turnoId, t.getEstado()
+                    ));
+        }
         Ambulancia ambulancia = request.getAmbulanciaId() != null ? obtenerAmbulancia(request.getAmbulanciaId()) : null;
         Usuario enfermero = request.getEnfermeroId() != null ? obtenerUsuario(request.getEnfermeroId()) : null;
+
+        Long targetAmbulanciaId = null != ambulancia ? ambulancia.getId() : (null != t.getAmbulancia() ? t.getAmbulancia().getId() : null);
+        Long targetEnfermeroId = null != enfermero ? enfermero.getId() : (null != t.getEnfermero() ? t.getEnfermero().getId() : null);
+        LocalDate targetFecha = null != request.getFecha() ? request.getFecha() : t.getFecha();
+        HorarioTurno targetHorario = null != request.getHorario() ? request.getHorario() : t.getHorario();
+
+        validarDisponibilidad(targetAmbulanciaId, targetEnfermeroId, targetFecha, targetHorario, turnoId);
+
         request.aplicar(t, ambulancia, enfermero);
         repository.save(t);
         return new TurnoDTO(t);
+    }
+
+    private void validarDisponibilidad(Long ambulanciaId, Long enfermeroId, LocalDate fecha, com.tup.tfi.control107.model.enums.HorarioTurno horario, Long turnoIdExcluido) {
+        if (null != ambulanciaId && null != fecha && null != horario) {
+            boolean ocupada = (turnoIdExcluido == null)
+                    ? repository.existsByAmbulanciaIdAndFechaAndHorarioAndEstadoNotAndEliminadoIsFalse(
+                    ambulanciaId, fecha, horario, EstadoTurno.CANCELADO)
+                    : repository.existsByAmbulanciaIdAndFechaAndHorarioAndEstadoNotAndEliminadoIsFalseAndIdNot(
+                    ambulanciaId, fecha, horario, EstadoTurno.CANCELADO, turnoIdExcluido);
+
+            if (ocupada) {
+                throw new IllegalArgumentException("La ambulancia ya se encuentra asignada a un turno en la misma fecha y franja horaria.");
+            }
+        }
+
+        if (null != enfermeroId && null != fecha && null != horario) {
+            boolean ocupado = (turnoIdExcluido == null)
+                    ? repository.existsByEnfermeroIdAndFechaAndHorarioAndEstadoNotAndEliminadoIsFalse(
+                    enfermeroId, fecha, horario, EstadoTurno.CANCELADO)
+                    : repository.existsByEnfermeroIdAndFechaAndHorarioAndEstadoNotAndEliminadoIsFalseAndIdNot(
+                    enfermeroId, fecha, horario, EstadoTurno.CANCELADO, turnoIdExcluido);
+
+            if (ocupado) {
+                throw new IllegalArgumentException("El enfermero ya se encuentra asignado a un turno en la misma fecha y franja horaria.");
+            }
+        }
     }
 
     /**

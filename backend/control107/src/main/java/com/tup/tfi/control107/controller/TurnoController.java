@@ -2,6 +2,7 @@ package com.tup.tfi.control107.controller;
 
 import com.tup.tfi.control107.dto.ResumenOperativoDTO;
 import com.tup.tfi.control107.dto.TurnoDTO;
+import com.tup.tfi.control107.dto.request.CancelarTurnoDTO;
 import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
 import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
 import com.tup.tfi.control107.service.TurnoService;
@@ -67,8 +68,8 @@ public class TurnoController {
     @PostMapping("/{id}/cancelar")
     public ResponseEntity<TurnoDTO> cancelarTurno(
             @PathVariable Long id,
-            @RequestParam(required = false) String observaciones) {
-        TurnoDTO turno = turnoService.cancelarTurno(id, observaciones);
+            @RequestBody CancelarTurnoDTO request) {
+        TurnoDTO turno = turnoService.cancelarTurno(id, request.getObservaciones());
         return ResponseEntity.ok(turno);
     }
 }
