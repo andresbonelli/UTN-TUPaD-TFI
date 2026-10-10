@@ -68,6 +68,7 @@ public class TurnoDTO {
         private Integer cantidadEgreso;
         private int ingresoFaltante;
         private Integer cantidadUsada;
+        private Integer cantidadRestockeo;
 
         public ControlInsumoDTO(ControlInsumo controlInsumo) {
             if (null == controlInsumo) return;
@@ -78,6 +79,7 @@ public class TurnoDTO {
             this.cantidadEgreso = controlInsumo.getCantidadEgreso();
             this.ingresoFaltante = controlInsumo.getIngresoFaltante();
             this.cantidadUsada = controlInsumo.getCantidadUsada();
+            this.cantidadRestockeo = controlInsumo.getCantidadRestockeo();
         }
     }
 
