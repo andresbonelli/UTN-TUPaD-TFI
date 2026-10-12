@@ -1,4 +1,4 @@
-package com.tup.tfi.control107.config;
+package com.tup.tfi.control107.util;
 
 import com.tup.tfi.control107.dto.UsuarioDTO;
 import io.jsonwebtoken.Claims;
