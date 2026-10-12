@@ -1,6 +1,6 @@
 package com.tup.tfi.control107.controller.filter;
 
-import com.tup.tfi.control107.config.JwtUtil;
+import com.tup.tfi.control107.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
