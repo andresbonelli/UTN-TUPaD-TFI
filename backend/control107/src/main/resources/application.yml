@@ -44,5 +44,6 @@ app:
   cors:
     allowed-origins: "*"
 server:
+  forward-headers-strategy: framework
   servlet:
     context-path: /api
