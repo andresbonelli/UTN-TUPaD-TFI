@@ -15,6 +15,10 @@ spring:
     console:
       enabled: false
 
+security:
+  jwt:
+    expiration-time: 3600000
+
 logging:
   level:
     org.springframework: info
