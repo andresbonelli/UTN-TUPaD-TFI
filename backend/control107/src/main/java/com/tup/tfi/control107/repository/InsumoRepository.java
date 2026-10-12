@@ -15,4 +15,6 @@ public interface InsumoRepository extends JpaRepository<Insumo, Long> {
     List<Insumo> findByCriticoIsTrueAndEliminadoIsFalse();
     Optional<Insumo> findByIdAndEliminadoIsFalse(Long i);
     List<Insumo> findByCategoriaIdAndEliminadoIsFalse(Long categoriaId);
+    boolean existsByNombreIgnoreCaseAndEliminadoIsFalse(String nombre);
+    boolean existsByNombreIgnoreCaseAndEliminadoIsFalseAndIdNot(String nombre, Long id);
 }

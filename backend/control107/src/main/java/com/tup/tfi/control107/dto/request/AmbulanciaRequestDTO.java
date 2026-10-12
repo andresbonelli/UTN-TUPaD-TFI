@@ -23,6 +23,9 @@ public class AmbulanciaRequestDTO {
     }
 
     public void aplicar(Ambulancia ambulancia, Set<Insumo> insumos) {
+        if (null != patente) {
+            ambulancia.setPatente(patente);
+        }
         ambulancia.setDisponible(disponible);
         if (null != insumos) {
             ambulancia.setInsumos(insumos);

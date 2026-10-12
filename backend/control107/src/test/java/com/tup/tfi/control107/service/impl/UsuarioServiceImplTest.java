@@ -90,6 +90,27 @@ class UsuarioServiceImplTest {
     }
 
     @Test
+    void crearUsuario_errorDniDuplicado() {
+        when(repository.existsByDniAndEliminadoIsFalse("30111222")).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> usuarioService.crearUsuario(requestDTO));
+
+        assertEquals("Ya existe un usuario con ese DNI", ex.getMessage());
+        verify(repository, never()).save(any(Usuario.class));
+    }
+
+    @Test
+    void crearUsuario_errorEmailDuplicado() {
+        when(repository.existsByDniAndEliminadoIsFalse("30111222")).thenReturn(false);
+        when(repository.existsByEmailIgnoreCaseAndEliminadoIsFalse("hugo.catalan@control107.gob.ar")).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> usuarioService.crearUsuario(requestDTO));
+
+        assertEquals("Ya existe un usuario con ese email", ex.getMessage());
+        verify(repository, never()).save(any(Usuario.class));
+    }
+
+    @Test
     void actualizarUsuario_ok() {
         when(repository.findById(1L)).thenReturn(Optional.of(usuario));
         when(repository.save(any(Usuario.class))).thenReturn(usuario);
@@ -100,6 +121,29 @@ class UsuarioServiceImplTest {
         assertEquals("Hugo Catalan", resultado.getNombre());
         verify(repository, times(1)).findById(1L);
         verify(repository, times(1)).save(usuario);
+    }
+
+    @Test
+    void actualizarUsuario_errorDniDuplicado() {
+        when(repository.existsByDniAndEliminadoIsFalseAndIdNot("30111222", 1L)).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> usuarioService.actualizarUsuario(1L, requestDTO));
+
+        assertEquals("Ya existe un usuario con ese DNI", ex.getMessage());
+        verify(repository, never()).findById(anyLong());
+        verify(repository, never()).save(any(Usuario.class));
+    }
+
+    @Test
+    void actualizarUsuario_errorEmailDuplicado() {
+        when(repository.existsByDniAndEliminadoIsFalseAndIdNot("30111222", 1L)).thenReturn(false);
+        when(repository.existsByEmailIgnoreCaseAndEliminadoIsFalseAndIdNot("hugo.catalan@control107.gob.ar", 1L)).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> usuarioService.actualizarUsuario(1L, requestDTO));
+
+        assertEquals("Ya existe un usuario con ese email", ex.getMessage());
+        verify(repository, never()).findById(anyLong());
+        verify(repository, never()).save(any(Usuario.class));
     }
 
     @Test

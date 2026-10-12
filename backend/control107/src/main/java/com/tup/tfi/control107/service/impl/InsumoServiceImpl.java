@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class InsumoServiceImpl extends AbstractService<Insumo> implements InsumoService {
@@ -50,6 +49,7 @@ public class InsumoServiceImpl extends AbstractService<Insumo> implements Insumo
     @Transactional
     @Override
     public InsumoDTO crearInsumo(InsumoRequestDTO request) {
+        validar(request, null);
         var categoria = obtenerCategoria(request.getCategoriaId());
         Insumo guardado = repository.save(request.toInsumo(categoria));
         return new InsumoDTO(guardado);
@@ -58,6 +58,7 @@ public class InsumoServiceImpl extends AbstractService<Insumo> implements Insumo
     @Transactional
     @Override
     public InsumoDTO actualizarInsumo(Long id, InsumoRequestDTO request) {
+        validar(request, id);
         Insumo i = obtener(id);
         CategoriaInsumo categoria = request.getCategoriaId() != null ? obtenerCategoria(request.getCategoriaId()) : null;
         request.aplicar(i, categoria);
@@ -69,6 +70,18 @@ public class InsumoServiceImpl extends AbstractService<Insumo> implements Insumo
     @Override
     public void eliminarPorId(Long id) {
         eliminar(id);
+    }
+
+    private void validar(InsumoRequestDTO request, Long id) {
+        if (request.getNombre() != null) {
+            String nombre = request.getNombre().trim();
+            boolean existe = (id == null)
+                    ? repository.existsByNombreIgnoreCaseAndEliminadoIsFalse(nombre)
+                    : repository.existsByNombreIgnoreCaseAndEliminadoIsFalseAndIdNot(nombre, id);
+            if (existe) {
+                throw new IllegalArgumentException("Ya existe un insumo con ese nombre");
+            }
+        }
     }
 
     private CategoriaInsumo obtenerCategoria(Long id) {

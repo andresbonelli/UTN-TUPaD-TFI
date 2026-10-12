@@ -86,6 +86,16 @@ class CategoriaInsumoServiceImplTest {
     }
 
     @Test
+    void crearCategoria_errorNombreDuplicado() {
+        when(repository.existsByNombreIgnoreCaseAndEliminadoIsFalse("FARMACOLOGICOS")).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> categoriaService.crearCategoria(requestDTO));
+
+        assertEquals("Ya existe una categoría con ese nombre", ex.getMessage());
+        verify(repository, never()).save(any(CategoriaInsumo.class));
+    }
+
+    @Test
     void actualizarCategoria_ok() {
         when(repository.findById(1L)).thenReturn(Optional.of(categoria));
         when(repository.save(any(CategoriaInsumo.class))).thenReturn(categoria);
@@ -96,6 +106,16 @@ class CategoriaInsumoServiceImplTest {
         assertEquals("FARMACOLOGICOS", resultado.getNombre());
         verify(repository, times(1)).findById(1L);
         verify(repository, times(1)).save(categoria);
+    }
+
+    @Test
+    void actualizarCategoria_errorNombreDuplicado() {
+        when(repository.existsByNombreIgnoreCaseAndEliminadoIsFalseAndIdNot("FARMACOLOGICOS", 1L)).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> categoriaService.actualizarCategoria(1L, requestDTO));
+
+        assertEquals("Ya existe una categoría con ese nombre", ex.getMessage());
+        verify(repository, never()).save(any(CategoriaInsumo.class));
     }
 
     @Test

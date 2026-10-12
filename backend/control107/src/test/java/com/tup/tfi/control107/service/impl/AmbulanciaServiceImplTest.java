@@ -112,6 +112,17 @@ class AmbulanciaServiceImplTest {
     }
 
     @Test
+    void crearAmbulancia_errorPatenteDuplicada() {
+        when(ambulanciaRepository.existsByPatenteIgnoreCaseAndEliminadoIsFalse("AB 123 CD")).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> ambulanciaServiceImpl.crearAmbulancia(requestDTO));
+
+        assertEquals("Ya existe una ambulancia con esa patente", ex.getMessage());
+        verify(insumoRepository, never()).findByIdAndEliminadoIsFalse(anyLong());
+        verify(ambulanciaRepository, never()).save(any(Ambulancia.class));
+    }
+
+    @Test
     void actualizarAmbulancia() {
         when(ambulanciaRepository.findById(1L)).thenReturn(Optional.of(ambulancia));
         when(insumoRepository.findByIdAndEliminadoIsFalse(100L)).thenReturn(Optional.of(insumo));
@@ -124,6 +135,17 @@ class AmbulanciaServiceImplTest {
         verify(ambulanciaRepository, times(1)).findById(1L);
         verify(insumoRepository, times(1)).findByIdAndEliminadoIsFalse(100L);
         verify(ambulanciaRepository, times(1)).save(ambulancia);
+    }
+
+    @Test
+    void actualizarAmbulancia_errorPatenteDuplicada() {
+        when(ambulanciaRepository.existsByPatenteIgnoreCaseAndEliminadoIsFalseAndIdNot("AB 123 CD", 1L)).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> ambulanciaServiceImpl.actualizarAmbulancia(1L, requestDTO));
+
+        assertEquals("Ya existe una ambulancia con esa patente", ex.getMessage());
+        verify(ambulanciaRepository, never()).findById(anyLong());
+        verify(ambulanciaRepository, never()).save(any(Ambulancia.class));
     }
 
     @Test

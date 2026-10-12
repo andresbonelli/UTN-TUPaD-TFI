@@ -135,6 +135,17 @@ class InsumoServiceImplTest {
     }
 
     @Test
+    void crearInsumo_errorNombreDuplicado() {
+        when(insumoRepository.existsByNombreIgnoreCaseAndEliminadoIsFalse("Adrenalina 1mg")).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> insumoService.crearInsumo(requestDTO));
+
+        assertEquals("Ya existe un insumo con ese nombre", ex.getMessage());
+        verify(categoriaRepository, never()).findByIdAndEliminadoIsFalse(anyLong());
+        verify(insumoRepository, never()).save(any(Insumo.class));
+    }
+
+    @Test
     void actualizarInsumo_ok_conCategoria() {
         when(insumoRepository.findById(1L)).thenReturn(Optional.of(insumo));
         when(categoriaRepository.findByIdAndEliminadoIsFalse(10L)).thenReturn(Optional.of(categoria));
@@ -147,6 +158,17 @@ class InsumoServiceImplTest {
         verify(insumoRepository, times(1)).findById(1L);
         verify(categoriaRepository, times(1)).findByIdAndEliminadoIsFalse(10L);
         verify(insumoRepository, times(1)).save(insumo);
+    }
+
+    @Test
+    void actualizarInsumo_errorNombreDuplicado() {
+        when(insumoRepository.existsByNombreIgnoreCaseAndEliminadoIsFalseAndIdNot("Adrenalina 1mg", 1L)).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> insumoService.actualizarInsumo(1L, requestDTO));
+
+        assertEquals("Ya existe un insumo con ese nombre", ex.getMessage());
+        verify(insumoRepository, never()).findById(anyLong());
+        verify(insumoRepository, never()).save(any(Insumo.class));
     }
 
     @Test
