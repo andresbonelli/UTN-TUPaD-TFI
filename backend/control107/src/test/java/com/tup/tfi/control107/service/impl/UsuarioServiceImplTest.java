@@ -32,18 +32,22 @@ class UsuarioServiceImplTest {
     private Usuario usuario;
     private UsuarioRequestDTO requestDTO;
 
+    private static final String MAIL_ADMIN = "hugo.catalan@control107.gob.ar";
+    private static final String DNI_ADMIN = "30111222";
+    private static final String NOMBRE_ADMIN = "Hugo Catalan";
+
     @BeforeEach
     void setUp() {
         usuario = Usuario.builder()
-                .nombre("Hugo Catalan")
-                .dni("30111222")
-                .email("hugo.catalan@control107.gob.ar")
+                .nombre(NOMBRE_ADMIN)
+                .dni(DNI_ADMIN)
+                .email(MAIL_ADMIN)
                 .rol(RolUsuario.ADMINISTRADOR)
                 .activo(true)
                 .build();
         usuario.setId(1L);
 
-        requestDTO = new UsuarioRequestDTO("Hugo Catalan", "30111222", "hugo.catalan@control107.gob.ar", RolUsuario.ADMINISTRADOR, "1234",true);
+        requestDTO = new UsuarioRequestDTO(NOMBRE_ADMIN, DNI_ADMIN, MAIL_ADMIN, RolUsuario.ADMINISTRADOR, "1234",true);
     }
 
     @Test
@@ -54,7 +58,7 @@ class UsuarioServiceImplTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
-        assertEquals("Hugo Catalan", resultado.get(0).getNombre());
+        assertEquals(NOMBRE_ADMIN, resultado.get(0).getNombre());
         verify(repository, times(1)).findAllByEliminadoIsFalse();
     }
 
@@ -66,7 +70,7 @@ class UsuarioServiceImplTest {
 
         assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
-        assertEquals("Hugo Catalan", resultado.getNombre());
+        assertEquals(NOMBRE_ADMIN, resultado.getNombre());
         verify(repository, times(1)).findById(1L);
     }
 
@@ -85,13 +89,13 @@ class UsuarioServiceImplTest {
         UsuarioDTO resultado = usuarioService.crearUsuario(requestDTO);
 
         assertNotNull(resultado);
-        assertEquals("Hugo Catalan", resultado.getNombre());
+        assertEquals(NOMBRE_ADMIN, resultado.getNombre());
         verify(repository, times(1)).save(any(Usuario.class));
     }
 
     @Test
     void crearUsuario_errorDniDuplicado() {
-        when(repository.existsByDniAndEliminadoIsFalse("30111222")).thenReturn(true);
+        when(repository.existsByDniAndEliminadoIsFalse(DNI_ADMIN)).thenReturn(true);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> usuarioService.crearUsuario(requestDTO));
 
@@ -101,8 +105,8 @@ class UsuarioServiceImplTest {
 
     @Test
     void crearUsuario_errorEmailDuplicado() {
-        when(repository.existsByDniAndEliminadoIsFalse("30111222")).thenReturn(false);
-        when(repository.existsByEmailIgnoreCaseAndEliminadoIsFalse("hugo.catalan@control107.gob.ar")).thenReturn(true);
+        when(repository.existsByDniAndEliminadoIsFalse(DNI_ADMIN)).thenReturn(false);
+        when(repository.existsByEmailIgnoreCaseAndEliminadoIsFalse(MAIL_ADMIN)).thenReturn(true);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> usuarioService.crearUsuario(requestDTO));
 
@@ -118,14 +122,14 @@ class UsuarioServiceImplTest {
         UsuarioDTO resultado = usuarioService.actualizarUsuario(1L, requestDTO);
 
         assertNotNull(resultado);
-        assertEquals("Hugo Catalan", resultado.getNombre());
+        assertEquals(NOMBRE_ADMIN, resultado.getNombre());
         verify(repository, times(1)).findById(1L);
         verify(repository, times(1)).save(usuario);
     }
 
     @Test
     void actualizarUsuario_errorDniDuplicado() {
-        when(repository.existsByDniAndEliminadoIsFalseAndIdNot("30111222", 1L)).thenReturn(true);
+        when(repository.existsByDniAndEliminadoIsFalseAndIdNot(DNI_ADMIN, 1L)).thenReturn(true);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> usuarioService.actualizarUsuario(1L, requestDTO));
 
@@ -136,8 +140,8 @@ class UsuarioServiceImplTest {
 
     @Test
     void actualizarUsuario_errorEmailDuplicado() {
-        when(repository.existsByDniAndEliminadoIsFalseAndIdNot("30111222", 1L)).thenReturn(false);
-        when(repository.existsByEmailIgnoreCaseAndEliminadoIsFalseAndIdNot("hugo.catalan@control107.gob.ar", 1L)).thenReturn(true);
+        when(repository.existsByDniAndEliminadoIsFalseAndIdNot(DNI_ADMIN, 1L)).thenReturn(false);
+        when(repository.existsByEmailIgnoreCaseAndEliminadoIsFalseAndIdNot(MAIL_ADMIN, 1L)).thenReturn(true);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> usuarioService.actualizarUsuario(1L, requestDTO));
 

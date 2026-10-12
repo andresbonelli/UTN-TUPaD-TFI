@@ -38,6 +38,8 @@ class AmbulanciaServiceImplTest {
     private Insumo insumo;
     private AmbulanciaRequestDTO requestDTO;
 
+    private static final String PATENTE = "AB 123 CD";
+
     @BeforeEach
     void setUp() {
         insumo = Insumo.builder()
@@ -48,13 +50,13 @@ class AmbulanciaServiceImplTest {
         insumo.setId(100L);
 
         ambulancia = Ambulancia.builder()
-                .patente("AB 123 CD")
+                .patente(PATENTE)
                 .disponible(true)
                 .insumos(Set.of(insumo))
                 .build();
         ambulancia.setId(1L);
 
-        requestDTO = new AmbulanciaRequestDTO("AB 123 CD", true, Set.of(100L));
+        requestDTO = new AmbulanciaRequestDTO(PATENTE, true, Set.of(100L));
     }
 
     @Test
@@ -65,7 +67,7 @@ class AmbulanciaServiceImplTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
-        assertEquals("AB 123 CD", resultado.get(0).getPatente());
+        assertEquals(PATENTE, resultado.get(0).getPatente());
         verify(ambulanciaRepository, times(1)).findAllByEliminadoIsFalse();
     }
 
@@ -77,7 +79,7 @@ class AmbulanciaServiceImplTest {
 
         assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
-        assertEquals("AB 123 CD", resultado.getPatente());
+        assertEquals(PATENTE, resultado.getPatente());
         verify(ambulanciaRepository, times(1)).findById(1L);
     }
 
@@ -97,7 +99,7 @@ class AmbulanciaServiceImplTest {
         AmbulanciaDTO resultado = ambulanciaServiceImpl.crearAmbulancia(requestDTO);
 
         assertNotNull(resultado);
-        assertEquals("AB 123 CD", resultado.getPatente());
+        assertEquals(PATENTE, resultado.getPatente());
         verify(insumoRepository, times(1)).findByIdAndEliminadoIsFalse(100L);
         verify(ambulanciaRepository, times(1)).save(any(Ambulancia.class));
     }
@@ -113,7 +115,7 @@ class AmbulanciaServiceImplTest {
 
     @Test
     void crearAmbulancia_errorPatenteDuplicada() {
-        when(ambulanciaRepository.existsByPatenteIgnoreCaseAndEliminadoIsFalse("AB 123 CD")).thenReturn(true);
+        when(ambulanciaRepository.existsByPatenteIgnoreCaseAndEliminadoIsFalse(PATENTE)).thenReturn(true);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> ambulanciaServiceImpl.crearAmbulancia(requestDTO));
 
@@ -131,7 +133,7 @@ class AmbulanciaServiceImplTest {
         AmbulanciaDTO resultado = ambulanciaServiceImpl.actualizarAmbulancia(1L, requestDTO);
 
         assertNotNull(resultado);
-        assertEquals("AB 123 CD", resultado.getPatente());
+        assertEquals(PATENTE, resultado.getPatente());
         verify(ambulanciaRepository, times(1)).findById(1L);
         verify(insumoRepository, times(1)).findByIdAndEliminadoIsFalse(100L);
         verify(ambulanciaRepository, times(1)).save(ambulancia);
@@ -139,7 +141,7 @@ class AmbulanciaServiceImplTest {
 
     @Test
     void actualizarAmbulancia_errorPatenteDuplicada() {
-        when(ambulanciaRepository.existsByPatenteIgnoreCaseAndEliminadoIsFalseAndIdNot("AB 123 CD", 1L)).thenReturn(true);
+        when(ambulanciaRepository.existsByPatenteIgnoreCaseAndEliminadoIsFalseAndIdNot(PATENTE, 1L)).thenReturn(true);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> ambulanciaServiceImpl.actualizarAmbulancia(1L, requestDTO));
 
