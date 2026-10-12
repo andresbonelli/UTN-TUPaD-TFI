@@ -13,12 +13,11 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
         format_sql: true
-    database-platform: org.hibernate.dialect.H2Dialect
 
   h2:
     console:
@@ -40,10 +39,20 @@ springdoc:
 logging:
   level:
     org.springframework: warn
+
 app:
   cors:
     allowed-origins: "*"
+
 server:
   forward-headers-strategy: framework
   servlet:
     context-path: /api
+
+management:
+  server:
+    port: 9001
+  endpoints:
+    web:
+      exposure:
+        include: "*"
