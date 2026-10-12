@@ -19,12 +19,12 @@ public class AmbulanciaRequestDTO {
     private Set<Long> insumos = Set.of();
 
     public Ambulancia toAmbulancia(@NotNull Set<Insumo> insumos) {
-        return new Ambulancia(patente, disponible, insumos);
+        return new Ambulancia(patente.toUpperCase(), disponible, insumos);
     }
 
     public void aplicar(Ambulancia ambulancia, Set<Insumo> insumos) {
         if (null != patente) {
-            ambulancia.setPatente(patente);
+            ambulancia.setPatente(patente.toUpperCase());
         }
         ambulancia.setDisponible(disponible);
         if (null != insumos) {

@@ -19,6 +19,9 @@ public class InsumoServiceImpl extends AbstractService<Insumo> implements Insumo
     private final InsumoRepository repository;
     private final CategoriaRepository categoriaRepository;
 
+    private final static int NOMBRE_MIN_LENGTH = 3;
+    private final static int NOMBRE_MAX_LENGTH = 255;
+
     public InsumoServiceImpl(InsumoRepository repository, CategoriaRepository categoriaRepository) {
         super(repository, Insumo.class);
         this.repository = repository;
@@ -75,12 +78,18 @@ public class InsumoServiceImpl extends AbstractService<Insumo> implements Insumo
     private void validar(InsumoRequestDTO request, Long id) {
         if (request.getNombre() != null) {
             String nombre = request.getNombre().trim();
+            if (nombre.length() < NOMBRE_MIN_LENGTH || nombre.length() > NOMBRE_MAX_LENGTH) {
+                throw new IllegalArgumentException("El nombre debe tener entre " + NOMBRE_MIN_LENGTH + " y " + NOMBRE_MAX_LENGTH + " caracteres");
+            }
             boolean existe = (id == null)
                     ? repository.existsByNombreIgnoreCaseAndEliminadoIsFalse(nombre)
                     : repository.existsByNombreIgnoreCaseAndEliminadoIsFalseAndIdNot(nombre, id);
             if (existe) {
                 throw new IllegalArgumentException("Ya existe un insumo con ese nombre");
             }
+        }
+        if (request.getPuntoControl() <= 0) {
+            throw new IllegalArgumentException("El punto de control debe ser mayor a 0");
         }
     }
 

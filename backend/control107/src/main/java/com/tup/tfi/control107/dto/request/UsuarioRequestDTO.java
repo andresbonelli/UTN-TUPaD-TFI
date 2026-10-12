@@ -2,6 +2,7 @@ package com.tup.tfi.control107.dto.request;
 
 import com.tup.tfi.control107.model.entity.Usuario;
 import com.tup.tfi.control107.model.enums.RolUsuario;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 public class UsuarioRequestDTO {
     private String nombre;
     private String dni;
+    @Email(message = "Formato de mail inválido")
     private String email;
     private RolUsuario rol;
     private String clave;
@@ -23,7 +25,7 @@ public class UsuarioRequestDTO {
         return Usuario.builder()
                 .nombre(nombre)
                 .dni(dni)
-                .email(email)
+                .email(email.toLowerCase().trim())
                 .rol(rol)
                 .clave(clave)
                 .activo(activo)
@@ -38,7 +40,7 @@ public class UsuarioRequestDTO {
             u.setDni(dni);
         }
         if (null != email) {
-            u.setEmail(email);
+            u.setEmail(email.toLowerCase().trim());
         }
         if (null != rol) {
             u.setRol(rol);

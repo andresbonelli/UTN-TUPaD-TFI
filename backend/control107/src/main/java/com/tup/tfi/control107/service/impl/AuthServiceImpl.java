@@ -27,7 +27,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginDTO login(LoginRequestDTO request) throws CredencialesInvalidasException {
-        Optional<Usuario> usuario = usuarioRepository.findByEmailAndEliminadoIsFalse(request.mail());
+        Optional<Usuario> usuario = usuarioRepository.findByEmailAndEliminadoIsFalse(request.mail().toLowerCase().trim());
         if (usuario.isEmpty()) {
             throw new CredencialesInvalidasException();
         }

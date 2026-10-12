@@ -12,6 +12,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,6 +22,8 @@ public class AmbulanciaServiceImpl extends AbstractService<Ambulancia> implement
 
     private final AmbulanciaRepository repository;
     private final InsumoRepository insumoRepository;
+
+    private final static String[] REGEX_PATENTE = {"^[A-Z]{3}\\d{3}$","^[A-Z]{2}\\d{3}[A-Z]{2}$"};
 
     public AmbulanciaServiceImpl(AmbulanciaRepository ambulanciaRepository, InsumoRepository insumoRepository) {
         super(ambulanciaRepository, Ambulancia.class);
@@ -68,6 +71,10 @@ public class AmbulanciaServiceImpl extends AbstractService<Ambulancia> implement
     private void validar(AmbulanciaRequestDTO request, Long id) {
         if (request.getPatente() != null) {
             String patente = request.getPatente().trim();
+            boolean regexMatch = Arrays.stream(REGEX_PATENTE).anyMatch(patente::matches);
+            if (!regexMatch) {
+                throw new IllegalArgumentException("Formato de patente inválido");
+            }
             boolean existe = (id == null)
                     ? repository.existsByPatenteIgnoreCaseAndEliminadoIsFalse(patente)
                     : repository.existsByPatenteIgnoreCaseAndEliminadoIsFalseAndIdNot(patente, id);
@@ -75,6 +82,7 @@ public class AmbulanciaServiceImpl extends AbstractService<Ambulancia> implement
                 throw new IllegalArgumentException("Ya existe una ambulancia con esa patente");
             }
         }
+
     }
 
     private @NonNull Set<Insumo> obtenerInsumos(AmbulanciaRequestDTO request) {

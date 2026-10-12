@@ -38,7 +38,7 @@ class AmbulanciaServiceImplTest {
     private Insumo insumo;
     private AmbulanciaRequestDTO requestDTO;
 
-    private static final String PATENTE = "AB 123 CD";
+    private static final String PATENTE = "AB123CD";
 
     @BeforeEach
     void setUp() {
