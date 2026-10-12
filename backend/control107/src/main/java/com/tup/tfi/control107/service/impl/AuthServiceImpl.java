@@ -1,8 +1,8 @@
 package com.tup.tfi.control107.service.impl;
 
 
-import com.tup.tfi.control107.config.JwtUtil;
-import com.tup.tfi.control107.config.PasswordUtil;
+import com.tup.tfi.control107.util.JwtUtil;
+import com.tup.tfi.control107.util.PasswordUtil;
 import com.tup.tfi.control107.dto.LoginDTO;
 import com.tup.tfi.control107.dto.UsuarioDTO;
 import com.tup.tfi.control107.dto.request.LoginRequestDTO;
@@ -10,9 +10,7 @@ import com.tup.tfi.control107.exception.CredencialesInvalidasException;
 import com.tup.tfi.control107.model.entity.Usuario;
 import com.tup.tfi.control107.repository.UsuarioRepository;
 import com.tup.tfi.control107.service.AuthService;
-import com.tup.tfi.control107.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,10 +19,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final UsuarioService usuarioService;
     private final UsuarioRepository usuarioRepository;
     private final JwtUtil jwtUtil;
-    private final PasswordEncoder passwordEncoder;
 
     private static final String TOKEN_TYPE = "Bearer";
     private static final String TOKEN_SCOPE = "message:read";

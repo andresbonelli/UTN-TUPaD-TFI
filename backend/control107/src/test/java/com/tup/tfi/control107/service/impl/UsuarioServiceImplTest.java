@@ -43,7 +43,7 @@ class UsuarioServiceImplTest {
                 .build();
         usuario.setId(1L);
 
-        requestDTO = new UsuarioRequestDTO("Hugo Catalan", "30111222", "hugo.catalan@control107.gob.ar", RolUsuario.ADMINISTRADOR, "1234", true);
+        requestDTO = new UsuarioRequestDTO("Hugo Catalan", "30111222", "hugo.catalan@control107.gob.ar", RolUsuario.ADMINISTRADOR, "1234",true);
     }
 
     @Test
