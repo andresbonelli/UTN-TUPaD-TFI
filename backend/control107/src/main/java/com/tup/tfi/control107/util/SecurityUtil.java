@@ -13,7 +13,7 @@ public class SecurityUtil {
 
     private final TurnoService turnoService;
 
-    boolean esEnfermeroAsignado(Long idTurno, Authentication authentication) {
+    public boolean esEnfermeroAsignado(Long idTurno, Authentication authentication) {
         long usuarioId = Long.parseLong((String) Objects.requireNonNull(authentication.getPrincipal()));
         return turnoService.obtenerPorId(idTurno).getEnfermero().getId().equals(usuarioId);
     }
