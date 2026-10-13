@@ -5,14 +5,17 @@ import com.tup.tfi.control107.dto.TurnoDTO;
 import com.tup.tfi.control107.dto.request.CancelarTurnoDTO;
 import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
 import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
+import com.tup.tfi.control107.model.entity.Usuario;
 import com.tup.tfi.control107.service.TurnoService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/v1/turnos")
@@ -47,8 +50,9 @@ public class TurnoController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<TurnoDTO> crearTurno(@RequestBody TurnoRequestDTO request) {
-        TurnoDTO turno = turnoService.crearTurno(request);
+    public ResponseEntity<TurnoDTO> crearTurno(@RequestBody TurnoRequestDTO request, Authentication authentication) {
+        long adminId = Long.parseLong((String) Objects.requireNonNull(authentication.getPrincipal()));
+        TurnoDTO turno = turnoService.crearTurno(adminId, request);
         return ResponseEntity.ok(turno);
     }
 

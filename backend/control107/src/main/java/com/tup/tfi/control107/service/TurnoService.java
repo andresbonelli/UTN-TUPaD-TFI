@@ -14,7 +14,7 @@ public interface TurnoService {
      */
     ResumenOperativoDTO obtenerResumenOperativo();
 
-    TurnoDTO crearTurno(TurnoRequestDTO request);
+    TurnoDTO crearTurno(Long adminId, TurnoRequestDTO request);
 
     void registrarIngreso(IngresoEgresoDTO request);
 
