@@ -13,6 +13,7 @@ import java.util.List;
 public interface TurnoRepository extends JpaRepository<Turno, Long> {
     List<Turno> findByEstadoAndEliminadoIsFalse(EstadoTurno estado);
     List<Turno> findAllByEliminadoIsFalse();
+    List<Turno> findAllByEnfermeroIdAndEliminadoIsFalseOrderByFechaDesc(Long enfermeroId);
 
     boolean existsByAmbulanciaIdAndFechaAndHorarioAndEstadoNotAndEliminadoIsFalse(
             Long ambulanciaId, LocalDate fecha, HorarioTurno horario, EstadoTurno estadoNot

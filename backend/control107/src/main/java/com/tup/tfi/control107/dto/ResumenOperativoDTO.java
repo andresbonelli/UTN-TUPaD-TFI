@@ -11,7 +11,7 @@ public class ResumenOperativoDTO {
     private long ambulanciasDisponibles;
     private long ambulanciasTotales;
     private long alertas;
-    private long inconsistencias;
+    private List<TurnoDTO> turnosConInconsistencias;
     private List<AmbulanciaDTO> listaAmbulancias;
 
 }

@@ -10,7 +10,6 @@ import com.tup.tfi.control107.model.enums.EstadoTurno;
 import com.tup.tfi.control107.model.enums.HorarioTurno;
 import com.tup.tfi.control107.model.enums.RolUsuario;
 import com.tup.tfi.control107.repository.AmbulanciaRepository;
-import com.tup.tfi.control107.repository.InsumoRepository;
 import com.tup.tfi.control107.repository.TurnoRepository;
 import com.tup.tfi.control107.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -163,7 +162,7 @@ class TurnoServiceImplTest {
         assertEquals(1, resumen.getAmbulanciasDisponibles());
         assertEquals(1, resumen.getAmbulanciasTotales());
         assertEquals(1, resumen.getAlertas());
-        assertEquals(1, resumen.getInconsistencias());
+        assertEquals(1, resumen.getTurnosConInconsistencias().size());
         assertEquals(1, resumen.getListaAmbulancias().size());
         verify(repository, times(1)).findByEstadoAndEliminadoIsFalse(EstadoTurno.EN_CURSO);
         verify(ambulanciaRepository, times(1)).findAllByEliminadoIsFalse();

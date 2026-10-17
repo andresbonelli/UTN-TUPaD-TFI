@@ -118,7 +118,7 @@ class TurnoControllerTest {
                 .ambulanciasDisponibles(3)
                 .ambulanciasTotales(5)
                 .alertas(1)
-                .inconsistencias(0)
+                .turnosConInconsistencias(List.of(turnoDTO))
                 .listaAmbulancias(List.of())
                 .build();
 

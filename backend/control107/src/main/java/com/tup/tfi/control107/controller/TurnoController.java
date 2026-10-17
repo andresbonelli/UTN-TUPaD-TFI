@@ -30,6 +30,11 @@ public class TurnoController {
         return ResponseEntity.ok(turnoService.obtenerTurnosActivos());
     }
 
+    @GetMapping("/enfermero/{enfermeroId}")
+    public ResponseEntity<List<TurnoDTO>> obtenerTurnosPorEnfermero(@PathVariable Long enfermeroId) {
+        return ResponseEntity.ok(turnoService.obtenerPorEnfermeroId(enfermeroId));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<TurnoDTO> obtenerPorId(@PathVariable Long id) {
         return ResponseEntity.ok(turnoService.obtenerPorId(id));
