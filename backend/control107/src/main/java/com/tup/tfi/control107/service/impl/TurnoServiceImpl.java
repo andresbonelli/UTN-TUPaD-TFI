@@ -30,16 +30,14 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
 
     private final TurnoRepository repository;
     private final AmbulanciaRepository ambulanciaRepository;
-    private final InsumoRepository insumoRepository;
     private final UsuarioRepository usuarioRepository;
 
     private static final String OBSERVACIONES_CANCELADO = "Turno cancelado";
 
-    public TurnoServiceImpl(TurnoRepository repository, AmbulanciaRepository ambulanciaRepository, InsumoRepository insumoRepository, UsuarioRepository usuarioRepository) {
+    public TurnoServiceImpl(TurnoRepository repository, AmbulanciaRepository ambulanciaRepository, UsuarioRepository usuarioRepository) {
         super(repository, Turno.class);
         this.repository = repository;
         this.ambulanciaRepository = ambulanciaRepository;
-        this.insumoRepository = insumoRepository;
         this.usuarioRepository = usuarioRepository;
     }
 
@@ -59,11 +57,10 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
                                 .anyMatch(i -> i.getIngresoFaltante() > 0 && i.getInsumo().isCritico()))
                         .count()
                 )
-                .inconsistencias(turnosActivos.stream()
-                        .flatMap(t -> t.getControlInsumos().stream())
-                        .filter(i -> i.getIngresoFaltante() > 0)
-                        .count()
-                )
+                .turnosConInconsistencias(turnosActivos.stream()
+                        .filter(t -> t.getControlInsumos().stream()
+                                .anyMatch(i -> i.getIngresoFaltante() > 0))
+                        .map(TurnoDTO::new).toList())
                 .listaAmbulancias(ambulancias.stream().map(AmbulanciaDTO::new).toList())
                 .build();
     }
@@ -134,6 +131,11 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
     public TurnoDTO obtenerPorId(Long id) {
         Turno t = obtener(id);
         return new TurnoDTO(t);
+    }
+
+    @Override
+    public List<TurnoDTO> obtenerPorEnfermeroId(Long enfermeroId) {
+        return repository.findAllByEnfermeroIdAndEliminadoIsFalseOrderByFechaDesc(enfermeroId).stream().map(TurnoDTO::new).toList();
     }
 
     @Override

@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface CategoriaRepository extends JpaRepository<CategoriaInsumo, Long> {
     List<CategoriaInsumo> findAllByEliminadoIsFalse();
     Optional<CategoriaInsumo> findByIdAndEliminadoIsFalse(Long id);
+    boolean existsByNombreIgnoreCaseAndEliminadoIsFalse(String nombre);
+    boolean existsByNombreIgnoreCaseAndEliminadoIsFalseAndIdNot(String nombre, Long id);
 }

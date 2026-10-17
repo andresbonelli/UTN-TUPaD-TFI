@@ -165,7 +165,7 @@ class TurnoServiceImplTest {
         assertEquals(1, resumen.getAmbulanciasDisponibles());
         assertEquals(1, resumen.getAmbulanciasTotales());
         assertEquals(1, resumen.getAlertas());
-        assertEquals(1, resumen.getInconsistencias());
+        assertEquals(1, resumen.getTurnosConInconsistencias().size());
         assertEquals(1, resumen.getListaAmbulancias().size());
         verify(repository, times(1)).findByEstadoAndEliminadoIsFalse(EstadoTurno.EN_CURSO);
         verify(ambulanciaRepository, times(1)).findAllByEliminadoIsFalse();

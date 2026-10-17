@@ -24,6 +24,8 @@ public interface TurnoService {
 
     TurnoDTO obtenerPorId(Long id);
 
+    List<TurnoDTO> obtenerPorEnfermeroId(Long enfermeroId);
+
     List<TurnoDTO> obtenerTurnosActivos();
 
     TurnoDTO cancelarTurno(Long turnoId, String observaciones);

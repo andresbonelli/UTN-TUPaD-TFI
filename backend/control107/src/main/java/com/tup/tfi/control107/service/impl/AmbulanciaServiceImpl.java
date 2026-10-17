@@ -12,6 +12,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,6 +22,8 @@ public class AmbulanciaServiceImpl extends AbstractService<Ambulancia> implement
 
     private final AmbulanciaRepository repository;
     private final InsumoRepository insumoRepository;
+
+    private final static String[] REGEX_PATENTE = {"^[A-Z]{3}\\d{3}$","^[A-Z]{2}\\d{3}[A-Z]{2}$"};
 
     public AmbulanciaServiceImpl(AmbulanciaRepository ambulanciaRepository, InsumoRepository insumoRepository) {
         super(ambulanciaRepository, Ambulancia.class);
@@ -42,6 +45,7 @@ public class AmbulanciaServiceImpl extends AbstractService<Ambulancia> implement
     @Transactional
     @Override
     public AmbulanciaDTO crearAmbulancia(AmbulanciaRequestDTO request) {
+        validar(request, null);
         var insumos = obtenerInsumos(request);
         Ambulancia guardada = repository.save(request.toAmbulancia(insumos));
         return new AmbulanciaDTO(guardada);
@@ -50,6 +54,7 @@ public class AmbulanciaServiceImpl extends AbstractService<Ambulancia> implement
     @Transactional
     @Override
     public AmbulanciaDTO actualizarAmbulancia(Long id, AmbulanciaRequestDTO request) {
+        validar(request, id);
         Ambulancia a = obtener(id);
         var insumos = request.getInsumos() != null ? obtenerInsumos(request) : null;
         request.aplicar(a, insumos);
@@ -61,6 +66,23 @@ public class AmbulanciaServiceImpl extends AbstractService<Ambulancia> implement
     @Override
     public void eliminarPorId(Long id) {
         eliminar(id);
+    }
+
+    private void validar(AmbulanciaRequestDTO request, Long id) {
+        if (request.getPatente() != null) {
+            String patente = request.getPatente().trim();
+            boolean regexMatch = Arrays.stream(REGEX_PATENTE).anyMatch(patente::matches);
+            if (!regexMatch) {
+                throw new IllegalArgumentException("Formato de patente inválido");
+            }
+            boolean existe = (id == null)
+                    ? repository.existsByPatenteIgnoreCaseAndEliminadoIsFalse(patente)
+                    : repository.existsByPatenteIgnoreCaseAndEliminadoIsFalseAndIdNot(patente, id);
+            if (existe) {
+                throw new IllegalArgumentException("Ya existe una ambulancia con esa patente");
+            }
+        }
+
     }
 
     private @NonNull Set<Insumo> obtenerInsumos(AmbulanciaRequestDTO request) {

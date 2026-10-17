@@ -31,15 +31,18 @@ class CategoriaInsumoServiceImplTest {
     private CategoriaInsumo categoria;
     private CategoriaInsumoRequestDTO requestDTO;
 
+    private static final String NOMBRE_VALIDO = "FARMACOLOGICOS";
+    private static final String COLOR_VALIDO = "#D9574C";
+
     @BeforeEach
     void setUp() {
         categoria = CategoriaInsumo.builder()
-                .nombre("FARMACOLOGICOS")
-                .color("#D9574C")
+                .nombre(NOMBRE_VALIDO)
+                .color(COLOR_VALIDO)
                 .build();
         categoria.setId(1L);
 
-        requestDTO = new CategoriaInsumoRequestDTO("FARMACOLOGICOS", "#D9574C");
+        requestDTO = new CategoriaInsumoRequestDTO(NOMBRE_VALIDO, COLOR_VALIDO);
     }
 
     @Test
@@ -50,7 +53,7 @@ class CategoriaInsumoServiceImplTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
-        assertEquals("FARMACOLOGICOS", resultado.get(0).getNombre());
+        assertEquals(NOMBRE_VALIDO, resultado.get(0).getNombre());
         verify(repository, times(1)).findAllByEliminadoIsFalse();
     }
 
@@ -62,7 +65,7 @@ class CategoriaInsumoServiceImplTest {
 
         assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
-        assertEquals("FARMACOLOGICOS", resultado.getNombre());
+        assertEquals(NOMBRE_VALIDO, resultado.getNombre());
         verify(repository, times(1)).findById(1L);
     }
 
@@ -81,8 +84,18 @@ class CategoriaInsumoServiceImplTest {
         CategoriaInsumoDTO resultado = categoriaService.crearCategoria(requestDTO);
 
         assertNotNull(resultado);
-        assertEquals("FARMACOLOGICOS", resultado.getNombre());
+        assertEquals(NOMBRE_VALIDO, resultado.getNombre());
         verify(repository, times(1)).save(any(CategoriaInsumo.class));
+    }
+
+    @Test
+    void crearCategoria_errorNombreDuplicado() {
+        when(repository.existsByNombreIgnoreCaseAndEliminadoIsFalse(NOMBRE_VALIDO)).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> categoriaService.crearCategoria(requestDTO));
+
+        assertEquals("Ya existe una categoría con ese nombre", ex.getMessage());
+        verify(repository, never()).save(any(CategoriaInsumo.class));
     }
 
     @Test
@@ -93,9 +106,19 @@ class CategoriaInsumoServiceImplTest {
         CategoriaInsumoDTO resultado = categoriaService.actualizarCategoria(1L, requestDTO);
 
         assertNotNull(resultado);
-        assertEquals("FARMACOLOGICOS", resultado.getNombre());
+        assertEquals(NOMBRE_VALIDO, resultado.getNombre());
         verify(repository, times(1)).findById(1L);
         verify(repository, times(1)).save(categoria);
+    }
+
+    @Test
+    void actualizarCategoria_errorNombreDuplicado() {
+        when(repository.existsByNombreIgnoreCaseAndEliminadoIsFalseAndIdNot(NOMBRE_VALIDO, 1L)).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> categoriaService.actualizarCategoria(1L, requestDTO));
+
+        assertEquals("Ya existe una categoría con ese nombre", ex.getMessage());
+        verify(repository, never()).save(any(CategoriaInsumo.class));
     }
 
     @Test

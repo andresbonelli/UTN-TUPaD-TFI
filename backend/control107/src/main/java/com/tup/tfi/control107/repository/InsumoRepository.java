@@ -4,7 +4,6 @@ import com.tup.tfi.control107.model.entity.Insumo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,4 +14,6 @@ public interface InsumoRepository extends JpaRepository<Insumo, Long> {
     List<Insumo> findByCriticoIsTrueAndEliminadoIsFalse();
     Optional<Insumo> findByIdAndEliminadoIsFalse(Long i);
     List<Insumo> findByCategoriaIdAndEliminadoIsFalse(Long categoriaId);
+    boolean existsByNombreIgnoreCaseAndEliminadoIsFalse(String nombre);
+    boolean existsByNombreIgnoreCaseAndEliminadoIsFalseAndIdNot(String nombre, Long id);
 }
