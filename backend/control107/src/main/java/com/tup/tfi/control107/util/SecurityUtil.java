@@ -5,8 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
-
 @Component("securityUtil")
 @RequiredArgsConstructor
 public class SecurityUtil {
@@ -14,7 +12,7 @@ public class SecurityUtil {
     private final TurnoService turnoService;
 
     public boolean esEnfermeroAsignado(Long idTurno, Authentication authentication) {
-        long usuarioId = Long.parseLong((String) Objects.requireNonNull(authentication.getPrincipal()));
+        long usuarioId = Long.parseLong(authentication.getName());
         return turnoService.obtenerPorId(idTurno).getEnfermero().getId().equals(usuarioId);
     }
 }

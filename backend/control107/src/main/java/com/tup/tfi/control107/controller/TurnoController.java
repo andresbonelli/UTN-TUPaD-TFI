@@ -5,7 +5,6 @@ import com.tup.tfi.control107.dto.TurnoDTO;
 import com.tup.tfi.control107.dto.request.CancelarTurnoDTO;
 import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
 import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
-import com.tup.tfi.control107.model.entity.Usuario;
 import com.tup.tfi.control107.service.TurnoService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/v1/turnos")
@@ -36,8 +34,10 @@ public class TurnoController {
         return ResponseEntity.ok(turnoService.obtenerTurnosActivos());
     }
 
-    @GetMapping("/enfermero/{enfermeroId}")
-    public ResponseEntity<List<TurnoDTO>> obtenerTurnosPorEnfermero(@PathVariable Long enfermeroId) {
+    @GetMapping("/enfermero")
+    @PreAuthorize("hasRole('ENFERMERO')")
+    public ResponseEntity<List<TurnoDTO>> obtenerTurnosPorEnfermero(Authentication authentication) {
+        Long enfermeroId = Long.parseLong(authentication.getName());
         return ResponseEntity.ok(turnoService.obtenerPorEnfermeroId(enfermeroId));
     }
 
@@ -56,7 +56,7 @@ public class TurnoController {
     @PostMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<TurnoDTO> crearTurno(@RequestBody TurnoRequestDTO request, Authentication authentication) {
-        long adminId = Long.parseLong((String) Objects.requireNonNull(authentication.getPrincipal()));
+        long adminId = Long.parseLong(authentication.getName());
         TurnoDTO turno = turnoService.crearTurno(adminId, request);
         return ResponseEntity.ok(turno);
     }
@@ -69,14 +69,14 @@ public class TurnoController {
     }
 
     @PostMapping("/ingreso")
-    @PreAuthorize("@securityUtil.esEnfermeroAsignado(#id, authentication)")
+    @PreAuthorize("@securityUtil.esEnfermeroAsignado(#request.turnoId, authentication)")
     public ResponseEntity<Void> registrarIngreso(@RequestBody IngresoEgresoDTO request) {
         turnoService.registrarIngreso(request);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/egreso")
-    @PreAuthorize("@securityUtil.esEnfermeroAsignado(#id, authentication)")
+    @PreAuthorize("@securityUtil.esEnfermeroAsignado(#request.turnoId, authentication)")
     public ResponseEntity<Void> registrarEgreso(@RequestBody IngresoEgresoDTO request) {
         turnoService.registrarEgreso(request);
         return ResponseEntity.ok().build();
