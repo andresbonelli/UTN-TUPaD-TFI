@@ -1,16 +1,34 @@
 import { API_URL } from "./api";
-import type { Categoria } from "../interfaces/Categoria";
+import type { Categoria, CategoriaRequest } from "../interfaces/Categoria";
 
 
 const CATEGORIAS_URL = `${API_URL}/categorias`;
 
-export async function listarCategorias(): Promise<Categoria[]>{
+export async function listarCategorias(): Promise<Categoria[]> {
     const response = await fetch(CATEGORIAS_URL);
 
 
-if (!response.ok){
-    throw new Error("Error al obtener las categorias");
+    if (!response.ok) {
+        throw new Error("Error al obtener las categorias");
+    }
+
+    return response.json();
 }
 
-return response.json();
+export async function crearCategoria(
+    categoria: CategoriaRequest
+): Promise<Categoria> {
+    const response = await fetch(CATEGORIAS_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(categoria),
+    });
+
+    if (!response.ok) {
+        throw new Error("Error al crear la categoría");
+    }
+
+    return response.json();
 }
