@@ -45,7 +45,7 @@ class AuthControllerTest {
     @Test
     void login_ok() throws Exception {
         LoginRequestDTO request = new LoginRequestDTO("admin", "admin123");
-        LoginDTO response = new LoginDTO("mock-token", 3600L, "Bearer", "ADMINISTRADOR");
+        LoginDTO response = new LoginDTO("mock-token", 3600L, "Bearer", "message:read");
 
         when(authService.login(any(LoginRequestDTO.class))).thenReturn(response);
 
@@ -56,7 +56,7 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.access_token").value("mock-token"))
                 .andExpect(jsonPath("$.token_type").value("Bearer"))
-                .andExpect(jsonPath("$.scope").value("ADMINISTRADOR"));
+                .andExpect(jsonPath("$.scope").value("message:read"));
     }
 
     @Test

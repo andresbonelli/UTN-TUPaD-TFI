@@ -15,7 +15,7 @@ import java.util.Set;
 @Builder
 public class Ambulancia extends BaseEntity {
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String patente;
 
     @Builder.Default

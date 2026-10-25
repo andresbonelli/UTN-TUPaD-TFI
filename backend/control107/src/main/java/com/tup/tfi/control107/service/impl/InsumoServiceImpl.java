@@ -88,7 +88,7 @@ public class InsumoServiceImpl extends AbstractService<Insumo> implements Insumo
                 throw new IllegalArgumentException("Ya existe un insumo con ese nombre");
             }
         }
-        if (request.getPuntoControl() <= 0) {
+        if (request.getPuntoControl() != null && request.getPuntoControl() <= 0) {
             throw new IllegalArgumentException("El punto de control debe ser mayor a 0");
         }
     }

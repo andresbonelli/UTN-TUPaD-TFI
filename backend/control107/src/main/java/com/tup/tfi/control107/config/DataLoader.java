@@ -1,8 +1,11 @@
 package com.tup.tfi.control107.config;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tup.tfi.control107.dto.UsuarioDTO;
-import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
 import com.tup.tfi.control107.dto.request.ControlInsumoRequestDTO;
+import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
 import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
 import com.tup.tfi.control107.dto.request.UsuarioRequestDTO;
 import com.tup.tfi.control107.model.entity.*;
@@ -11,14 +14,18 @@ import com.tup.tfi.control107.repository.*;
 import com.tup.tfi.control107.service.TurnoService;
 import com.tup.tfi.control107.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import java.io.InputStream;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 @Profile("dev")
@@ -30,9 +37,13 @@ public class DataLoader implements CommandLineRunner {
     private final InsumoRepository insumoRepository;
     private final AmbulanciaRepository ambulanciaRepository;
     private final TurnoService turnoService;
+    private final ObjectMapper objectMapper = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+    public record CategoriaSeedDTO(String nombre, String color) {}
+    public record InsumoSeedDTO(String nombre, String categoria, int puntoControl, boolean critico) {}
 
     @Override
-    public void run(String... args) {
+    public void run(String... args) throws Exception {
         if (usuarioRepository.count() > 0) {
             return; // Ya existen datos
         }
@@ -62,31 +73,55 @@ public class DataLoader implements CommandLineRunner {
         String medico = "Matías Carro";
         String chofer = "Juan Perez";
 
-        // 2.Cargar Categorias
-        CategoriaInsumo farma = categoriaRepository.save(CategoriaInsumo.builder().nombre("FARMACOLOGICOS").color("#D9574C").build());
-        CategoriaInsumo  descartables = categoriaRepository.save(CategoriaInsumo.builder().nombre("DESCARTABLES").color("#087E8B").build());
-        CategoriaInsumo  viaAerea = categoriaRepository.save(CategoriaInsumo.builder().nombre("VIA AEREA").color("#3978A8").build());
-        CategoriaInsumo  oxigeno = categoriaRepository.save(CategoriaInsumo.builder().nombre("OXIGENO").color("#E47828").build());
-        CategoriaInsumo  curacion = categoriaRepository.save(CategoriaInsumo.builder().nombre("CURACION").color("#087E8B").build());
-        CategoriaInsumo  equipamiento = categoriaRepository.save(CategoriaInsumo.builder().nombre("EQUIPAMIENTO").color("#3978A8").build());
+        // 2. Cargar Categorías desde JSON
+        List<CategoriaSeedDTO> categoriasData;
+        try (InputStream is = new ClassPathResource("data/categorias.json").getInputStream()) {
+            categoriasData = objectMapper.readValue(is, new TypeReference<List<CategoriaSeedDTO>>() {});
+        }
 
-        // 3. Cargar Catálogo de Insumos
-        Insumo adrenalina = insumoRepository.save(Insumo.builder().nombre("Adrenalina 1mg").categoria(farma).puntoControl(20).critico(false).build());
-        Insumo atropina = insumoRepository.save(Insumo.builder().nombre("Atropina 1mg").categoria(farma).puntoControl(5).critico(false).build());
-        Insumo gasas = insumoRepository.save(Insumo.builder().nombre("Gasas Estériles (Sobres)").categoria(curacion).puntoControl(30).critico(false).build());
-        Insumo guantes = insumoRepository.save(Insumo.builder().nombre("Guantes de Nitrilo M").categoria(descartables).puntoControl(100).critico(false).build());
-        Insumo tuboO2Portatil = insumoRepository.save(Insumo.builder().nombre("Tubo Portátil Presion de oxigeno medido en bares").categoria(viaAerea).puntoControl(60).critico(true).build());
-        Insumo tuboO2Pesado = insumoRepository.save(Insumo.builder().nombre("Tubo grande Presion de oxigeno, medido en Bares").categoria(oxigeno).puntoControl(60).critico(true).build());
+        Map<String, CategoriaInsumo> categoriaMap = new HashMap<>();
+        for (CategoriaSeedDTO catDto : categoriasData) {
+            CategoriaInsumo cat = categoriaRepository.save(
+                    CategoriaInsumo.builder()
+                            .nombre(catDto.nombre())
+                            .color(catDto.color())
+                            .build()
+            );
+            categoriaMap.put(catDto.nombre(), cat);
+        }
+        log.info("Cargadas {} categorías desde JSON", categoriaMap.size());
 
-        var insumos = List.of(adrenalina, atropina, gasas, guantes, tuboO2Portatil, tuboO2Pesado);
-        var insumosSet = Set.of(adrenalina, atropina, gasas, guantes, tuboO2Portatil, tuboO2Pesado);
+        // 3. Cargar Catálogo de Insumos desde JSON
+        List<InsumoSeedDTO> insumosData;
+        try (InputStream is = new ClassPathResource("data/insumos.json").getInputStream()) {
+            insumosData = objectMapper.readValue(is, new TypeReference<List<InsumoSeedDTO>>() {});
+        }
+
+        List<Insumo> insumosToSave = new ArrayList<>();
+        for (InsumoSeedDTO insumoDto : insumosData) {
+            CategoriaInsumo cat = categoriaMap.get(insumoDto.categoria());
+            if (cat == null) {
+                throw new IllegalStateException("Categoría no encontrada para insumo: " + insumoDto.nombre() + " (" + insumoDto.categoria() + ")");
+            }
+            insumosToSave.add(
+                    Insumo.builder()
+                            .nombre(insumoDto.nombre())
+                            .categoria(cat)
+                            .puntoControl(insumoDto.puntoControl())
+                            .critico(insumoDto.critico())
+                            .build()
+            );
+        }
+        List<Insumo> insumos = insumoRepository.saveAll(insumosToSave);
+        log.info("Cargados {} insumos desde JSON", insumos.size());
+
+        Set<Insumo> insumosSet = new HashSet<>(insumos);
 
         // 4. Cargar Ambulancias
         Ambulancia m01 = crearAmbulanciaConInsumos("AE 107 AB", insumosSet);
         Ambulancia m02 = crearAmbulanciaConInsumos("AE 107 CD", insumosSet);
         Ambulancia m03 = crearAmbulanciaConInsumos("AE 107 EF", insumosSet);
         Ambulancia m04 = crearAmbulanciaConInsumos("AE 107 GH", insumosSet);
-
 
         // 5. Crear Turno de Guardia
         TurnoRequestDTO turnoReq1 = new TurnoRequestDTO();
@@ -99,14 +134,26 @@ public class DataLoader implements CommandLineRunner {
 
         var turnoResp1 = turnoService.crearTurno(admin.getId(),turnoReq1);
         // Simular ingreso y egreso
-        var listaInsumosIngreso1 = insumos.stream().map(i -> new ControlInsumoRequestDTO(i.getId(),i.getPuntoControl(), null)).toList();
-        listaInsumosIngreso1.get(5).setCantidad(50);
+        var listaInsumosIngreso1 = insumos.stream()
+                .map(i -> new ControlInsumoRequestDTO(i.getId(), i.getPuntoControl(), null))
+                .collect(Collectors.toList());
+        if (listaInsumosIngreso1.size() > 5) {
+            listaInsumosIngreso1.get(5).setCantidad(Math.max(0, listaInsumosIngreso1.get(5).getCantidad() - 1));
+        }
         turnoService.registrarIngreso(new IngresoEgresoDTO(turnoResp1.getId(), listaInsumosIngreso1, null));
 
-        var listaInsumosEgreso1 = List.copyOf(listaInsumosIngreso1);
-        listaInsumosEgreso1.get(0).setCantidad(listaInsumosEgreso1.get(0).getCantidad() - 1);
-        listaInsumosEgreso1.get(1).setCantidad(listaInsumosEgreso1.get(1).getCantidad() - 2);
-        listaInsumosEgreso1.get(5).setCantidad(100);
+        var listaInsumosEgreso1 = listaInsumosIngreso1.stream()
+                .map(ci -> new ControlInsumoRequestDTO(ci.getId(), ci.getCantidad(), null))
+                .collect(Collectors.toList());
+        if (!listaInsumosEgreso1.isEmpty()) {
+            listaInsumosEgreso1.get(0).setCantidad(Math.max(0, listaInsumosEgreso1.get(0).getCantidad() - 1));
+        }
+        if (listaInsumosEgreso1.size() > 1) {
+            listaInsumosEgreso1.get(1).setCantidad(Math.max(0, listaInsumosEgreso1.get(1).getCantidad() - 2));
+        }
+        if (listaInsumosEgreso1.size() > 5) {
+            listaInsumosEgreso1.get(5).setCantidad(listaInsumosEgreso1.get(5).getCantidad() + 1);
+        }
         turnoService.registrarEgreso(new IngresoEgresoDTO(turnoResp1.getId(), listaInsumosEgreso1, null));
 
         TurnoRequestDTO turnoReq2 = new TurnoRequestDTO();
@@ -120,8 +167,20 @@ public class DataLoader implements CommandLineRunner {
         var turnoResp2 = turnoService.crearTurno(admin.getId(),turnoReq2);
 
         // Simular ingreso con inconsistencia en adrenalina
-        var listaInsumosIngreso2 = insumos.stream().map(i -> new ControlInsumoRequestDTO(i.getId(),i.getPuntoControl(),0)).toList();
-        listaInsumosIngreso2.get(0).setCantidad(listaInsumosIngreso2.get(0).getCantidad() - 10);
+        var listaInsumosIngreso2 = insumos.stream()
+                .map(i -> new ControlInsumoRequestDTO(i.getId(), i.getPuntoControl(), 0))
+                .collect(Collectors.toList());
+
+        Long adrenalinaId = insumos.stream()
+                .filter(i -> i.getNombre().equalsIgnoreCase("Adrenalina"))
+                .findFirst()
+                .map(Insumo::getId)
+                .orElse(insumos.get(0).getId());
+
+        listaInsumosIngreso2.stream()
+                .filter(ci -> ci.getId().equals(adrenalinaId))
+                .findFirst()
+                .ifPresent(ci -> ci.setCantidad(Math.max(0, ci.getCantidad() - 10)));
 
         turnoService.registrarIngreso(new IngresoEgresoDTO(turnoResp2.getId(), listaInsumosIngreso2, "Faltan 10 adrenalina"));
     }
@@ -133,5 +192,4 @@ public class DataLoader implements CommandLineRunner {
                 .build();
         return ambulanciaRepository.save(amb);
     }
-
 }

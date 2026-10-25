@@ -15,14 +15,14 @@ public class InsumoDTO {
     private String nombre;
     private String categoria;
     private int puntoControl;
-    private boolean esCritico;
+    private boolean critico;
 
     public InsumoDTO(Insumo i) {
         if (null == i) return;
         this.id = i.getId();
         this.nombre = i.getNombre();
         this.puntoControl = i.getPuntoControl();
-        this.esCritico = i.isCritico();
+        this.critico = i.isCritico();
         if (i.getCategoria() != null) {
             this.categoria = i.getCategoria().getNombre();
         } else {
