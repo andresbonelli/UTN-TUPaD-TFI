@@ -16,6 +16,12 @@ public class CategoriaInsumoRequestDTO {
     private String color;
 
     public CategoriaInsumo toCategoriaInsumo() {
+        if (null == nombre) {
+            throw new IllegalArgumentException("El campo nombre es obligatorio");
+        }
+        if (null == color) {
+            throw new IllegalArgumentException("El campo color es obligatorio");
+        }
         return CategoriaInsumo.builder()
                 .nombre(StringUtils.stripAccents(nombre.toUpperCase()))
                 .color(color.toUpperCase())
