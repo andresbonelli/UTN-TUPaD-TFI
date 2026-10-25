@@ -3,7 +3,9 @@ import TurnoActual from "../components/Operativo/TurnoActual";
 import ControlInsumos from "../components/Operativo/ControlInsumos";
 import ControlIngreso from "../components/Operativo/ControlIngreso";
 
+// ! Eliminar cuando esten los logins
 const ENFERMERO_ID = 2; // TODO: eliminar cuando se implemente autenticación
+const TURNO_PRUEBA_ID = 33; // TODO: eliminar después de probar control de ingreso
 
 export default function OperativoEnfermero() {
     const {
@@ -39,13 +41,20 @@ export default function OperativoEnfermero() {
         );
     }
 
-    const turnoOperativo =
-        turnos?.find(
-            (turno) => turno.estado === "EN_CURSO"
-        ) ??
-        turnos?.find(
-            (turno) => turno.estado === "PROGRAMADO"
-        );
+    // const turnoOperativo =
+    //     turnos?.find(
+    //         (turno) => turno.estado === "EN_CURSO"
+    //     ) ??
+    //     turnos?.find(
+    //         (turno) => turno.estado === "PROGRAMADO"
+    //     );
+
+    // ! Solo para DEBUG -> eliminar
+    const turnoOperativo = turnos?.find(
+        (turno) => turno.id === TURNO_PRUEBA_ID
+    );
+    // ! Eliminar hast aca DEBUG
+
     if (!turnoOperativo) {
         return (
             <main className="min-h-screen bg-fondo p-6 text-petro">
