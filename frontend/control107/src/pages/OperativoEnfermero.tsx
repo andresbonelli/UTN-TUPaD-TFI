@@ -1,6 +1,7 @@
 import { useTurnosPorEnfermero } from "../hooks/useTurnos";
 import TurnoActual from "../components/Operativo/TurnoActual";
 import ControlInsumos from "../components/Operativo/ControlInsumos";
+import ControlIngreso from "../components/Operativo/ControlIngreso";
 
 const ENFERMERO_ID = 2; // TODO: eliminar cuando se implemente autenticación
 
@@ -38,11 +39,14 @@ export default function OperativoEnfermero() {
         );
     }
 
-    const turnoEnCurso = turnos?.find(
-        (turno) => turno.estado === "EN_CURSO"
-    );
-
-    if (!turnoEnCurso) {
+    const turnoOperativo =
+        turnos?.find(
+            (turno) => turno.estado === "EN_CURSO"
+        ) ??
+        turnos?.find(
+            (turno) => turno.estado === "PROGRAMADO"
+        );
+    if (!turnoOperativo) {
         return (
             <main className="min-h-screen bg-fondo p-6 text-petro">
                 <div className="mx-auto max-w-5xl">
@@ -65,10 +69,20 @@ export default function OperativoEnfermero() {
                     Mi turno
                 </h1>
 
-                <TurnoActual turno={turnoEnCurso} />
-                <ControlInsumos
-                    controles={turnoEnCurso.controlInsumos}
-                />
+                <TurnoActual turno={turnoOperativo} />
+
+                {turnoOperativo.estado === "EN_CURSO" && (
+                    <ControlInsumos
+                        controles={turnoOperativo.controlInsumos}
+                    />
+                )}
+
+                {turnoOperativo.estado === "PROGRAMADO" && (
+                    <ControlIngreso
+                        turnoId={turnoOperativo.id}
+                        controles={turnoOperativo.controlInsumos}
+                    />
+                )}
             </div>
         </main>
     );

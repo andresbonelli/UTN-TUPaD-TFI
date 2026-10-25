@@ -1,83 +1,78 @@
 import type { Turno } from "../../interfaces/Turno";
 
 interface TurnoActualProps {
-  turno: Turno;
+    turno: Turno;
 }
 
-export default function TurnoActual({
-  turno,
-}: TurnoActualProps) {
-  return (
-    <section className="rounded-xl bg-blanco p-6 shadow-sm">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <p className="text-sm text-petro/60">
-            Turno #{turno.id}
-          </p>
+export default function TurnoActual({ turno }: TurnoActualProps) {
 
-          <h2 className="text-2xl font-semibold text-petro">
-            Ambulancia {turno.ambulancia.patente}
-          </h2>
-        </div>
+    const estadoTexto =
+        turno.estado === "PROGRAMADO"
+            ? "Programado"
+            : turno.estado === "EN_CURSO"
+                ? "En curso"
+                : turno.estado;
 
-        <span className="rounded-lg bg-verde/10 px-3 py-2 text-sm font-semibold text-verde">
-          En curso
-        </span>
-      </div>
+    const estadoColor =
+        turno.estado === "PROGRAMADO"
+            ? "bg-azul/10 text-azul"
+            : "bg-verde/10 text-verde";
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div>
-          <p className="text-sm text-petro/60">
-            Fecha
-          </p>
+    return (
+        <section className="rounded-xl bg-blanco p-6 shadow-sm">
+            <div className="mb-6 flex items-center justify-between">
+                <div>
+                    <p className="text-sm text-petro/60">Turno #{turno.id}</p>
 
-          <p className="font-medium">
-            {turno.fecha}
-          </p>
-        </div>
+                    <h2 className="text-2xl font-semibold text-petro">
+                        Ambulancia {turno.ambulancia.patente}
+                    </h2>
+                </div>
 
-        <div>
-          <p className="text-sm text-petro/60">
-            Horario
-          </p>
+                <span
+                    className={`rounded-lg px-3 py-2 text-sm font-semibold ${estadoColor}`}
+                >
+                    {estadoTexto}
+                </span>
+            </div>
 
-          <p className="font-medium">
-            {turno.horario}
-          </p>
-        </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div>
+                    <p className="text-sm text-petro/60">Fecha</p>
 
-        <div>
-          <p className="text-sm text-petro/60">
-            Médico
-          </p>
+                    <p className="font-medium">{turno.fecha}</p>
+                </div>
 
-          <p className="font-medium">
-            {turno.medico}
-          </p>
-        </div>
+                <div>
+                    <p className="text-sm text-petro/60">Horario</p>
 
-        <div>
-          <p className="text-sm text-petro/60">
-            Chofer
-          </p>
+                    <p className="font-medium">{turno.horario}</p>
+                </div>
 
-          <p className="font-medium">
-            {turno.chofer}
-          </p>
-        </div>
-      </div>
+                <div>
+                    <p className="text-sm text-petro/60">Médico</p>
 
-      {turno.observacionesIngreso && (
-        <div className="mt-6 rounded-lg border border-ambar bg-ambar/10 p-4">
-          <p className="text-sm font-semibold text-petro">
-            Observaciones de ingreso
-          </p>
+                    <p className="font-medium">{turno.medico}</p>
+                </div>
 
-          <p className="mt-1 text-sm text-petro/80">
-            {turno.observacionesIngreso}
-          </p>
-        </div>
-      )}
-    </section>
-  );
+                <div>
+                    <p className="text-sm text-petro/60">Chofer</p>
+
+                    <p className="font-medium">{turno.chofer}</p>
+                </div>
+            </div>
+
+            {turno.observacionesIngreso && (
+                <div className="mt-6 rounded-lg border border-ambar bg-ambar/10 p-4">
+                    <p className="text-sm font-semibold text-petro">
+                        Observaciones de ingreso
+                    </p>
+
+                    <p className="mt-1 text-sm text-petro/80">
+                        {turno.observacionesIngreso}
+                    </p>
+                </div>
+            )}
+        </section>
+    );
 }

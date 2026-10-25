@@ -44,3 +44,15 @@ export interface Turno {
 
     controlInsumos: ControlInsumo[];
 }
+
+export interface ControlInsumoRequest {
+  id: number;
+  cantidad: number;
+  cantidadRestockeo: number;
+}
+
+export interface IngresoEgresoRequest {
+  turnoId: number;
+  insumos: ControlInsumoRequest[];
+  observaciones: string;
+}

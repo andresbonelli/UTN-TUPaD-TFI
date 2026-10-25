@@ -1,5 +1,8 @@
 import { API_URL } from "./api";
-import type { Turno } from "../interfaces/Turno";
+import type {
+  IngresoEgresoRequest,
+  Turno,
+} from "../interfaces/Turno";
 
 const TURNOS_URL = `${API_URL}/turnos`;
 
@@ -51,4 +54,22 @@ export async function listarTurnosPorEnfermero(
   }
 
   return response.json();
+}
+
+export async function registrarIngreso(
+  ingreso: IngresoEgresoRequest
+): Promise<void> {
+  const response = await fetch(`${TURNOS_URL}/ingreso`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(ingreso),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      "Error al registrar el control de ingreso"
+    );
+  }
 }

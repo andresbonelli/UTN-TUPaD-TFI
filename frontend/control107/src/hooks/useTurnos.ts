@@ -1,11 +1,20 @@
-import { useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
-import type { Turno } from "../interfaces/Turno";
+import type {
+  IngresoEgresoRequest,
+  Turno,
+} from "../interfaces/Turno";
+
 import {
   listarTurnos,
   listarTurnosActivos,
   listarTurnosPorEnfermero,
   obtenerTurno,
+  registrarIngreso,
 } from "../services/turno";
 
 export function useTurnos() {
@@ -40,5 +49,19 @@ export function useTurnosPorEnfermero(
     ],
     queryFn: () =>
       listarTurnosPorEnfermero(enfermeroId),
+  });
+}
+
+export function useRegistrarIngreso() {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, IngresoEgresoRequest>({
+    mutationFn: registrarIngreso,
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["turnos"],
+      });
+    },
   });
 }
