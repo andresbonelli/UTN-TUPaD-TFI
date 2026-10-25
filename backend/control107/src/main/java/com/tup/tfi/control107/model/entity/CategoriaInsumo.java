@@ -14,7 +14,7 @@ import lombok.*;
 @Builder
 public class CategoriaInsumo extends BaseEntity{
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String nombre;
 
     // Hexadecimal, example: #FF0000

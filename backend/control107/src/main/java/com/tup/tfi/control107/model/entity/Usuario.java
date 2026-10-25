@@ -16,10 +16,10 @@ public class Usuario extends BaseEntity {
     @Column(nullable = false)
     private String nombre;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String dni;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String email;
 
     @Enumerated(EnumType.STRING)
