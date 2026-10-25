@@ -1,16 +1,33 @@
-import { Route, Routes, Navigate } from "react-router-dom"; // Importar Navigate
+import {
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
+
 import AdminCategorias from "./pages/AdminCategorias";
+import OperativoEnfermero from "./pages/OperativoEnfermero";
 
 function App() {
   return (
     <Routes>
-      {/* 1. Redirigir la raíz a /categorias automáticamente */}
-      <Route path="/" element={<Navigate to="/categorias" replace />} />
-      
-      {/* 2. Tu ruta actual */}
+      <Route
+        path="/"
+        element={
+          <Navigate
+            to="/categorias"
+            replace
+          />
+        }
+      />
+
       <Route
         path="/categorias"
         element={<AdminCategorias />}
+      />
+
+      <Route
+        path="/operativo"
+        element={<OperativoEnfermero />}
       />
     </Routes>
   );

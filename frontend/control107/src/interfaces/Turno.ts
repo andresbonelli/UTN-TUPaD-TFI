@@ -16,13 +16,15 @@ export interface ControlInsumo {
     nombre: string;
     categoria: string;
     esCritico: boolean;
-    cantidadIngreso: number;
-    cantidadEgreso: number;
+
+    cantidadIngreso: number | null;
+    cantidadEgreso: number | null;
+
     ingresoFaltante: number;
-    cantidadUsada: number;
+
+    cantidadUsada: number | null;
     cantidadRestockeo: number;
 }
-
 export interface Turno {
     id: number;
     fecha: string;
@@ -37,8 +39,8 @@ export interface Turno {
 
     ambulancia: Ambulancia;
 
-    observacionesIngreso: string;
-    observacionesEgreso: string;
+    observacionesIngreso: string | null;
+    observacionesEgreso: string | null;
 
     controlInsumos: ControlInsumo[];
 }
