@@ -16,9 +16,19 @@ public class InsumoRequestDTO {
     private String nombre;
     private Long categoriaId;
     private Integer puntoControl;
-    private boolean critico;
+    private Boolean critico;
 
-    public Insumo toInsumo(@NotNull CategoriaInsumo categoria) {
+    public Insumo toInsumo(CategoriaInsumo categoria) {
+        // Validaciones de creacion
+        if (null == categoria) {
+            throw new IllegalArgumentException("El campo categoria es obligatorio");
+        }
+        if (null == critico) {
+            throw new IllegalArgumentException("El campo critico es obligatorio");
+        }
+        if (null == puntoControl) {
+            throw new IllegalArgumentException("El campo punto de control es obligatorio");
+        }
         return new Insumo(nombre, categoria, puntoControl, critico);
     }
 
@@ -32,7 +42,9 @@ public class InsumoRequestDTO {
         if (null != puntoControl) {
             i.setPuntoControl(puntoControl);
         }
+        if (null != critico) {
         i.setCritico(critico);
+        }
         i.setUpdatedAt(LocalDateTime.now());
     }
 }

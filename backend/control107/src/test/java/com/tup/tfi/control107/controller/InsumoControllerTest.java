@@ -59,7 +59,7 @@ class InsumoControllerTest {
                 .nombre(NOMBRE)
                 .categoria(CATEGORIA)
                 .puntoControl(20)
-                .esCritico(true)
+                .critico(true)
                 .build();
     }
 
@@ -152,7 +152,7 @@ class InsumoControllerTest {
                 .nombre("Adrenalina 2mg")
                 .categoria(CATEGORIA)
                 .puntoControl(25)
-                .esCritico(true)
+                .critico(true)
                 .build();
         when(insumoService.actualizarInsumo(eq(ID), any(InsumoRequestDTO.class))).thenReturn(updatedDTO);
 

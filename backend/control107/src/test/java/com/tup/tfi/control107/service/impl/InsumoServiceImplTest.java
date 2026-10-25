@@ -80,7 +80,7 @@ class InsumoServiceImplTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
-        assertTrue(resultado.get(0).isEsCritico());
+        assertTrue(resultado.get(0).isCritico());
         verify(insumoRepository, times(1)).findByCriticoIsTrueAndEliminadoIsFalse();
     }
 
