@@ -13,10 +13,14 @@ export default function TurnoActual({ turno }: TurnoActualProps) {
                 ? "En curso"
                 : turno.estado;
 
-    const estadoColor =
-        turno.estado === "PROGRAMADO"
-            ? "bg-azul/10 text-azul"
-            : "bg-verde/10 text-verde";
+const estadoColor =
+    turno.estado === "PROGRAMADO"
+        ? "bg-azul/10 text-azul"
+        : turno.estado === "EN_CURSO"
+            ? "bg-verde/10 text-verde"
+            : turno.estado === "CANCELADO"
+                ? "bg-coral/10 text-coral"
+                : "bg-petro/10 text-petro";
 
     return (
         <section className="rounded-xl bg-blanco p-6 shadow-sm">

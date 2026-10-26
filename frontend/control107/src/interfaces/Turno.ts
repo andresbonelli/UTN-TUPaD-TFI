@@ -56,3 +56,7 @@ export interface IngresoEgresoRequest {
   insumos: ControlInsumoRequest[];
   observaciones: string;
 }
+
+export interface CancelarTurnoRequest {
+  observaciones: string;
+}

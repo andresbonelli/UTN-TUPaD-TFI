@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query";
 
 import type {
+  CancelarTurnoRequest,
   IngresoEgresoRequest,
   Turno,
 } from "../interfaces/Turno";
@@ -16,6 +17,7 @@ import {
   obtenerTurno,
   registrarEgreso,
   registrarIngreso,
+  cancelarTurno,
 } from "../services/turno";
 
 export function useTurnos() {
@@ -76,6 +78,28 @@ export function useRegistrarEgreso() {
     IngresoEgresoRequest
   >({
     mutationFn: registrarEgreso,
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["turnos"],
+      });
+    },
+  });
+}
+
+export function useCancelarTurno() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    Turno,
+    Error,
+    {
+      turnoId: number;
+      request: CancelarTurnoRequest;
+    }
+  >({
+    mutationFn: ({ turnoId, request }) =>
+      cancelarTurno(turnoId, request),
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({

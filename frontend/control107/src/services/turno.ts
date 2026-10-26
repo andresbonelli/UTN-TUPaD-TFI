@@ -1,5 +1,6 @@
 import { API_URL } from "./api";
 import type {
+  CancelarTurnoRequest,
   IngresoEgresoRequest,
   Turno,
 } from "../interfaces/Turno";
@@ -90,4 +91,26 @@ export async function registrarEgreso(
       "Error al registrar el control de egreso"
     );
   }
+}
+
+export async function cancelarTurno(
+  turnoId: number,
+  request: CancelarTurnoRequest
+): Promise<Turno> {
+  const response = await fetch(
+    `${TURNOS_URL}/${turnoId}/cancelar`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Error al cancelar el turno");
+  }
+
+  return response.json();
 }

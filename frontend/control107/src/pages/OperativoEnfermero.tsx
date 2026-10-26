@@ -3,10 +3,11 @@ import TurnoActual from "../components/Operativo/TurnoActual";
 import ControlInsumos from "../components/Operativo/ControlInsumos";
 import ControlIngreso from "../components/Operativo/ControlIngreso";
 import ControlEgreso from "../components/Operativo/ControlEgreso";
+import CancelarTurno from "../components/Operativo/CancelarTurno";
 
 // ! Eliminar cuando esten los logins
-const ENFERMERO_ID = 2; // TODO: eliminar cuando se implemente autenticación
-const TURNO_PRUEBA_ID = 3; // TODO: eliminar después de probar control de ingreso
+const ENFERMERO_ID = 3; // TODO: eliminar cuando se implemente autenticación
+const TURNO_PRUEBA_ID = 6; // TODO: eliminar después de probar control de ingreso
 
 export default function OperativoEnfermero() {
     const {
@@ -101,10 +102,16 @@ export default function OperativoEnfermero() {
                 )}
 
                 {turnoOperativo.estado === "PROGRAMADO" && (
-                    <ControlIngreso
-                        turnoId={turnoOperativo.id}
-                        controles={turnoOperativo.controlInsumos}
-                    />
+                    <>
+                        <ControlIngreso
+                            turnoId={turnoOperativo.id}
+                            controles={turnoOperativo.controlInsumos}
+                        />
+
+                        <CancelarTurno
+                            turnoId={turnoOperativo.id}
+                        />
+                    </>
                 )}
             </div>
         </main>
