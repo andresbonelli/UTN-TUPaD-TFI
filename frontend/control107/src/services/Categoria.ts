@@ -1,6 +1,8 @@
 import { API_URL } from "./api";
 import type { Categoria, CategoriaRequest } from "../interfaces/Categoria";
 
+//Se cambio el nombre a categoria.ts
+
 
 const CATEGORIAS_URL = `${API_URL}/categorias`;
 
