@@ -3,5 +3,5 @@ export interface Insumo {
   nombre: string;
   categoria: string;
   puntoControl: number;
-  esCritico: boolean;
+  critico: boolean; //no aparece como "esCritico" en el endpoint
 }

@@ -2,6 +2,7 @@ import { useTurnosPorEnfermero } from "../hooks/useTurnos";
 import TurnoActual from "../components/Operativo/TurnoActual";
 import ControlInsumos from "../components/Operativo/ControlInsumos";
 import ControlIngreso from "../components/Operativo/ControlIngreso";
+import ControlEgreso from "../components/Operativo/ControlEgreso";
 
 // ! Eliminar cuando esten los logins
 const ENFERMERO_ID = 2; // TODO: eliminar cuando se implemente autenticación
@@ -80,10 +81,23 @@ export default function OperativoEnfermero() {
 
                 <TurnoActual turno={turnoOperativo} />
 
-                {turnoOperativo.estado === "EN_CURSO" && (
+                {/* {turnoOperativo.estado === "EN_CURSO" && (
                     <ControlInsumos
                         controles={turnoOperativo.controlInsumos}
                     />
+                )} */}
+
+                {turnoOperativo.estado === "EN_CURSO" && (
+                    <>
+                        <ControlInsumos
+                            controles={turnoOperativo.controlInsumos}
+                        />
+
+                        <ControlEgreso
+                            turnoId={turnoOperativo.id}
+                            controles={turnoOperativo.controlInsumos}
+                        />
+                    </>
                 )}
 
                 {turnoOperativo.estado === "PROGRAMADO" && (

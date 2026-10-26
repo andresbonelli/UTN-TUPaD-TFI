@@ -73,3 +73,21 @@ export async function registrarIngreso(
     );
   }
 }
+
+export async function registrarEgreso(
+  egreso: IngresoEgresoRequest
+): Promise<void> {
+  const response = await fetch(`${TURNOS_URL}/egreso`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(egreso),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      "Error al registrar el control de egreso"
+    );
+  }
+}

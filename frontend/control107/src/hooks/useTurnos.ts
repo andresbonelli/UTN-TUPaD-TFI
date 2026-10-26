@@ -14,6 +14,7 @@ import {
   listarTurnosActivos,
   listarTurnosPorEnfermero,
   obtenerTurno,
+  registrarEgreso,
   registrarIngreso,
 } from "../services/turno";
 
@@ -57,6 +58,24 @@ export function useRegistrarIngreso() {
 
   return useMutation<void, Error, IngresoEgresoRequest>({
     mutationFn: registrarIngreso,
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["turnos"],
+      });
+    },
+  });
+}
+
+export function useRegistrarEgreso() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    void,
+    Error,
+    IngresoEgresoRequest
+  >({
+    mutationFn: registrarEgreso,
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
