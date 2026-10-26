@@ -17,7 +17,7 @@ export interface ControlInsumo {
     categoria: string;
     esCritico: boolean;
 
-    cantidadIngreso: number | null;
+    cantidadIngreso: number;
     cantidadEgreso: number | null;
 
     ingresoFaltante: number;
