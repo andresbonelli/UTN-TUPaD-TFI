@@ -7,6 +7,7 @@ import type {
     ControlInsumo,
     IngresoEgresoRequest,
 } from "../../interfaces/Turno";
+import CategoriaBadge from "../CategoriaBadge";
 
 export interface ControlEgresoRelacionado {
     control: ControlInsumo;
@@ -86,11 +87,11 @@ export default function FormularioControlEgreso({
     });
 
     return (
-        <form 
-        onSubmit={(event) => {
-            event.preventDefault();
-            form.handleSubmit();
-        }}
+        <form
+            onSubmit={(event) => {
+                event.preventDefault();
+                form.handleSubmit();
+            }}
             className="mt-6 space-y-6">
 
             <p className="text-sm text-petro/60">
@@ -116,7 +117,9 @@ export default function FormularioControlEgreso({
                                     <div>
                                         <p className="font-semibold text-petro">{control.nombre}</p>
 
-                                        <p className="mt-1 text-sm text-petro/60">{control.categoria}</p>
+                                        <div className="mt-1">
+                                            <CategoriaBadge nombre={control.categoria} />
+                                        </div>
                                     </div>
 
                                     <div className="flex flex-wrap gap-2">
@@ -132,63 +135,63 @@ export default function FormularioControlEgreso({
                                             </span>
                                         )}
                                     </div>
+                                </div>
+
+                                <div className="grid gap-4 md:grid-cols-3">
+                                    <div>
+                                        <p className="text-sm font-medium text-petro">Cantidad de ingreso</p>
+
+                                        <p className="mt-2 rounded-lg bg-blanco px-3 py-2 font-semibold text-petro">
+                                            {control.cantidadIngreso}{" "}
+                                            {unidad}
+                                        </p>
                                     </div>
 
-                                    <div className="grid gap-4 md:grid-cols-3">
-                                        <div>
-                                            <p className="text-sm font-medium text-petro">Cantidad de ingreso</p>
+                                    <form.Field name={`insumos[${index}].cantidadRestockeo`}
+                                        validators={{
+                                            onChange: ({ value }) =>
+                                                value < 0 ? "La reposición no puede ser negativa" : undefined,
+                                        }}
+                                    >
+                                        {(field) => (
+                                            <div>
+                                                <label
+                                                    htmlFor={field.name}
+                                                    className="text-sm font-medium text-petro"
+                                                >
+                                                    Reposición durante el turno
+                                                </label>
 
-                                            <p className="mt-2 rounded-lg bg-blanco px-3 py-2 font-semibold text-petro">
-                                                {control.cantidadIngreso}{" "}
-                                                {unidad}
-                                            </p>
-                                        </div>
+                                                <div className="mt-2 flex items-center gap-3">
+                                                    <input
+                                                        id={field.name}
+                                                        name={field.name}
+                                                        type="number"
+                                                        min={0}
+                                                        step={1}
+                                                        value={field.state.value}
+                                                        onBlur={field.handleBlur}
+                                                        onChange={(event) =>
+                                                            field.handleChange(Number(event.target.value))
+                                                        }
+                                                        className="w-full rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-petro outline-none focus:border-turquesa focus:ring-2 focus:ring-turquesa/20"
+                                                    />
 
-                                        <form.Field name={`insumos[${index}].cantidadRestockeo`}
-                                            validators={{
-                                                onChange: ({ value }) =>
-                                                    value < 0 ? "La reposición no puede ser negativa" : undefined,
-                                            }}
-                                        >
-                                            {(field) => (
-                                                <div>
-                                                    <label
-                                                        htmlFor={field.name}
-                                                        className="text-sm font-medium text-petro"
-                                                    >
-                                                        Reposición durante el turno
-                                                    </label>
+                                                    <span className="min-w-fit text-sm font-medium text-petro/60">
+                                                        {unidad}
+                                                    </span>
+                                                </div>
 
-                                                    <div className="mt-2 flex items-center gap-3">
-                                                        <input
-                                                            id={field.name}
-                                                            name={field.name}
-                                                            type="number"
-                                                            min={0}
-                                                            step={1}
-                                                            value={field.state.value}
-                                                            onBlur={field.handleBlur}
-                                                            onChange={(event) =>
-                                                                field.handleChange(Number(event.target.value))
-                                                            }
-                                                            className="w-full rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-petro outline-none focus:border-turquesa focus:ring-2 focus:ring-turquesa/20"
-                                                        />
-
-                                                        <span className="min-w-fit text-sm font-medium text-petro/60">
-                                                            {unidad}
-                                                        </span>
-                                                    </div>
-
-                                                    {field.state.meta.errors.map(
-                                                        (error) => (
-                                                            <p key={String(error)} className="mt-1 text-xs text-coral">{String(error)}</p>
+                                                {field.state.meta.errors.map(
+                                                    (error) => (
+                                                        <p key={String(error)} className="mt-1 text-xs text-coral">{String(error)}</p>
                                                     )
                                                 )}
                                             </div>
                                         )}
                                     </form.Field>
 
-                                                                        <form.Field
+                                    <form.Field
                                         name={`insumos[${index}].cantidadEgreso`}
                                         validators={{
                                             onChange: ({ value }) =>
@@ -235,7 +238,7 @@ export default function FormularioControlEgreso({
                                             </div>
                                         )}
                                     </form.Field>
-                                    
+
                                 </div>
                             </article>
                         );

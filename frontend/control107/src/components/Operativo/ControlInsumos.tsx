@@ -1,5 +1,6 @@
 import type { ControlInsumo } from "../../interfaces/Turno";
 import CardOxigeno from "./CardOxigeno";
+import CategoriaBadge from "../CategoriaBadge";
 
 interface ControlInsumosProps {
     controles: ControlInsumo[];
@@ -48,9 +49,9 @@ export default function ControlInsumos({
                                             {control.nombre}
                                         </p>
 
-                                        <p className="mt-1 text-sm text-petro/60">
-                                            {control.categoria}
-                                        </p>
+                                        <div className="mt-1">
+                                            <CategoriaBadge nombre={control.categoria} />
+                                        </div>
                                     </div>
 
                                     <span className="rounded-md bg-coral px-2 py-1 text-xs font-semibold text-blanco">
@@ -109,9 +110,9 @@ export default function ControlInsumos({
                                             {control.nombre}
                                         </p>
 
-                                        <p className="mt-1 text-sm text-petro/60">
-                                            {control.categoria}
-                                        </p>
+                                        <div className="mt-1">
+                                            <CategoriaBadge nombre={control.categoria} />
+                                        </div>
                                     </div>
 
                                     <div className="text-right">

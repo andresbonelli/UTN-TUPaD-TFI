@@ -19,6 +19,7 @@ export default function CardOxigeno({
                     <h3 className="text-xl font-semibold text-petro">
                         Oxígeno
                     </h3>
+
                 </div>
 
                 <p className="mt-2 text-sm text-petro/60">
@@ -39,6 +40,37 @@ export default function CardOxigeno({
 
                     const tieneFaltante =
                         control.ingresoFaltante > 0;
+
+                    const estaLleno =
+                        presionActual >= presionMaxima;
+
+                    const estadoOxigeno =
+                        tieneFaltante
+                            ? "CAMBIAR"
+                            : estaLleno
+                                ? "LLENO"
+                                : "OPERATIVO";
+
+                    // const colorBarra =
+                    //     estadoOxigeno === "CAMBIAR"
+                    //         ? "accent-coral"
+                    //         : estadoOxigeno === "LLENO"
+                    //             ? "accent-turquesa"
+                    //             : "accent-verde";
+
+                    const colorBarra =
+                        estadoOxigeno === "CAMBIAR"
+                            ? "bg-coral"
+                            : estadoOxigeno === "LLENO"
+                                ? "bg-turquesa"
+                                : "bg-verde";
+
+                    const estadoColor =
+                        estadoOxigeno === "CAMBIAR"
+                            ? "bg-coral/10 text-coral"
+                            : estadoOxigeno === "LLENO"
+                                ? "bg-turquesa/10 text-turquesa"
+                                : "bg-verde/10 text-verde";
 
                     const porcentaje =
                         presionMaxima > 0
@@ -66,7 +98,7 @@ export default function CardOxigeno({
                                     </p>
                                 </div>
 
-                                <span
+                                {/* <span
                                     className={
                                         tieneFaltante
                                             ? "w-fit rounded-md bg-coral/10 px-2.5 py-1 text-sm font-semibold text-coral"
@@ -76,6 +108,11 @@ export default function CardOxigeno({
                                     {tieneFaltante
                                         ? "Cambiar"
                                         : "Correcto"}
+                                </span> */}
+                                <span
+                                    className={`w-fit rounded-md px-2.5 py-1 text-sm font-semibold ${estadoColor}`}
+                                >
+                                    {estadoOxigeno}
                                 </span>
                             </div>
 
@@ -90,15 +127,31 @@ export default function CardOxigeno({
                                     </p>
                                 </div>
 
-                                <progress
+                                {/* <progress
                                     value={presionActual}
                                     max={presionMaxima}
-                                    className="h-3 w-full accent-turquesa"
+                                    className={`h-3 w-full ${colorBarra}`}
                                     aria-label={`Presión de ${control.nombre}`}
-                                />
+                                /> */}
+
+                                <div
+                                    className="h-3 w-full overflow-hidden rounded-full bg-petro/10"
+                                    role="progressbar"
+                                    aria-label={`Presión de ${control.nombre}`}
+                                    aria-valuemin={0}
+                                    aria-valuemax={presionMaxima}
+                                    aria-valuenow={presionActual}
+                                >
+                                    <div
+                                        className={`h-full rounded-full transition-all ${colorBarra}`}
+                                        style={{
+                                            width: `${porcentaje}%`,
+                                        }}
+                                    />
+                                </div>
 
                                 <div className="mt-2 flex justify-between text-xs text-petro/60">
-                                    <span>0 bar</span>
+                                    {/* <span>0 bar</span> */}
 
                                     <span>
                                         Máximo: {presionMaxima} bar

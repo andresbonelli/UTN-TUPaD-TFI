@@ -1,12 +1,12 @@
 import { useForm } from "@tanstack/react-form";
-
 import { useRegistrarIngreso } from "../../hooks/useTurnos";
-
 import type { Insumo } from "../../interfaces/Insumo";
 import type {
     ControlInsumo,
     IngresoEgresoRequest,
 } from "../../interfaces/Turno";
+
+import CategoriaBadge from "../CategoriaBadge";
 
 interface ControlRelacionado {
     control: ControlInsumo;
@@ -113,9 +113,9 @@ export default function FormularioControlIngreso({
                                         {control.nombre}
                                     </p>
 
-                                    <p className="mt-1 text-sm text-petro/60">
-                                        {control.categoria}
-                                    </p>
+                                    <div className="mt-1">
+                                        <CategoriaBadge nombre={control.categoria} />
+                                    </div>
                                 </div>
 
                                 <div className="flex flex-wrap gap-2">
