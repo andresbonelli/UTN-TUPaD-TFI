@@ -1,4 +1,5 @@
 import { useInsumos } from "../../hooks/useInsumos";
+import FormularioControlEgreso from "./FormularioControlEgreso";
 
 import type { ControlInsumo } from "../../interfaces/Turno";
 
@@ -96,16 +97,16 @@ export default function ControlEgreso({
                 </div>
             )}
 
-            <div className="mt-6">
-                <p className="text-sm text-petro/60">
-                    Insumos disponibles para el control de egreso:{" "}
-                    {controlesRelacionados.length}
+            {controlesRelacionados.length > 0 ? (
+                <FormularioControlEgreso
+                    turnoId={turnoId}
+                    controles={controlesRelacionados}
+                />
+            ) : (
+                <p className="mt-6 text-sm text-petro/60">
+                    No hay insumos disponibles para registrar el egreso.
                 </p>
-
-                <p className="mt-2 text-sm text-petro/60">
-                    Turno #{turnoId}
-                </p>
-            </div>
+            )}
         </section>
     );
 }
