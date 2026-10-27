@@ -1,4 +1,5 @@
-import { API_URL } from "./api";
+import { api, API_URL } from "./api";
+
 import type {
   CancelarTurnoRequest,
   IngresoEgresoRequest,
@@ -41,20 +42,30 @@ export async function listarTurnosActivos(): Promise<Turno[]> {
   return response.json();
 }
 
+// export async function listarTurnosPorEnfermero(
+//   enfermeroId: number
+// ): Promise<Turno[]> {
+//   const response = await fetch(
+//     `${TURNOS_URL}/enfermero/${enfermeroId}`
+//   );
+
+//   if (!response.ok) {
+//     throw new Error(
+//       "Error al obtener los turnos del enfermero"
+//     );
+//   }
+
+//   return response.json();
+// }
+
 export async function listarTurnosPorEnfermero(
   enfermeroId: number
 ): Promise<Turno[]> {
-  const response = await fetch(
-    `${TURNOS_URL}/enfermero/${enfermeroId}`
+  const response = await api.get<Turno[]>(
+    `/turnos/enfermero/${enfermeroId}`
   );
 
-  if (!response.ok) {
-    throw new Error(
-      "Error al obtener los turnos del enfermero"
-    );
-  }
-
-  return response.json();
+  return response.data;
 }
 
 export async function registrarIngreso(
