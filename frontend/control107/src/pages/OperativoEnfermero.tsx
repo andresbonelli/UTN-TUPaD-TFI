@@ -4,18 +4,23 @@ import ControlInsumos from "../components/Operativo/ControlInsumos";
 import ControlIngreso from "../components/Operativo/ControlIngreso";
 import ControlEgreso from "../components/Operativo/ControlEgreso";
 import CancelarTurno from "../components/Operativo/CancelarTurno";
+import { useAuthStore } from "../stores/authStore";
 
-// ! Eliminar cuando esten los logins
-const ENFERMERO_ID = 33; // TODO: eliminar cuando se implemente autenticación
-const TURNO_PRUEBA_ID = 33; // TODO: eliminar después de probar control de ingreso
+
 
 export default function OperativoEnfermero() {
+    const usuario = useAuthStore(
+        (state) => state.usuario
+    );
+
+    const enfermeroId = usuario?.id ?? 0; // usuario autenticado | null
+
     const {
         data: turnos,
         isLoading,
         isError,
         error,
-    } = useTurnosPorEnfermero(ENFERMERO_ID); // ! cambiar cuando se implemente autenticacion
+    } = useTurnosPorEnfermero(enfermeroId); 
 
     if (isLoading) {
         return (
@@ -43,19 +48,10 @@ export default function OperativoEnfermero() {
         );
     }
 
-    // const turnoOperativo =
-    //     turnos?.find(
-    //         (turno) => turno.estado === "EN_CURSO"
-    //     ) ??
-    //     turnos?.find(
-    //         (turno) => turno.estado === "PROGRAMADO"
-    //     );
 
-    // ! Solo para DEBUG -> eliminar
-    const turnoOperativo = turnos?.find(
-        (turno) => turno.id === TURNO_PRUEBA_ID
-    );
-    // ! Eliminar hast aca DEBUG
+    const turnoOperativo =
+        turnos?.find((turno) => turno.estado === "EN_CURSO") ??
+        turnos?.find((turno) => turno.estado === "PROGRAMADO");
 
     if (!turnoOperativo) {
         return (
@@ -66,7 +62,7 @@ export default function OperativoEnfermero() {
                     </h1>
 
                     <div className="rounded-xl bg-blanco p-6 shadow-sm">
-                        <p>No tienes un turno en curso.</p>
+                        <p>No tienes un turno operativo asignado.</p>
                     </div>
                 </div>
             </main>
@@ -81,12 +77,6 @@ export default function OperativoEnfermero() {
                 </h1>
 
                 <TurnoActual turno={turnoOperativo} />
-
-                {/* {turnoOperativo.estado === "EN_CURSO" && (
-                    <ControlInsumos
-                        controles={turnoOperativo.controlInsumos}
-                    />
-                )} */}
 
                 {turnoOperativo.estado === "EN_CURSO" && (
                     <>

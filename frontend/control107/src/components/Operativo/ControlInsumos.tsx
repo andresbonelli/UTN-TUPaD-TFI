@@ -66,7 +66,8 @@ export default function ControlInsumos({
                                         </p>
 
                                         <p className="font-semibold text-petro">
-                                            {control.cantidadIngreso ?? "Sin registrar"}
+                                            {/* {control.cantidadIngreso ?? "Sin registrar"} */}
+                                            {control.cantidadIngreso}
                                         </p>
                                     </div>
 
@@ -121,7 +122,8 @@ export default function ControlInsumos({
                                         </p>
 
                                         <p className="font-semibold text-petro">
-                                            {control.cantidadIngreso ?? "Sin registrar"}
+                                            {/* {control.cantidadIngreso ?? "Sin registrar"} */}
+                                            {control.cantidadIngreso}
                                         </p>
                                     </div>
                                 </div>
