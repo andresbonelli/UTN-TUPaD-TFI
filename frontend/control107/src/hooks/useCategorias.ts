@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Categoria, CategoriaRequest } from "../interfaces/Categoria";
-import { crearCategoria, listarCategorias } from "../services/Categoria"
+import { crearCategoria, listarCategorias } from "../services/categoria"
 
 export function useCategorias() {
   return useQuery<Categoria[]>({
