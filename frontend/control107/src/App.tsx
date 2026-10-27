@@ -67,6 +67,18 @@ function App() {
           </RutaPorRol>
         }
       />
+
+      {/* Redireccion de rutas erroneas */}
+      <Route
+        path="*"
+        element={
+          !usuario ? (
+            <Navigate to="/login" replace />
+          ) : (
+            <Navigate to={obtenerRutaInicial(usuario.rol)} replace />
+          )
+        }
+      />
     </Routes>
   );
 }
