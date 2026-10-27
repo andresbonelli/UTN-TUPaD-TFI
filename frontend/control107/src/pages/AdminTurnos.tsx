@@ -1,63 +1,10 @@
 import { useTurnos } from "../hooks/useTurnos";
 
-import type {
-    EstadoTurno,
-    HorarioTurno,
-} from "../interfaces/Turno";
-
-function obtenerColorEstado(
-    estado: EstadoTurno
-): string {
-    if (estado === "PROGRAMADO") {
-        return "bg-azul/10 text-azul";
-    }
-
-    if (estado === "EN_CURSO") {
-        return "bg-verde/10 text-verde";
-    }
-
-    if (estado === "CANCELADO") {
-        return "bg-coral/10 text-coral";
-    }
-
-    return "bg-petro/10 text-petro";
-}
-
-function obtenerTextoEstado(
-    estado: EstadoTurno
-): string {
-    if (estado === "PROGRAMADO") {
-        return "Programado";
-    }
-
-    if (estado === "EN_CURSO") {
-        return "En curso";
-    }
-
-    if (estado === "FINALIZADO") {
-        return "Finalizado";
-    }
-
-    return "Cancelado";
-}
-
-function textoHorario(
-    horario: HorarioTurno
-): string {
-    if (horario === "MANIANA") {
-        return "Mañana";
-    }
-
-    if (horario === "TARDE") {
-        return "Tarde";
-    }
-
-    return "Noche";
-}
-
-
-
-
+import {
+    obtenerColorEstado,
+    obtenerTextoEstado,
+    obtenerTextoHorario,
+} from "../utils/turno";
 
 
 export default function AdminTurnos() {
@@ -155,7 +102,7 @@ export default function AdminTurnos() {
                                         </td>
 
                                         <td className="px-3 py-4 text-sm font-medium">
-                                            {textoHorario(turno.horario)}
+                                            {obtenerTextoHorario(turno.horario)}
                                         </td>
 
                                         <td className="px-3 py-4">
@@ -171,7 +118,7 @@ export default function AdminTurnos() {
                                         </td>
 
                                         <td className="px-3 py-4 text-sm">
-                                            {turno.enfermero.nombre}
+                                            {turno.enfermero.email}
                                         </td>
 
                                         <td className="px-3 py-4 text-sm font-medium">

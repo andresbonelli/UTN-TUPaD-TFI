@@ -11,6 +11,8 @@ import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminCategorias from "./pages/AdminCategorias";
 import OperativoEnfermero from "./pages/OperativoEnfermero";
+import AdminTurnos from "./pages/AdminTurnos";
+import AdminUsuarios from "./pages/AdminUsuarios";
 
 function App() {
   const usuario = useAuthStore((state) => state.usuario);
@@ -57,6 +59,8 @@ function App() {
         <Route index element={<AdminDashboard />} />
 
         <Route path="categorias" element={<AdminCategorias />} />
+        <Route path="usuarios" element={<AdminUsuarios />} />
+        <Route path="turnos" element={<AdminTurnos />} />
       </Route>
 
       <Route
