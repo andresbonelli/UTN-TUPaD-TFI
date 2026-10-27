@@ -1,32 +1,62 @@
-# React + TypeScript + Vite
+# Control107 - Estado actual del frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+## Implementado hasta el momento
 
-Currently, two official plugins are available:
+- Flujo operativo del enfermero:
+  - Visualización del turno asignado.
+  - Control de ingreso de insumos.
+  - Registro de faltantes.
+  - Control diferenciado de insumos críticos.
+  - Control especial de oxígeno mediante presión en bares.
+  - Card de oxígeno con nivel, porcentaje y estados `LLENO`, `OPERATIVO` y `CAMBIAR`.
+  - Control de egreso.
+  - Registro de restockeo.
+  - Finalización de turnos.
+  - Cancelación de turnos programados con observación.
+  - Categorías identificadas mediante colores configurados en backend.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Autenticación:
+  - Login mediante JWT.
+  - Decodificación del JWT con `jwt-decode`.
+  - Obtención de `id`, `email` y `rol` desde el token.
+  - Estado global de autenticación mediante Zustand.
+  - Persistencia del token mediante `sessionStorage`.
+  - Restauración automática de sesión después de recargar la pagina.
+  - Validación de expiración del JWT.
+  - Logout.
+  - Roles `ADMINISTRADOR` y `ENFERMERO`.
+  - Rutas protegidas según rol.
+  - Redirección de rutas inexistentes.
+  - El operativo utiliza el ID obtenido del usuario autenticado.
 
-## React Compiler
+- Axios:
+  - Instancia central de Axios.
+  - `baseURL` centralizada.
+  - Interceptor de request.
+  - Envío automático de `Authorization: Bearer <JWT>`.
+  - Interceptor de response preparado para errores `401`.
+  - Diferenciación entre `401` del login y `401` de una sesión inválida.
+  - `listarTurnosPorEnfermero()` migrado a Axios como prueba de integración.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Panel administrativo:
+  - Ruta principal `/admin`.
+  - `AdminLayout` reutilizable.
+  - Header con usuario autenticado y logout.
+  - Navegación lateral.
+  - Rutas administrativas anidadas mediante React Router y `Outlet`.
+  - Dashboard administrativo.
+  - Gestión de categorías disponible en `/admin/categorias`.
+  - Dashboard preparado para futuras páginas de insumos, ambulancias, usuarios y turnos.
 
-## Expanding the Oxlint configuration
+## Tecnologías utilizadas
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- TanStack Query
+- TanStack Form
+- Zustand
+- Axios
+- jwt-decode
