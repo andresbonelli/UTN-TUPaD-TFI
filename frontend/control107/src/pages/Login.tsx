@@ -6,6 +6,7 @@ import { useAuthStore } from "../stores/authStore";
 
 import type { LoginRequest } from "../interfaces/Auth";
 import { obtenerRutaInicial } from "../utils/auth";
+import { AUTH_CONFIG } from "../config/auth";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -32,8 +33,8 @@ export default function Login() {
                     return "La clave es obligatoria";
                 }
 
-                if (value.clave.length < 6) {
-                    return "La clave debe tener al menos 6 caracteres";
+                if (value.clave.length < AUTH_CONFIG.claveMinLength) {
+                    return `La clave debe tener al menos ${AUTH_CONFIG.claveMinLength} caracteres`;
                 }
 
                 return undefined;
@@ -41,6 +42,7 @@ export default function Login() {
         },
 
         onSubmit: async ({ value }) => {
+
             loginMutation.mutate(
                 {
                     mail: value.mail.trim(),
@@ -80,9 +82,21 @@ export default function Login() {
                     </p>
                 </div>
 
-                <form
+                {/* <form
                     onSubmit={(event) => {
                         event.preventDefault();
+                        form.handleSubmit();
+                    }}
+                    className="space-y-5"
+                > */}
+
+                <form
+                    noValidate
+                    onSubmit={(event) => {
+                        event.preventDefault();
+
+                        console.log("Submit HTML ejecutado");
+
                         form.handleSubmit();
                     }}
                     className="space-y-5"
