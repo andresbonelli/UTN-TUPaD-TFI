@@ -2,15 +2,15 @@ import { useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { useAuthStore } from "./stores/authStore";
+import { obtenerRutaInicial } from "./utils/auth";
 
 import RutaPorRol from "./components/Auth/RutaPorRol";
+import AdminLayout from "./components/Admin/AdminLayout";
 
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminCategorias from "./pages/AdminCategorias";
 import OperativoEnfermero from "./pages/OperativoEnfermero";
-import { obtenerRutaInicial } from "./utils/auth";
-
 
 function App() {
   const usuario = useAuthStore((state) => state.usuario);
@@ -24,12 +24,12 @@ function App() {
   }, [restaurarSesion]);
 
   if (!sesionRestaurada) {
-  return (
-    <main className="flex min-h-screen items-center justify-center bg-fondo text-petro">
-      <p>Restaurando sesión...</p>
-    </main>
-  );
-}
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-fondo text-petro">
+        <p>Restaurando sesión...</p>
+      </main>
+    );
+  }
 
   return (
     <Routes>
@@ -38,7 +38,9 @@ function App() {
       <Route
         path="/"
         element={
-          !usuario ? (<Navigate to="/login" replace />) : (
+          !usuario ? (
+            <Navigate to="/login" replace />
+          ) : (
             <Navigate to={obtenerRutaInicial(usuario.rol)} replace />
           )
         }
@@ -48,19 +50,14 @@ function App() {
         path="/admin"
         element={
           <RutaPorRol rolesPermitidos={["ADMINISTRADOR"]}>
-            <AdminDashboard />
+            <AdminLayout />
           </RutaPorRol>
         }
-      />
+      >
+        <Route index element={<AdminDashboard />} />
 
-      <Route
-        path="/categorias"
-        element={
-          <RutaPorRol rolesPermitidos={["ADMINISTRADOR"]}>
-            <AdminCategorias />
-          </RutaPorRol>
-        }
-      />
+        <Route path="categorias" element={<AdminCategorias />} />
+      </Route>
 
       <Route
         path="/operativo"

@@ -35,6 +35,20 @@ export default function AdminCategorias() {
             <div className="mx-auto max-w-5xl">
                 <h1 className="mb-6 text-3xl font-bold">Categorías</h1>
 
+                <div className="mt-4 mb-6 rounded-lg border border-ambar/40 bg-ambar/10 p-4">
+                    <p className="text-sm font-semibold text-petro">
+                        Recordatorio
+                    </p>
+
+                    <p className="mt-1 text-sm text-petro/70">
+                        Cualquier modificación de la colorimetría debe ser
+                        previamente aprobada, ya que los colores definidos
+                        para cada categoría se corresponden con la
+                        identificación visual de los insumos en las
+                        ambulancias.
+                    </p>
+                </div>
+
                 <div className="mb-6 rounded-xl bg-blanco p-6 shadow-sm">
                     <h2 className="mb-4 text-xl font-semibold text-petro">Nueva categoría</h2>
 

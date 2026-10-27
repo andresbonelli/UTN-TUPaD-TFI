@@ -5,7 +5,7 @@ import ControlIngreso from "../components/Operativo/ControlIngreso";
 import ControlEgreso from "../components/Operativo/ControlEgreso";
 import CancelarTurno from "../components/Operativo/CancelarTurno";
 import { useAuthStore } from "../stores/authStore";
-
+import BotonLogout from "../components/Auth/BotonLogout";
 
 
 export default function OperativoEnfermero() {
@@ -20,7 +20,7 @@ export default function OperativoEnfermero() {
         isLoading,
         isError,
         error,
-    } = useTurnosPorEnfermero(enfermeroId); 
+    } = useTurnosPorEnfermero(enfermeroId);
 
     if (isLoading) {
         return (
@@ -57,9 +57,14 @@ export default function OperativoEnfermero() {
         return (
             <main className="min-h-screen bg-fondo p-6 text-petro">
                 <div className="mx-auto max-w-5xl">
-                    <h1 className="mb-6 text-3xl font-bold">
-                        Mi turno
-                    </h1>
+
+                    <div className="mb-6 flex items-center justify-between gap-4">
+                        <h1 className="text-3xl font-bold">
+                            Mi turno
+                        </h1>
+
+                        <BotonLogout />
+                    </div>
 
                     <div className="rounded-xl bg-blanco p-6 shadow-sm">
                         <p>No tienes un turno operativo asignado.</p>
@@ -72,9 +77,13 @@ export default function OperativoEnfermero() {
     return (
         <main className="min-h-screen bg-fondo p-6 text-petro">
             <div className="mx-auto max-w-5xl">
-                <h1 className="mb-6 text-3xl font-bold">
-                    Mi turno
-                </h1>
+                <div className="mb-6 flex items-center justify-between gap-4">
+                    <h1 className="text-3xl font-bold">
+                        Mi turno
+                    </h1>
+
+                    <BotonLogout />
+                </div>
 
                 <TurnoActual turno={turnoOperativo} />
 
