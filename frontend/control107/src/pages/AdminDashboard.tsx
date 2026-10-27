@@ -54,19 +54,18 @@ export default function AdminDashboard() {
                     </p>
                 </div>
 
-                <div className="rounded-xl bg-blanco p-6 opacity-60 shadow-sm">
+                <Link
+                    to="/admin/usuarios"
+                    className="rounded-xl bg-blanco p-6 shadow-sm transition hover:shadow-md"
+                >
                     <h3 className="text-lg font-semibold text-petro">
                         Usuarios
                     </h3>
 
                     <p className="mt-2 text-sm text-petro/60">
-                        Gestión de usuarios y roles.
+                        Consulta los usuarios y roles registrados.
                     </p>
-
-                    <p className="mt-3 text-xs font-semibold text-ambar">
-                        Próximamente
-                    </p>
-                </div>
+                </Link>
 
                 <div className="rounded-xl bg-blanco p-6 opacity-60 shadow-sm">
                     <h3 className="text-lg font-semibold text-petro">

@@ -1,14 +1,10 @@
-import { API_URL } from "./api";
+import { api } from "./api";
+
 import type { Usuario } from "../interfaces/Usuario";
 
-const USUARIOS_URL = `${API_URL}/usuarios`;
-
 export async function listarUsuarios(): Promise<Usuario[]> {
-  const response = await fetch(USUARIOS_URL);
+    const response =
+        await api.get<Usuario[]>("/usuarios");
 
-  if (!response.ok) {
-    throw new Error("Error al obtener los usuarios");
-  }
-
-  return response.json();
+    return response.data;
 }

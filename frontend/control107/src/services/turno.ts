@@ -9,13 +9,10 @@ import type {
 const TURNOS_URL = `${API_URL}/turnos`;
 
 export async function listarTurnos(): Promise<Turno[]> {
-    const response = await fetch(TURNOS_URL);
+    const response =
+        await api.get<Turno[]>("/turnos");
 
-    if (!response.ok) {
-        throw new Error("Error al obtener los turnos");
-    }
-
-    return response.json();
+    return response.data;
 }
 
 export async function obtenerTurno(
