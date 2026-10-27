@@ -9,28 +9,27 @@ import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminCategorias from "./pages/AdminCategorias";
 import OperativoEnfermero from "./pages/OperativoEnfermero";
-import type { RolUsuario } from "./interfaces/Usuario";
+import { obtenerRutaInicial } from "./utils/auth";
 
-function obtenerRutaInicial(rol: RolUsuario): string {
-    if (rol === "ENFERMERO") {
-        return "/operativo";
-    }
-
-    if (rol === "ADMINISTRADOR") {
-        return "/admin";
-    }
-
-    return "/login";
-}
 
 function App() {
   const usuario = useAuthStore((state) => state.usuario);
+
+  const sesionRestaurada = useAuthStore((state) => state.sesionRestaurada);
 
   const restaurarSesion = useAuthStore((state) => state.restaurarSesion);
 
   useEffect(() => {
     restaurarSesion();
   }, [restaurarSesion]);
+
+  if (!sesionRestaurada) {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-fondo text-petro">
+      <p>Restaurando sesión...</p>
+    </main>
+  );
+}
 
   return (
     <Routes>

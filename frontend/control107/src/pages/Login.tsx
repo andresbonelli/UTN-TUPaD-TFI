@@ -5,6 +5,7 @@ import { useLogin } from "../hooks/useAuth";
 import { useAuthStore } from "../stores/authStore";
 
 import type { LoginRequest } from "../interfaces/Auth";
+import { obtenerRutaInicial } from "../utils/auth";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -47,27 +48,19 @@ export default function Login() {
                 },
                 {
                     onSuccess: () => {
-                        const usuarioAutenticado = useAuthStore.getState().usuario;
+                        const usuarioAutenticado =
+                            useAuthStore.getState().usuario;
 
                         if (!usuarioAutenticado) {
                             return;
                         }
 
-                        if (
-                            usuarioAutenticado.rol === "ENFERMERO"
-                        ) {
-                            navigate("/operativo", {
+                        navigate(
+                            obtenerRutaInicial(usuarioAutenticado.rol),
+                            {
                                 replace: true,
-                            });
-
-                            return;
-                        }
-
-                        if (usuarioAutenticado.rol === "ADMINISTRADOR") {
-                            navigate("/admin", {
-                                replace: true,
-                            });
-                        }
+                            }
+                        );
                     },
                 }
             );
