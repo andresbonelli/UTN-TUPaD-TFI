@@ -59,6 +59,28 @@ export default function AdminLayout() {
                         </NavLink>
 
                         <NavLink
+                            to="/admin/insumos"
+                            className={({ isActive }) =>
+                                isActive
+                                    ? "rounded-lg bg-turquesa px-3 py-2 text-sm font-semibold text-blanco"
+                                    : "rounded-lg px-3 py-2 text-sm font-medium text-petro transition hover:bg-petro/5"
+                            }
+                        >
+                            Insumos
+                        </NavLink>
+
+                        <NavLink
+                            to="/admin/ambulancias"
+                            className={({ isActive }) =>
+                                isActive
+                                    ? "rounded-lg bg-turquesa px-3 py-2 text-sm font-semibold text-blanco"
+                                    : "rounded-lg px-3 py-2 text-sm font-medium text-petro transition hover:bg-petro/5"
+                            }
+                        >
+                            Ambulancias
+                        </NavLink>
+
+                        <NavLink
                             to="/admin/usuarios"
                             className={({ isActive }) =>
                                 isActive

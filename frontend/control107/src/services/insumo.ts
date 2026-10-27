@@ -1,14 +1,10 @@
-import { API_URL } from "./api";
+import { api } from "./api";
+
 import type { Insumo } from "../interfaces/Insumo";
 
-const INSUMOS_URL = `${API_URL}/insumos`;
-
 export async function listarInsumos(): Promise<Insumo[]> {
-  const response = await fetch(INSUMOS_URL);
+    const response =
+        await api.get<Insumo[]>("/insumos");
 
-  if (!response.ok) {
-    throw new Error("Error al obtener los insumos");
-  }
-
-  return response.json();
+    return response.data;
 }

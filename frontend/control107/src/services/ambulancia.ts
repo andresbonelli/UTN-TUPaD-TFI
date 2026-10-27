@@ -1,14 +1,10 @@
-import { API_URL } from "./api";
+import { api } from "./api";
+
 import type { Ambulancia } from "../interfaces/Ambulancia";
 
-const AMBULANCIAS_URL = `${API_URL}/ambulancias`;
-
 export async function listarAmbulancias(): Promise<Ambulancia[]> {
-  const response = await fetch(AMBULANCIAS_URL);
+    const response =
+        await api.get<Ambulancia[]>("/ambulancias");
 
-  if (!response.ok) {
-    throw new Error("Error al obtener las ambulancias");
-  }
-
-  return response.json();
+    return response.data;
 }

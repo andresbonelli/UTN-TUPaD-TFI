@@ -13,6 +13,8 @@ import AdminCategorias from "./pages/AdminCategorias";
 import OperativoEnfermero from "./pages/OperativoEnfermero";
 import AdminTurnos from "./pages/AdminTurnos";
 import AdminUsuarios from "./pages/AdminUsuarios";
+import AdminInsumos from "./pages/AdminInsumos";
+import AdminAmbulancias from "./pages/AdminAmbulancias";
 
 function App() {
   const usuario = useAuthStore((state) => state.usuario);
@@ -61,6 +63,8 @@ function App() {
         <Route path="categorias" element={<AdminCategorias />} />
         <Route path="usuarios" element={<AdminUsuarios />} />
         <Route path="turnos" element={<AdminTurnos />} />
+        <Route path="insumos" element={<AdminInsumos />} />
+        <Route path="ambulancias" element={<AdminAmbulancias />} />
       </Route>
 
       <Route

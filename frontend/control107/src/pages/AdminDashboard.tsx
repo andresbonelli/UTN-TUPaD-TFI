@@ -23,25 +23,27 @@ export default function AdminDashboard() {
                     </p>
                 </Link>
 
-                <div className="rounded-xl bg-blanco p-6 opacity-60 shadow-sm">
+                <Link
+                    to="/admin/insumos"
+                    className="rounded-xl bg-blanco p-6 shadow-sm transition hover:shadow-md"
+                >
                     <h3 className="text-lg font-semibold text-petro">Insumos</h3>
 
                     <p className="mt-2 text-sm text-petro/60">
-                        Gestión del catálogo de insumos.
+                        Consulta los insumos y sus puntos de control.
                     </p>
+                </Link>
 
-                    <p className="mt-3 text-xs font-semibold text-ambar">Próximamente</p>
-                </div>
-
-                <div className="rounded-xl bg-blanco p-6 opacity-60 shadow-sm">
+                <Link
+                    to="/admin/ambulancias"
+                    className="rounded-xl bg-blanco p-6 shadow-sm transition hover:shadow-md"
+                >
                     <h3 className="text-lg font-semibold text-petro">Ambulancias</h3>
 
                     <p className="mt-2 text-sm text-petro/60">
-                        Gestión de las ambulancias.
+                        Consulta las ambulancias registradas.
                     </p>
-
-                    <p className="mt-3 text-xs font-semibold text-ambar">Próximamente</p>
-                </div>
+                </Link>
 
                 <Link
                     to="/admin/usuarios"
