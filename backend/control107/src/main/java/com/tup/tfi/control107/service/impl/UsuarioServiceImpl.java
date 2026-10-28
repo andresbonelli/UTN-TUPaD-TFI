@@ -1,5 +1,7 @@
 package com.tup.tfi.control107.service.impl;
 
+import com.tup.tfi.control107.model.enums.EstadoTurno;
+import com.tup.tfi.control107.repository.TurnoRepository;
 import com.tup.tfi.control107.util.PasswordUtil;
 import com.tup.tfi.control107.dto.UsuarioDTO;
 import com.tup.tfi.control107.dto.request.UsuarioRequestDTO;
@@ -16,12 +18,14 @@ import java.util.List;
 public class UsuarioServiceImpl extends AbstractService<Usuario> implements UsuarioService {
 
     private final UsuarioRepository repository;
+    private final TurnoRepository turnoRepository;
 
     private final static String REGEX_DNI = "^[0-9]{8}$";
 
-    public UsuarioServiceImpl(UsuarioRepository repository) {
+    public UsuarioServiceImpl(UsuarioRepository repository, TurnoRepository turnoRepository) {
         super(repository, Usuario.class);
         this.repository = repository;
+        this.turnoRepository = turnoRepository;
     }
 
     @Override
@@ -57,6 +61,11 @@ public class UsuarioServiceImpl extends AbstractService<Usuario> implements Usua
     @Transactional
     @Override
     public void eliminarPorId(Long id) {
+        if (turnoRepository.existsByEnfermeroIdAndEstadoInAndEliminadoIsFalse(
+                id, List.of(EstadoTurno.PROGRAMADO, EstadoTurno.EN_CURSO)
+        )) {
+            throw new IllegalArgumentException("No se puede eliminar enfermero con turnos activos");
+        }
         eliminar(id);
     }
 

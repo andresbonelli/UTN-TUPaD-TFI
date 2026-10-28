@@ -34,4 +34,7 @@ public interface TurnoRepository extends JpaRepository<Turno, Long> {
     boolean existsByAmbulanciaIdAndEstadoInAndEliminadoIsFalse(
             Long ambulanciaId, List<EstadoTurno> estados
     );
+    boolean existsByEnfermeroIdAndEstadoInAndEliminadoIsFalse(
+            Long enfermeroId, List<EstadoTurno> estados
+    );
 }
