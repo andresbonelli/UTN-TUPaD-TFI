@@ -118,10 +118,10 @@ public class DataLoader implements CommandLineRunner {
         Set<Insumo> insumosSet = new HashSet<>(insumos);
 
         // 4. Cargar Ambulancias
-        Ambulancia m01 = crearAmbulanciaConInsumos("AE 107 AB", insumosSet);
-        Ambulancia m02 = crearAmbulanciaConInsumos("AE 107 CD", insumosSet);
-        Ambulancia m03 = crearAmbulanciaConInsumos("AE 107 EF", insumosSet);
-        Ambulancia m04 = crearAmbulanciaConInsumos("AE 107 GH", insumosSet);
+        Ambulancia m01 = crearAmbulanciaConInsumos("AE107AB", insumosSet);
+        Ambulancia m02 = crearAmbulanciaConInsumos("AE107CD", insumosSet);
+        Ambulancia m03 = crearAmbulanciaConInsumos("AE107EF", insumosSet);
+        Ambulancia m04 = crearAmbulanciaConInsumos("AE107GH", insumosSet);
 
         // 5. Crear Turno de Guardia
         TurnoRequestDTO turnoReq1 = new TurnoRequestDTO();
