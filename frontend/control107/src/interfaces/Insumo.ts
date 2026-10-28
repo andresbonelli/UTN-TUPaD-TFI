@@ -5,3 +5,10 @@ export interface Insumo {
   puntoControl: number;
   critico: boolean; //no aparece como "esCritico" en el endpoint
 }
+
+export interface InsumoRequest {
+    nombre: string;
+    categoriaId: number;
+    puntoControl: number;
+    critico: boolean;
+}

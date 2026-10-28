@@ -12,11 +12,21 @@ import {
     type SortingState,
 } from "@tanstack/react-table";
 
-import { useInsumos } from "../hooks/useInsumos";
+import {
+    useCrearInsumo,
+    useInsumos,
+} from "../hooks/useInsumos";
+
+import InsumoForm from "../components/InsumoForm";
 
 import CategoriaBadge from "../components/CategoriaBadge";
 
-import type { Insumo } from "../interfaces/Insumo";
+import { obtenerMensajeError } from "../utils/error";
+
+import type {
+    Insumo,
+    InsumoRequest,
+} from "../interfaces/Insumo";
 
 const columnas: ColumnDef<Insumo>[] = [
     {
@@ -60,7 +70,7 @@ const columnas: ColumnDef<Insumo>[] = [
 
         accessorFn: (insumo) =>
             insumo.critico // true = critico | false = normal
-                ? "Crítico" 
+                ? "Crítico"
                 : "Normal",
 
         header: "Prioridad",
@@ -93,7 +103,7 @@ export default function AdminInsumos() {
     const [pagination, setPagination] =
         useState<PaginationState>({
             pageIndex: 0,
-            pageSize: 10, 
+            pageSize: 10,
         });
 
     const {
@@ -102,6 +112,15 @@ export default function AdminInsumos() {
         isError,
         error,
     } = useInsumos();
+
+    const crearInsumoMutation =
+        useCrearInsumo();
+
+    function handleCrearInsumo(
+        insumo: InsumoRequest
+    ) {
+        crearInsumoMutation.mutate(insumo);
+    }
 
     const table = useReactTable({
         data: insumos,
@@ -158,6 +177,31 @@ export default function AdminInsumos() {
                     Insumos registrados en Control107.
                 </p>
             </div>
+
+            {/* Seccion de nuevo insumo */}
+            <div className="mb-6 rounded-xl bg-blanco p-6 shadow-sm">
+                <h2 className="mb-4 text-xl font-semibold text-petro">
+                    Nuevo insumo
+                </h2>
+
+                <InsumoForm
+                    onSubmit={handleCrearInsumo}
+                    isPending={crearInsumoMutation.isPending}
+                />
+
+                {/* mensaje de error del backend */}
+                {crearInsumoMutation.isError && (
+                    <div className="mt-4 rounded-lg border border-coral/30 bg-coral/5 p-3">
+                        <p className="text-sm font-semibold text-coral">
+                            {obtenerMensajeError(
+                                crearInsumoMutation.error
+                            )}
+                        </p>
+                    </div>
+                )}
+
+            </div>
+
 
             <div className="mb-4">
                 <label

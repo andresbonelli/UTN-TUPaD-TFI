@@ -1,18 +1,29 @@
 import { useForm } from "@tanstack/react-form";
+
 import type { CategoriaRequest } from "../interfaces/Categoria";
 
 interface CategoriaFormProps {
-    onSubmit?: (categoria: CategoriaRequest) => void;
+    onSubmit?: (
+        categoria: CategoriaRequest
+    ) => void;
+
+    valoresIniciales?: CategoriaRequest;
+
+    textoBoton?: string;
 }
 
 const input =
     "w-full rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm text-petro outline-none focus:border-turquesa focus:ring-2 focus:ring-turquesa/20";
 
-export default function CategoriaForm({ onSubmit }: CategoriaFormProps) {
+export default function CategoriaForm({
+    onSubmit,
+    valoresIniciales,
+    textoBoton = "Guardar categoría",
+}: CategoriaFormProps) {
     const form = useForm({
         defaultValues: {
-            nombre: "",
-            color: "",
+            nombre: valoresIniciales?.nombre ?? "",
+            color: valoresIniciales?.color ?? "#087E8B",
         } as CategoriaRequest,
 
         validators: {
@@ -30,7 +41,10 @@ export default function CategoriaForm({ onSubmit }: CategoriaFormProps) {
         },
 
         onSubmit: async ({ value }) => {
-            onSubmit?.(value);
+            onSubmit?.({
+                nombre: value.nombre.trim().toUpperCase(),
+                color: value.color,
+            });
         },
     });
 
@@ -44,7 +58,7 @@ export default function CategoriaForm({ onSubmit }: CategoriaFormProps) {
         >
             <form.Field name="nombre">
                 {(field) => (
-                    <>
+                    <div className="flex flex-col gap-2">
                         <label
                             htmlFor={field.name}
                             className="text-sm font-medium text-petro"
@@ -59,15 +73,25 @@ export default function CategoriaForm({ onSubmit }: CategoriaFormProps) {
                             placeholder="Nombre de la categoría"
                             className={input}
                             value={field.state.value}
-                            onChange={(event) => field.handleChange(event.target.value)}
+                            onBlur={field.handleBlur}
+                            onChange={(event) =>
+                                field.handleChange(
+                                    event.target.value.toUpperCase()
+                                )
+                            }
                         />
 
-                        {field.state.meta.errors.map((err) => (
-                            <p key={String(err)} className="text-xs text-coral">
-                                {String(err)}
-                            </p>
-                        ))}
-                    </>
+                        {field.state.meta.errors.map(
+                            (error) => (
+                                <p
+                                    key={String(error)}
+                                    className="text-xs text-coral"
+                                >
+                                    {String(error)}
+                                </p>
+                            )
+                        )}
+                    </div>
                 )}
             </form.Field>
 
@@ -87,11 +111,17 @@ export default function CategoriaForm({ onSubmit }: CategoriaFormProps) {
                                 name={field.name}
                                 type="color"
                                 value={field.state.value}
-                                onChange={(event) => field.handleChange(event.target.value)}
+                                onChange={(event) =>
+                                    field.handleChange(
+                                        event.target.value
+                                    )
+                                }
                                 className="h-10 w-14 cursor-pointer rounded-lg border border-petro/20 bg-blanco p-1"
                             />
 
-                            <span className="text-sm text-petro/60">{field.state.value}</span>
+                            <span className="text-sm text-petro/60">
+                                {field.state.value}
+                            </span>
                         </div>
                     </div>
                 )}
@@ -101,7 +131,7 @@ export default function CategoriaForm({ onSubmit }: CategoriaFormProps) {
                 type="submit"
                 className="rounded-lg bg-turquesa px-4 py-2 text-sm font-semibold text-blanco transition hover:bg-petro"
             >
-                Guardar categoría
+                {textoBoton}
             </button>
         </form>
     );

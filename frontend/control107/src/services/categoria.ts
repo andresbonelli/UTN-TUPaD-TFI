@@ -25,3 +25,24 @@ export async function crearCategoria(
 
     return response.data;
 }
+
+export async function actualizarCategoria(
+    id: number,
+    categoria: CategoriaRequest
+): Promise<Categoria> {
+    const response =
+        await api.put<Categoria>(
+            `/categorias/${id}`,
+            categoria
+        );
+
+    return response.data;
+}
+
+export async function eliminarCategoria(
+    id: number
+): Promise<void> {
+    await api.delete(
+        `/categorias/${id}`
+    );
+}
