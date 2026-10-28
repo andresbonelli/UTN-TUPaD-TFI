@@ -1,4 +1,6 @@
-import { useState } from "react";
+import {
+    useState,
+} from "react";
 
 import {
     flexRender,
@@ -20,6 +22,7 @@ import {
 import InsumoForm from "../components/InsumoForm";
 
 import CategoriaBadge from "../components/CategoriaBadge";
+
 
 import { obtenerMensajeError } from "../utils/error";
 
@@ -201,7 +204,13 @@ export default function AdminInsumos() {
                 )}
 
             </div>
+            
+            {/* divisor */}
+            <div className="my-8 border-t border-petro/10" />
 
+                <h3 className="mb-5 text-2xl font-bold">
+                    Buscar / Editar Insumos
+                </h3>
 
             <div className="mb-4">
                 <label
