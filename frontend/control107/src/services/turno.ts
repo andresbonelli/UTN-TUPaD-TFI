@@ -1,4 +1,4 @@
-import { api, API_URL } from "./api";
+import { api } from "./api";
 
 import type {
   CancelarTurnoRequest,
@@ -6,7 +6,6 @@ import type {
   Turno,
 } from "../interfaces/Turno";
 
-const TURNOS_URL = `${API_URL}/turnos`;
 
 export async function listarTurnos(): Promise<Turno[]> {
     const response =
@@ -18,42 +17,19 @@ export async function listarTurnos(): Promise<Turno[]> {
 export async function obtenerTurno(
     id: number
 ): Promise<Turno> {
-    const response = await fetch(
-        `${TURNOS_URL}/${id}`
-    );
+    const response =
+        await api.get<Turno>(`/turnos/${id}`);
 
-    if (!response.ok) {
-        throw new Error("Error al obtener el turno");
-    }
-
-    return response.json();
+    return response.data;
 }
 
 export async function listarTurnosActivos(): Promise<Turno[]> {
-  const response = await fetch(`${TURNOS_URL}/activos`);
+    const response =
+        await api.get<Turno[]>("/turnos/activos");
 
-  if (!response.ok) {
-    throw new Error("Error al obtener los turnos activos");
-  }
-
-  return response.json();
+    return response.data;
 }
 
-// export async function listarTurnosPorEnfermero(
-//   enfermeroId: number
-// ): Promise<Turno[]> {
-//   const response = await fetch(
-//     `${TURNOS_URL}/enfermero/${enfermeroId}`
-//   );
-
-//   if (!response.ok) {
-//     throw new Error(
-//       "Error al obtener los turnos del enfermero"
-//     );
-//   }
-
-//   return response.json();
-// }
 
 export async function listarTurnosPorEnfermero(
   enfermeroId: number
@@ -66,59 +42,32 @@ export async function listarTurnosPorEnfermero(
 }
 
 export async function registrarIngreso(
-  ingreso: IngresoEgresoRequest
+    ingreso: IngresoEgresoRequest
 ): Promise<void> {
-  const response = await fetch(`${TURNOS_URL}/ingreso`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(ingreso),
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      "Error al registrar el control de ingreso"
+    await api.post(
+        "/turnos/ingreso",
+        ingreso
     );
-  }
 }
 
 export async function registrarEgreso(
-  egreso: IngresoEgresoRequest
+    egreso: IngresoEgresoRequest
 ): Promise<void> {
-  const response = await fetch(`${TURNOS_URL}/egreso`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(egreso),
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      "Error al registrar el control de egreso"
+    await api.post(
+        "/turnos/egreso",
+        egreso
     );
-  }
 }
 
 export async function cancelarTurno(
-  turnoId: number,
-  request: CancelarTurnoRequest
+    turnoId: number,
+    request: CancelarTurnoRequest
 ): Promise<Turno> {
-  const response = await fetch(
-    `${TURNOS_URL}/${turnoId}/cancelar`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(request),
-    }
-  );
+    const response =
+        await api.post<Turno>(
+            `/turnos/${turnoId}/cancelar`,
+            request
+        );
 
-  if (!response.ok) {
-    throw new Error("Error al cancelar el turno");
-  }
-
-  return response.json();
+    return response.data;
 }
