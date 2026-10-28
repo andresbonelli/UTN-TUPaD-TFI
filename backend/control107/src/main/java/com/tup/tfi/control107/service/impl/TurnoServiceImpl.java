@@ -67,8 +67,8 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
 
     @Transactional
     @Override
-    public TurnoDTO crearTurno(TurnoRequestDTO request) {
-        Usuario admin = obtenerUsuario(request.getAdminId(), RolUsuario.ADMINISTRADOR);
+    public TurnoDTO crearTurno(Long adminId, TurnoRequestDTO request) {
+        Usuario admin = obtenerUsuario(adminId, RolUsuario.ADMINISTRADOR);
         Usuario enfermero = obtenerUsuario(request.getEnfermeroId(), RolUsuario.ENFERMERO);
         Ambulancia ambulancia = obtenerAmbulancia(request.getAmbulanciaId());
         validarDisponibilidad(request.getAmbulanciaId(), request.getEnfermeroId(), request.getFecha(), request.getHorario(), null);

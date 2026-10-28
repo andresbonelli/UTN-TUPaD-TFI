@@ -125,7 +125,6 @@ public class DataLoader implements CommandLineRunner {
 
         // 5. Crear Turno de Guardia
         TurnoRequestDTO turnoReq1 = new TurnoRequestDTO();
-        turnoReq1.setAdminId(admin.getId());
         turnoReq1.setEnfermeroId(enfermero.getId());
         turnoReq1.setAmbulanciaId(m04.getId());
         turnoReq1.setNombreChofer(chofer);
@@ -133,7 +132,7 @@ public class DataLoader implements CommandLineRunner {
         turnoReq1.setFecha(LocalDate.now());
         turnoReq1.setHorario(HorarioTurno.MANIANA);
 
-        var turnoResp1 = turnoService.crearTurno(turnoReq1);
+        var turnoResp1 = turnoService.crearTurno(admin.getId(),turnoReq1);
         // Simular ingreso y egreso
         var listaInsumosIngreso1 = insumos.stream()
                 .map(i -> new ControlInsumoRequestDTO(i.getId(), i.getPuntoControl(), null))
@@ -158,7 +157,6 @@ public class DataLoader implements CommandLineRunner {
         turnoService.registrarEgreso(new IngresoEgresoDTO(turnoResp1.getId(), listaInsumosEgreso1, null));
 
         TurnoRequestDTO turnoReq2 = new TurnoRequestDTO();
-        turnoReq2.setAdminId(admin.getId());
         turnoReq2.setEnfermeroId(enfermero.getId());
         turnoReq2.setAmbulanciaId(m04.getId());
         turnoReq2.setNombreChofer(chofer);
@@ -166,7 +164,7 @@ public class DataLoader implements CommandLineRunner {
         turnoReq2.setFecha(LocalDate.now());
         turnoReq2.setHorario(HorarioTurno.TARDE);
 
-        var turnoResp2 = turnoService.crearTurno(turnoReq2);
+        var turnoResp2 = turnoService.crearTurno(admin.getId(),turnoReq2);
 
         // Simular ingreso con inconsistencia en adrenalina
         var listaInsumosIngreso2 = insumos.stream()

@@ -55,6 +55,10 @@ class TurnoServiceImplTest {
     private ControlInsumo controlNormal;
     private TurnoRequestDTO turnoRequestDTO;
 
+    private static final Long ADMIN_ID = 1L;
+    private static final Long ENFERMERO_ID = 2L;
+    private static final Long AMBULANCIA_ID = 5L;
+
     @BeforeEach
     void setUp() {
         admin = Usuario.builder()
@@ -64,7 +68,7 @@ class TurnoServiceImplTest {
                 .rol(RolUsuario.ADMINISTRADOR)
                 .activo(true)
                 .build();
-        admin.setId(1L);
+        admin.setId(ADMIN_ID);
 
         enfermero = Usuario.builder()
                 .nombre("Enfermero Test")
@@ -73,7 +77,7 @@ class TurnoServiceImplTest {
                 .rol(RolUsuario.ENFERMERO)
                 .activo(true)
                 .build();
-        enfermero.setId(2L);
+        enfermero.setId(ENFERMERO_ID);
 
         CategoriaInsumo categoria = CategoriaInsumo.builder()
                 .nombre("MEDICACION")
@@ -98,11 +102,11 @@ class TurnoServiceImplTest {
         insumoNormal.setId(101L);
 
         ambulancia = Ambulancia.builder()
-                .patente("AE 107 AB")
+                .patente("AE107AB")
                 .disponible(true)
                 .insumos(Set.of(insumoCritico, insumoNormal))
                 .build();
-        ambulancia.setId(5L);
+        ambulancia.setId(AMBULANCIA_ID);
 
         turno = Turno.builder()
                 .fecha(LocalDate.now())
@@ -141,9 +145,8 @@ class TurnoServiceImplTest {
         turnoRequestDTO = new TurnoRequestDTO(
                 LocalDate.now(),
                 HorarioTurno.MANIANA,
-                1L,
-                2L,
-                5L,
+                ENFERMERO_ID,
+                AMBULANCIA_ID,
                 "Chofer Test",
                 "Medico Test"
         );
@@ -175,7 +178,7 @@ class TurnoServiceImplTest {
         when(ambulanciaRepository.findByIdAndEliminadoIsFalse(5L)).thenReturn(Optional.of(ambulancia));
         when(repository.save(any(Turno.class))).thenReturn(turno);
 
-        TurnoDTO resultado = turnoService.crearTurno(turnoRequestDTO);
+        TurnoDTO resultado = turnoService.crearTurno(ADMIN_ID,turnoRequestDTO);
 
         assertNotNull(resultado);
         assertEquals(EstadoTurno.PROGRAMADO, resultado.getEstado());
@@ -189,7 +192,7 @@ class TurnoServiceImplTest {
     void crearTurno_errorAdminNoEncontrado() {
         when(usuarioRepository.findByIdAndEliminadoIsFalse(1L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> turnoService.crearTurno(turnoRequestDTO));
+        assertThrows(EntityNotFoundException.class, () -> turnoService.crearTurno(ADMIN_ID,turnoRequestDTO));
         verify(usuarioRepository, times(1)).findByIdAndEliminadoIsFalse(1L);
         verify(repository, never()).save(any(Turno.class));
     }
@@ -199,7 +202,7 @@ class TurnoServiceImplTest {
         when(usuarioRepository.findByIdAndEliminadoIsFalse(1L)).thenReturn(Optional.of(admin));
         when(usuarioRepository.findByIdAndEliminadoIsFalse(2L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> turnoService.crearTurno(turnoRequestDTO));
+        assertThrows(EntityNotFoundException.class, () -> turnoService.crearTurno(ADMIN_ID,turnoRequestDTO));
         verify(usuarioRepository, times(1)).findByIdAndEliminadoIsFalse(1L);
         verify(usuarioRepository, times(1)).findByIdAndEliminadoIsFalse(2L);
         verify(repository, never()).save(any(Turno.class));
@@ -211,7 +214,7 @@ class TurnoServiceImplTest {
         when(usuarioRepository.findByIdAndEliminadoIsFalse(2L)).thenReturn(Optional.of(enfermero));
         when(ambulanciaRepository.findByIdAndEliminadoIsFalse(5L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> turnoService.crearTurno(turnoRequestDTO));
+        assertThrows(EntityNotFoundException.class, () -> turnoService.crearTurno(ADMIN_ID,turnoRequestDTO));
         verify(usuarioRepository, times(1)).findByIdAndEliminadoIsFalse(1L);
         verify(usuarioRepository, times(1)).findByIdAndEliminadoIsFalse(2L);
         verify(ambulanciaRepository, times(1)).findByIdAndEliminadoIsFalse(5L);
@@ -227,7 +230,7 @@ class TurnoServiceImplTest {
                 eq(5L), any(LocalDate.class), any(HorarioTurno.class), eq(EstadoTurno.CANCELADO)
         )).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class, () -> turnoService.crearTurno(turnoRequestDTO));
+        assertThrows(IllegalArgumentException.class, () -> turnoService.crearTurno(ADMIN_ID,turnoRequestDTO));
         verify(repository, never()).save(any(Turno.class));
     }
 
@@ -243,7 +246,7 @@ class TurnoServiceImplTest {
                 eq(2L), any(LocalDate.class), any(HorarioTurno.class), eq(EstadoTurno.CANCELADO)
         )).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class, () -> turnoService.crearTurno(turnoRequestDTO));
+        assertThrows(IllegalArgumentException.class, () -> turnoService.crearTurno(ADMIN_ID,turnoRequestDTO));
         verify(repository, never()).save(any(Turno.class));
     }
 
@@ -502,7 +505,6 @@ class TurnoServiceImplTest {
         TurnoRequestDTO requestSinRef = new TurnoRequestDTO(
                 LocalDate.now(),
                 HorarioTurno.TARDE,
-                null,
                 null,
                 null,
                 "Nuevo Chofer",
