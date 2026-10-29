@@ -4,6 +4,7 @@ import com.tup.tfi.control107.dto.CategoriaInsumoDTO;
 import com.tup.tfi.control107.dto.request.CategoriaInsumoRequestDTO;
 import com.tup.tfi.control107.model.entity.CategoriaInsumo;
 import com.tup.tfi.control107.repository.CategoriaRepository;
+import com.tup.tfi.control107.repository.InsumoRepository;
 import com.tup.tfi.control107.service.CategoriaInsumoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,14 +15,16 @@ import java.util.List;
 public class CategoriaInsumoServiceImpl extends AbstractService<CategoriaInsumo> implements CategoriaInsumoService {
 
     private final CategoriaRepository repository;
+    private final InsumoRepository insumoRepository;
 
     private final static String REGEX_COLOR = "^#(?:[0-9a-fA-F]{3}){1,2}$";
     private final static int NOMBRE_MIN_LENGTH = 3;
     private final static int NOMBRE_MAX_LENGTH = 100;
 
-    public CategoriaInsumoServiceImpl(CategoriaRepository repository) {
+    public CategoriaInsumoServiceImpl(CategoriaRepository repository, InsumoRepository insumoRepository) {
         super(repository, CategoriaInsumo.class);
         this.repository = repository;
+        this.insumoRepository = insumoRepository;
     }
 
     @Override
@@ -56,6 +59,9 @@ public class CategoriaInsumoServiceImpl extends AbstractService<CategoriaInsumo>
     @Transactional
     @Override
     public void eliminarPorId(Long id) {
+        if (insumoRepository.existsByCategoriaIdAndEliminadoIsFalse(id)) {
+            throw new IllegalArgumentException("No se puede eliminar categoría con insumos activos");
+        }
         eliminar(id);
     }
 

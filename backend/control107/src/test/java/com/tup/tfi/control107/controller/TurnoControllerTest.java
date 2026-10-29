@@ -5,13 +5,16 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tup.tfi.control107.config.SecurityConfig;
 import com.tup.tfi.control107.dto.ResumenOperativoDTO;
 import com.tup.tfi.control107.dto.TurnoDTO;
+import com.tup.tfi.control107.dto.UsuarioDTO;
 import com.tup.tfi.control107.dto.request.CancelarTurnoDTO;
 import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
 import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
 import com.tup.tfi.control107.model.enums.EstadoTurno;
 import com.tup.tfi.control107.model.enums.HorarioTurno;
+import com.tup.tfi.control107.model.enums.RolUsuario;
 import com.tup.tfi.control107.service.TurnoService;
 import com.tup.tfi.control107.util.JwtUtil;
+import com.tup.tfi.control107.util.SecurityUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,8 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -37,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(TurnoController.class)
 @Import(SecurityConfig.class)
-@WithMockUser(roles = "ADMINISTRADOR")
+@WithMockUser(username = "1", roles = "ADMINISTRADOR")
 class TurnoControllerTest {
 
 
@@ -51,6 +53,9 @@ class TurnoControllerTest {
 
     @MockitoBean
     private JwtUtil jwtUtil;
+
+    @MockitoBean(name = "securityUtil")
+    private SecurityUtil securityUtil;
 
     private TurnoDTO turnoDTO;
     private static final Long ID = 1L;
@@ -68,6 +73,7 @@ class TurnoControllerTest {
                 .chofer("Carlos Chofer")
                 .controlInsumos(Set.of())
                 .build();
+
     }
 
     @Test
@@ -135,11 +141,11 @@ class TurnoControllerTest {
         TurnoRequestDTO request = new TurnoRequestDTO(
                 LocalDate.of(2026, 10, 15),
                 HorarioTurno.MANIANA,
-                1L, 2L, 3L,
+                2L, 3L,
                 "Carlos Chofer", "Dr. Perez"
         );
 
-        when(turnoService.crearTurno(any(TurnoRequestDTO.class))).thenReturn(turnoDTO);
+        when(turnoService.crearTurno(eq(ID), any(TurnoRequestDTO.class))).thenReturn(turnoDTO);
 
         mockMvc.perform(post(BASE_URL)
                         .contextPath(CONTEXT_PATH)
@@ -154,7 +160,7 @@ class TurnoControllerTest {
         TurnoRequestDTO request = new TurnoRequestDTO(
                 LocalDate.of(2026, 10, 15),
                 HorarioTurno.MANIANA,
-                1L, 2L, 3L,
+                2L, 3L,
                 "Carlos Chofer", "Dr. Perez"
         );
 
@@ -171,6 +177,7 @@ class TurnoControllerTest {
     @Test
     void registrarIngreso_ok() throws Exception {
         IngresoEgresoDTO request = new IngresoEgresoDTO(ID, List.of(), "Ingreso OK");
+        when(securityUtil.esEnfermeroAsignado(eq(ID), any())).thenReturn(true);
         doNothing().when(turnoService).registrarIngreso(any(IngresoEgresoDTO.class));
 
         mockMvc.perform(post(BASE_URL + "/ingreso")
@@ -183,6 +190,7 @@ class TurnoControllerTest {
     @Test
     void registrarEgreso_ok() throws Exception {
         IngresoEgresoDTO request = new IngresoEgresoDTO(ID, List.of(), "Egreso OK");
+        when(securityUtil.esEnfermeroAsignado(eq(ID), any())).thenReturn(true);
         doNothing().when(turnoService).registrarEgreso(any(IngresoEgresoDTO.class));
 
         mockMvc.perform(post(BASE_URL + "/egreso")

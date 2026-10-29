@@ -4,8 +4,10 @@ import com.tup.tfi.control107.dto.AmbulanciaDTO;
 import com.tup.tfi.control107.dto.request.AmbulanciaRequestDTO;
 import com.tup.tfi.control107.model.entity.Ambulancia;
 import com.tup.tfi.control107.model.entity.Insumo;
+import com.tup.tfi.control107.model.enums.EstadoTurno;
 import com.tup.tfi.control107.repository.AmbulanciaRepository;
 import com.tup.tfi.control107.repository.InsumoRepository;
+import com.tup.tfi.control107.repository.TurnoRepository;
 import com.tup.tfi.control107.service.AmbulanciaService;
 import jakarta.persistence.EntityNotFoundException;
 import org.jspecify.annotations.NonNull;
@@ -22,13 +24,15 @@ public class AmbulanciaServiceImpl extends AbstractService<Ambulancia> implement
 
     private final AmbulanciaRepository repository;
     private final InsumoRepository insumoRepository;
+    private final TurnoRepository turnoRepository;
 
     private final static String[] REGEX_PATENTE = {"^[A-Z]{3}\\d{3}$","^[A-Z]{2}\\d{3}[A-Z]{2}$"};
 
-    public AmbulanciaServiceImpl(AmbulanciaRepository ambulanciaRepository, InsumoRepository insumoRepository) {
+    public AmbulanciaServiceImpl(AmbulanciaRepository ambulanciaRepository, InsumoRepository insumoRepository, TurnoRepository turnoRepository) {
         super(ambulanciaRepository, Ambulancia.class);
         this.repository = ambulanciaRepository;
         this.insumoRepository = insumoRepository;
+        this.turnoRepository = turnoRepository;
     }
 
     @Override
@@ -65,6 +69,10 @@ public class AmbulanciaServiceImpl extends AbstractService<Ambulancia> implement
     @Transactional
     @Override
     public void eliminarPorId(Long id) {
+        if (turnoRepository.existsByAmbulanciaIdAndEstadoInAndEliminadoIsFalse(
+                id, List.of(EstadoTurno.PROGRAMADO, EstadoTurno.EN_CURSO))) {
+            throw new IllegalArgumentException("No se puede eliminar ambulancia usada en turnos abiertos");
+        }
         eliminar(id);
     }
 

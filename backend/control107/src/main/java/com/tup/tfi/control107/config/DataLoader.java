@@ -40,7 +40,7 @@ public class DataLoader implements CommandLineRunner {
     private final ObjectMapper objectMapper = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     public record CategoriaSeedDTO(String nombre, String color) {}
-    public record InsumoSeedDTO(String nombre, String categoria, int puntoControl, boolean critico) {}
+    public record InsumoSeedDTO(String nombre, String categoria, int puntoControl, boolean critico, boolean esOxigeno, Double capacidadMaxima) {}
 
     @Override
     public void run(String... args) throws Exception {
@@ -109,6 +109,8 @@ public class DataLoader implements CommandLineRunner {
                             .categoria(cat)
                             .puntoControl(insumoDto.puntoControl())
                             .critico(insumoDto.critico())
+                            .oxigeno(insumoDto.esOxigeno())
+                            .capacidadMaxima(insumoDto.capacidadMaxima())
                             .build()
             );
         }
@@ -118,14 +120,13 @@ public class DataLoader implements CommandLineRunner {
         Set<Insumo> insumosSet = new HashSet<>(insumos);
 
         // 4. Cargar Ambulancias
-        Ambulancia m01 = crearAmbulanciaConInsumos("AE 107 AB", insumosSet);
-        Ambulancia m02 = crearAmbulanciaConInsumos("AE 107 CD", insumosSet);
-        Ambulancia m03 = crearAmbulanciaConInsumos("AE 107 EF", insumosSet);
-        Ambulancia m04 = crearAmbulanciaConInsumos("AE 107 GH", insumosSet);
+        Ambulancia m01 = crearAmbulanciaConInsumos("AE107AB", insumosSet);
+        Ambulancia m02 = crearAmbulanciaConInsumos("AE107CD", insumosSet);
+        Ambulancia m03 = crearAmbulanciaConInsumos("AE107EF", insumosSet);
+        Ambulancia m04 = crearAmbulanciaConInsumos("AE107GH", insumosSet);
 
         // 5. Crear Turno de Guardia
         TurnoRequestDTO turnoReq1 = new TurnoRequestDTO();
-        turnoReq1.setAdminId(admin.getId());
         turnoReq1.setEnfermeroId(enfermero.getId());
         turnoReq1.setAmbulanciaId(m04.getId());
         turnoReq1.setNombreChofer(chofer);
@@ -133,7 +134,7 @@ public class DataLoader implements CommandLineRunner {
         turnoReq1.setFecha(LocalDate.now());
         turnoReq1.setHorario(HorarioTurno.MANIANA);
 
-        var turnoResp1 = turnoService.crearTurno(turnoReq1);
+        var turnoResp1 = turnoService.crearTurno(admin.getId(),turnoReq1);
         // Simular ingreso y egreso
         var listaInsumosIngreso1 = insumos.stream()
                 .map(i -> new ControlInsumoRequestDTO(i.getId(), i.getPuntoControl(), null))
@@ -158,7 +159,6 @@ public class DataLoader implements CommandLineRunner {
         turnoService.registrarEgreso(new IngresoEgresoDTO(turnoResp1.getId(), listaInsumosEgreso1, null));
 
         TurnoRequestDTO turnoReq2 = new TurnoRequestDTO();
-        turnoReq2.setAdminId(admin.getId());
         turnoReq2.setEnfermeroId(enfermero.getId());
         turnoReq2.setAmbulanciaId(m04.getId());
         turnoReq2.setNombreChofer(chofer);
@@ -166,7 +166,7 @@ public class DataLoader implements CommandLineRunner {
         turnoReq2.setFecha(LocalDate.now());
         turnoReq2.setHorario(HorarioTurno.TARDE);
 
-        var turnoResp2 = turnoService.crearTurno(turnoReq2);
+        var turnoResp2 = turnoService.crearTurno(admin.getId(),turnoReq2);
 
         // Simular ingreso con inconsistencia en adrenalina
         var listaInsumosIngreso2 = insumos.stream()

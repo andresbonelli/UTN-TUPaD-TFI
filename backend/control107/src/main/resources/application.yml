@@ -44,6 +44,10 @@ app:
   cors:
     allowed-origins: "*"
 
+security:
+  jwt:
+    expiration-time: 86400000
+
 server:
   forward-headers-strategy: framework
   servlet:

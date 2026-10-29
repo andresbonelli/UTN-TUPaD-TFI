@@ -69,6 +69,9 @@ public class TurnoDTO {
         private int ingresoFaltante;
         private Integer cantidadUsada;
         private Integer cantidadRestockeo;
+        // Solo para oxigeno
+        private Double capacidadMaxima;
+        private boolean esOxigeno;
 
         public ControlInsumoDTO(ControlInsumo controlInsumo) {
             if (null == controlInsumo) return;
@@ -80,6 +83,8 @@ public class TurnoDTO {
             this.ingresoFaltante = controlInsumo.getIngresoFaltante();
             this.cantidadUsada = controlInsumo.getCantidadUsada();
             this.cantidadRestockeo = controlInsumo.getCantidadRestockeo();
+            this.capacidadMaxima = controlInsumo.getInsumo().getCapacidadMaxima();
+            this.esOxigeno = controlInsumo.getInsumo().isOxigeno();
         }
     }
 

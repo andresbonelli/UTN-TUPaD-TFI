@@ -16,6 +16,8 @@ public class InsumoDTO {
     private String categoria;
     private int puntoControl;
     private boolean critico;
+    private boolean esOxigeno;
+    private Double capacidadMaxima;
 
     public InsumoDTO(Insumo i) {
         if (null == i) return;
@@ -23,6 +25,8 @@ public class InsumoDTO {
         this.nombre = i.getNombre();
         this.puntoControl = i.getPuntoControl();
         this.critico = i.isCritico();
+        this.esOxigeno = i.isOxigeno();
+        this.capacidadMaxima = i.getCapacidadMaxima();
         if (i.getCategoria() != null) {
             this.categoria = i.getCategoria().getNombre();
         } else {

@@ -4,8 +4,10 @@ import com.tup.tfi.control107.dto.AmbulanciaDTO;
 import com.tup.tfi.control107.dto.request.AmbulanciaRequestDTO;
 import com.tup.tfi.control107.model.entity.Ambulancia;
 import com.tup.tfi.control107.model.entity.Insumo;
+import com.tup.tfi.control107.model.enums.EstadoTurno;
 import com.tup.tfi.control107.repository.AmbulanciaRepository;
 import com.tup.tfi.control107.repository.InsumoRepository;
+import com.tup.tfi.control107.repository.TurnoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,9 @@ class AmbulanciaServiceImplTest {
 
     @Mock
     private InsumoRepository insumoRepository;
+
+    @Mock
+    private TurnoRepository turnoRepository;
 
     @InjectMocks
     private AmbulanciaServiceImpl ambulanciaServiceImpl;
@@ -168,8 +173,23 @@ class AmbulanciaServiceImplTest {
         ambulanciaServiceImpl.eliminarPorId(1L);
 
         assertTrue(ambulancia.isEliminado());
+        verify(turnoRepository).existsByAmbulanciaIdAndEstadoInAndEliminadoIsFalse(
+                1L, List.of(EstadoTurno.PROGRAMADO, EstadoTurno.EN_CURSO));
         verify(ambulanciaRepository, times(1)).findById(1L);
         verify(ambulanciaRepository, times(1)).save(ambulancia);
+    }
+
+    @Test
+    void eliminarPorId_errorTurnoProgramadoOEnCurso() {
+        when(turnoRepository.existsByAmbulanciaIdAndEstadoInAndEliminadoIsFalse(
+                1L, List.of(EstadoTurno.PROGRAMADO, EstadoTurno.EN_CURSO))).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class, () -> ambulanciaServiceImpl.eliminarPorId(1L));
+
+        assertEquals("No se puede eliminar ambulancia usada en turnos abiertos", ex.getMessage());
+        verify(ambulanciaRepository, never()).findById(anyLong());
+        verify(ambulanciaRepository, never()).save(any(Ambulancia.class));
     }
 
     @Test

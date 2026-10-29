@@ -4,6 +4,7 @@ import com.tup.tfi.control107.dto.InsumoDTO;
 import com.tup.tfi.control107.dto.request.InsumoRequestDTO;
 import com.tup.tfi.control107.model.entity.CategoriaInsumo;
 import com.tup.tfi.control107.model.entity.Insumo;
+import com.tup.tfi.control107.repository.AmbulanciaRepository;
 import com.tup.tfi.control107.repository.CategoriaRepository;
 import com.tup.tfi.control107.repository.InsumoRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -29,6 +30,9 @@ class InsumoServiceImplTest {
 
     @Mock
     private CategoriaRepository categoriaRepository;
+
+    @Mock
+    private AmbulanciaRepository ambulanciaRepository;
 
     @InjectMocks
     private InsumoServiceImpl insumoService;
@@ -57,7 +61,7 @@ class InsumoServiceImplTest {
                 .build();
         insumo.setId(1L);
 
-        requestDTO = new InsumoRequestDTO(NOMBRE_INSUMO, 10L, 20, true);
+        requestDTO = new InsumoRequestDTO(NOMBRE_INSUMO, 10L, 20, true, false, null);
     }
 
     @Test
@@ -177,7 +181,7 @@ class InsumoServiceImplTest {
 
     @Test
     void actualizarInsumo_ok_sinCategoria() {
-        InsumoRequestDTO requestSinCategoria = new InsumoRequestDTO(NOMBRE_INSUMO, null, 20, true);
+        InsumoRequestDTO requestSinCategoria = new InsumoRequestDTO(NOMBRE_INSUMO, null, 20, true, false, null);
         when(insumoRepository.findById(1L)).thenReturn(Optional.of(insumo));
         when(insumoRepository.save(any(Insumo.class))).thenReturn(insumo);
 

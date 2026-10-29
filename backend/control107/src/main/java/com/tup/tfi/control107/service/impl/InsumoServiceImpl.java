@@ -4,6 +4,7 @@ import com.tup.tfi.control107.dto.InsumoDTO;
 import com.tup.tfi.control107.dto.request.InsumoRequestDTO;
 import com.tup.tfi.control107.model.entity.CategoriaInsumo;
 import com.tup.tfi.control107.model.entity.Insumo;
+import com.tup.tfi.control107.repository.AmbulanciaRepository;
 import com.tup.tfi.control107.repository.CategoriaRepository;
 import com.tup.tfi.control107.repository.InsumoRepository;
 import com.tup.tfi.control107.service.InsumoService;
@@ -18,14 +19,16 @@ public class InsumoServiceImpl extends AbstractService<Insumo> implements Insumo
 
     private final InsumoRepository repository;
     private final CategoriaRepository categoriaRepository;
+    private final AmbulanciaRepository ambulanciaRepository;
 
     private final static int NOMBRE_MIN_LENGTH = 3;
     private final static int NOMBRE_MAX_LENGTH = 255;
 
-    public InsumoServiceImpl(InsumoRepository repository, CategoriaRepository categoriaRepository) {
+    public InsumoServiceImpl(InsumoRepository repository, CategoriaRepository categoriaRepository, AmbulanciaRepository ambulanciaRepository) {
         super(repository, Insumo.class);
         this.repository = repository;
         this.categoriaRepository = categoriaRepository;
+        this.ambulanciaRepository = ambulanciaRepository;
     }
 
     @Override
@@ -72,6 +75,9 @@ public class InsumoServiceImpl extends AbstractService<Insumo> implements Insumo
     @Transactional
     @Override
     public void eliminarPorId(Long id) {
+        if (ambulanciaRepository.existeActivaConteniendoInsumo(id)) {
+            throw new IllegalArgumentException("No se puede eliminar insumo existente en una ambulancia activa");
+        }
         eliminar(id);
     }
 
