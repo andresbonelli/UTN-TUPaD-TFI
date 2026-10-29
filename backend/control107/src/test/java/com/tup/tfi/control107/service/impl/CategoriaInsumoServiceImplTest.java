@@ -4,6 +4,7 @@ import com.tup.tfi.control107.dto.CategoriaInsumoDTO;
 import com.tup.tfi.control107.dto.request.CategoriaInsumoRequestDTO;
 import com.tup.tfi.control107.model.entity.CategoriaInsumo;
 import com.tup.tfi.control107.repository.CategoriaRepository;
+import com.tup.tfi.control107.repository.InsumoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,9 @@ class CategoriaInsumoServiceImplTest {
 
     @Mock
     private CategoriaRepository repository;
+
+    @Mock
+    private InsumoRepository insumoRepository;
 
     @InjectMocks
     private CategoriaInsumoServiceImpl categoriaService;

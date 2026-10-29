@@ -60,6 +60,7 @@ class InsumoControllerTest {
                 .categoria(CATEGORIA)
                 .puntoControl(20)
                 .critico(true)
+                .esOxigeno(false)
                 .build();
     }
 
@@ -82,7 +83,7 @@ class InsumoControllerTest {
         mockMvc.perform(get(BASE_URL + "/criticos").contextPath(CONTEXT_PATH))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].esCritico").value(true));
+                .andExpect(jsonPath("$[0].critico").value(true));
     }
 
     @Test
@@ -117,7 +118,7 @@ class InsumoControllerTest {
 
     @Test
     void crear_ok() throws Exception {
-        InsumoRequestDTO request = new InsumoRequestDTO(NOMBRE, 10L, 20, true);
+        InsumoRequestDTO request = new InsumoRequestDTO(NOMBRE, 10L, 20, true, false, null);
         when(insumoService.crearInsumo(any(InsumoRequestDTO.class))).thenReturn(insumoDTO);
 
         mockMvc.perform(post(BASE_URL)
@@ -131,7 +132,7 @@ class InsumoControllerTest {
 
     @Test
     void crear_nombreDuplicado_badRequest() throws Exception {
-        InsumoRequestDTO request = new InsumoRequestDTO(NOMBRE, 10L, 20, true);
+        InsumoRequestDTO request = new InsumoRequestDTO(NOMBRE, 10L, 20, true, false, null);
         when(insumoService.crearInsumo(any(InsumoRequestDTO.class)))
                 .thenThrow(new IllegalArgumentException("Ya existe un insumo con ese nombre"));
 
@@ -146,13 +147,14 @@ class InsumoControllerTest {
 
     @Test
     void actualizar_ok() throws Exception {
-        InsumoRequestDTO request = new InsumoRequestDTO("Adrenalina 2mg", 10L, 25, true);
+        InsumoRequestDTO request = new InsumoRequestDTO("Adrenalina 2mg", 10L, 25, true, false, null);
         InsumoDTO updatedDTO = InsumoDTO.builder()
                 .id(ID)
                 .nombre("Adrenalina 2mg")
                 .categoria(CATEGORIA)
                 .puntoControl(25)
                 .critico(true)
+                .esOxigeno(false)
                 .build();
         when(insumoService.actualizarInsumo(eq(ID), any(InsumoRequestDTO.class))).thenReturn(updatedDTO);
 
@@ -167,7 +169,7 @@ class InsumoControllerTest {
 
     @Test
     void actualizar_notFound() throws Exception {
-        InsumoRequestDTO request = new InsumoRequestDTO("Insumo", 10L, 5, false);
+        InsumoRequestDTO request = new InsumoRequestDTO("Insumo", 10L, 5, false, false,null);
         when(insumoService.actualizarInsumo(eq(99L), any(InsumoRequestDTO.class)))
                 .thenThrow(new EntityNotFoundException("No se encontro Insumo con id 99"));
 
@@ -181,7 +183,7 @@ class InsumoControllerTest {
 
     @Test
     void actualizar_nombreDuplicado_badRequest() throws Exception {
-        InsumoRequestDTO request = new InsumoRequestDTO(NOMBRE, 10L, 20, true);
+        InsumoRequestDTO request = new InsumoRequestDTO(NOMBRE, 10L, 20, true, false, null);
         when(insumoService.actualizarInsumo(eq(ID), any(InsumoRequestDTO.class)))
                 .thenThrow(new IllegalArgumentException("Ya existe un insumo con ese nombre"));
 

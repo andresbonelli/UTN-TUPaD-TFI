@@ -255,7 +255,7 @@ class TurnoServiceImplTest {
         // Id incorrecto (es Admin)
         turnoRequestDTO.setEnfermeroId(1L);
         when(usuarioRepository.findByIdAndEliminadoIsFalse(1L)).thenReturn(Optional.of(admin));
-        assertThrows(IllegalArgumentException.class, () -> turnoService.crearTurno(turnoRequestDTO));
+        assertThrows(IllegalArgumentException.class, () -> turnoService.crearTurno(1L,turnoRequestDTO));
         verify(repository, never()).save(any(Turno.class));
     }
 

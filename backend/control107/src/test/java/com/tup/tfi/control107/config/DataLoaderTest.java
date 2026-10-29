@@ -85,7 +85,7 @@ class DataLoaderTest {
             return a;
         });
 
-        when(turnoService.crearTurno(any())).thenAnswer(invocation -> {
+        when(turnoService.crearTurno(anyLong(),any())).thenAnswer(invocation -> {
             TurnoDTO resp = new TurnoDTO();
             resp.setId(50L);
             return resp;
@@ -94,20 +94,20 @@ class DataLoaderTest {
         dataLoader.run();
 
         // Verificar categorías (deben ser 6 según la planilla de control)
-        verify(categoriaRepository, times(6)).save(any(CategoriaInsumo.class));
+        verify(categoriaRepository, times(7)).save(any(CategoriaInsumo.class));
 
         // Verificar insumos (deben ser 138 insumos)
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<Insumo>> insumosCaptor = ArgumentCaptor.forClass(List.class);
         verify(insumoRepository).saveAll(insumosCaptor.capture());
         List<Insumo> insumosGuardados = insumosCaptor.getValue();
-        assertThat(insumosGuardados).hasSize(138);
+        assertThat(insumosGuardados).hasSize(140);
 
         // Verificar que las ambulancias se crearon con el set de insumos
         verify(ambulanciaRepository, times(4)).save(any(Ambulancia.class));
 
         // Verificar que se crearon los turnos
-        verify(turnoService, times(2)).crearTurno(any());
+        verify(turnoService, times(2)).crearTurno(anyLong(),any());
         verify(turnoService, times(2)).registrarIngreso(any());
         verify(turnoService, times(1)).registrarEgreso(any());
     }

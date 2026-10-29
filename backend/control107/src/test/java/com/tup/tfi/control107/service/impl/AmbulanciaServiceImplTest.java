@@ -187,7 +187,7 @@ class AmbulanciaServiceImplTest {
         IllegalArgumentException ex = assertThrows(
                 IllegalArgumentException.class, () -> ambulanciaServiceImpl.eliminarPorId(1L));
 
-        assertEquals("No se puede eliminar la ambulancia porque tiene turnos abiertos", ex.getMessage());
+        assertEquals("No se puede eliminar ambulancia usada en turnos abiertos", ex.getMessage());
         verify(ambulanciaRepository, never()).findById(anyLong());
         verify(ambulanciaRepository, never()).save(any(Ambulancia.class));
     }

@@ -4,6 +4,7 @@ import com.tup.tfi.control107.dto.UsuarioDTO;
 import com.tup.tfi.control107.dto.request.UsuarioRequestDTO;
 import com.tup.tfi.control107.model.entity.Usuario;
 import com.tup.tfi.control107.model.enums.RolUsuario;
+import com.tup.tfi.control107.repository.TurnoRepository;
 import com.tup.tfi.control107.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,9 @@ class UsuarioServiceImplTest {
 
     @Mock
     private UsuarioRepository repository;
+
+    @Mock
+    private TurnoRepository turnoRepository;
 
     @InjectMocks
     private UsuarioServiceImpl usuarioService;
