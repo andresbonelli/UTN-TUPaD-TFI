@@ -40,7 +40,7 @@ public class DataLoader implements CommandLineRunner {
     private final ObjectMapper objectMapper = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     public record CategoriaSeedDTO(String nombre, String color) {}
-    public record InsumoSeedDTO(String nombre, String categoria, int puntoControl, boolean critico) {}
+    public record InsumoSeedDTO(String nombre, String categoria, int puntoControl, boolean critico, boolean esOxigeno, Double capacidadMaxima) {}
 
     @Override
     public void run(String... args) throws Exception {
@@ -109,6 +109,8 @@ public class DataLoader implements CommandLineRunner {
                             .categoria(cat)
                             .puntoControl(insumoDto.puntoControl())
                             .critico(insumoDto.critico())
+                            .oxigeno(insumoDto.esOxigeno())
+                            .capacidadMaxima(insumoDto.capacidadMaxima())
                             .build()
             );
         }

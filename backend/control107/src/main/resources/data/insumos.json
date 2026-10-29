@@ -3,13 +3,17 @@
     "nombre": "Tubo portatil, presion en bares",
     "categoria": "OXIGENO",
     "puntoControl": 35,
-    "critico": true
+    "critico": true,
+    "esOxigeno": true,
+    "capacidadMaxima": 60
   },
   {
     "nombre": "Tubo grande, presion en bares",
     "categoria": "OXIGENO",
     "puntoControl": 35,
-    "critico": true
+    "critico": true,
+    "esOxigeno": true,
+    "capacidadMaxima": 100
   },
   {
     "nombre": "Adrenalina",

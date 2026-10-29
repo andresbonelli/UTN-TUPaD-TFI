@@ -17,6 +17,8 @@ public class InsumoRequestDTO {
     private Long categoriaId;
     private Integer puntoControl;
     private Boolean critico;
+    private Boolean esOxigeno;
+    private Double capacidadMaxima;
 
     public Insumo toInsumo(CategoriaInsumo categoria) {
         // Validaciones de creacion
@@ -29,7 +31,17 @@ public class InsumoRequestDTO {
         if (null == puntoControl) {
             throw new IllegalArgumentException("El campo punto de control es obligatorio");
         }
-        return new Insumo(nombre, categoria, puntoControl, critico);
+        if (null == esOxigeno) {
+            throw new IllegalArgumentException("El campo distintorio esOxigeno es obligatorio");
+        }
+        return new Insumo(
+                nombre,
+                categoria,
+                puntoControl,
+                esOxigeno || critico,
+                esOxigeno,
+                esOxigeno ? capacidadMaxima : null
+        );
     }
 
     public void aplicar(Insumo i, CategoriaInsumo categoria) {
@@ -43,7 +55,13 @@ public class InsumoRequestDTO {
             i.setPuntoControl(puntoControl);
         }
         if (null != critico) {
-        i.setCritico(critico);
+            i.setCritico(critico);
+        }
+        if (null != esOxigeno) {
+            i.setOxigeno(esOxigeno);
+        }
+        if (null != capacidadMaxima) {
+            i.setCapacidadMaxima(Boolean.TRUE.equals(esOxigeno) ? capacidadMaxima : null);
         }
         i.setUpdatedAt(LocalDateTime.now());
     }

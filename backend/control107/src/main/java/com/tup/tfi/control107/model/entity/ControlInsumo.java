@@ -38,6 +38,13 @@ public class ControlInsumo extends BaseEntity{
     @Column(name = "cantidad_usada")
     private Integer cantidadUsada;
 
+    @Builder.Default
+    @Column(name = "es_oxigeno", nullable = false)
+    private boolean esOxigeno = false;
+
+    @Column(name = "capacidad_maxima")
+    private Double capacidadMaxima = null;
+
     public void informarIngreso(int cantidadIngreso) {
         this.cantidadIngreso = cantidadIngreso;
         this.ingresoFaltante = Math.max(0, this.insumo.getPuntoControl() - cantidadIngreso);
