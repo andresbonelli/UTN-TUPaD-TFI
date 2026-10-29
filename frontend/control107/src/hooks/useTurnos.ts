@@ -7,6 +7,7 @@ import {
 import type {
   CancelarTurnoRequest,
   IngresoEgresoRequest,
+  ResumenTurnos,
   Turno,
 } from "../interfaces/Turno";
 
@@ -14,6 +15,7 @@ import {
   listarTurnos,
   listarTurnosActivos,
   listarTurnosPorEnfermero,
+  obtenerResumenTurnos,
   obtenerTurno,
   registrarEgreso,
   registrarIngreso,
@@ -38,6 +40,13 @@ export function useTurnosActivos() {
   return useQuery<Turno[]>({
     queryKey: ["turnos", "activos"],
     queryFn: listarTurnosActivos,
+  });
+}
+
+export function useResumenTurnos() {
+  return useQuery<ResumenTurnos>({
+    queryKey: ["turnos", "resumen"],
+    queryFn: obtenerResumenTurnos,
   });
 }
 
@@ -108,3 +117,4 @@ export function useCancelarTurno() {
     },
   });
 }
+

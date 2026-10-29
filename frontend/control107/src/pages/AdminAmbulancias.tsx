@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
     flexRender,
@@ -12,9 +12,17 @@ import {
     type PaginationState,
 } from "@tanstack/react-table";
 
-import { useAmbulancias } from "../hooks/useAmbulancia";
+import {
+    useActualizarAmbulancia,
+    useAmbulancias,
+    useCrearAmbulancia,
+} from "../hooks/useAmbulancia";
 
-import type { Ambulancia } from "../interfaces/Ambulancia";
+import { AmbulanciaForm } from "../components/AmbulanciaForm";
+
+import type { Ambulancia, AmbulanciaRequest } from "../interfaces/Ambulancia";
+
+import { obtenerMensajeError } from "../utils/error";
 
 const columnas: ColumnDef<Ambulancia>[] = [
     {
@@ -37,8 +45,7 @@ const sinAmbulancias: Ambulancia[] = [];
 export default function AdminAmbulancias() {
     const [sorting, setSorting] = useState<SortingState>([]);
 
-    const [pagination, setPagination] =
-    useState<PaginationState>({
+    const [pagination, setPagination] = useState<PaginationState>({
         pageIndex: 0,
         pageSize: 5,
     });
@@ -51,6 +58,32 @@ export default function AdminAmbulancias() {
         isError,
         error,
     } = useAmbulancias();
+
+    const crearAmbulanciaMutation = useCrearAmbulancia();
+
+    const actualizarAmbulanciaMutation = useActualizarAmbulancia();
+
+    function handleCrearAmbulancia(ambulancia: AmbulanciaRequest) {
+        crearAmbulanciaMutation.mutate(ambulancia);
+    }
+
+    function handleActualizarAmbulancia(ambulancia: AmbulanciaRequest) {
+        if (!ambulanciaEditando) {
+            return;
+        }
+
+        actualizarAmbulanciaMutation.mutate(
+            {
+                id: ambulanciaEditando.id,
+                ambulancia,
+            },
+            {
+                onSuccess: () => {
+                    setAmbulanciaEditando(null);
+                },
+            },
+        );
+    }
 
     const table = useReactTable({
         data: ambulancias,
@@ -71,6 +104,20 @@ export default function AdminAmbulancias() {
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
     });
+
+    const [ambulanciaEditando, setAmbulanciaEditando] =
+        useState<Ambulancia | null>(null);
+
+    const editarRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (ambulanciaEditando) {
+            editarRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        }
+    }, [ambulanciaEditando]);
 
     if (isLoading) {
         return (
@@ -101,6 +148,28 @@ export default function AdminAmbulancias() {
                     Ambulancias registradas en Control107.
                 </p>
             </div>
+
+            <div className="mb-6 rounded-xl bg-blanco p-6 shadow-sm">
+                <h2 className="mb-4 text-xl font-semibold text-petro">
+                    Nueva ambulancia
+                </h2>
+
+                <AmbulanciaForm
+                    onSubmit={handleCrearAmbulancia}
+                    isPending={crearAmbulanciaMutation.isPending}
+                />
+
+                {crearAmbulanciaMutation.isError && (
+                    <div className="mt-4 rounded-lg border border-coral/30 bg-coral/5 p-3">
+                        <p className="text-sm font-semibold text-coral">
+                            {obtenerMensajeError(crearAmbulanciaMutation.error)}
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            {/* Divisor  */}
+            <div className="my-8 border-t border-petro/10" />
 
             <div className="mb-4">
                 <label htmlFor="buscar-ambulancias" className="sr-only">
@@ -148,6 +217,10 @@ export default function AdminAmbulancias() {
                                             </th>
                                         );
                                     })}
+
+                                    <th className="border-b border-petro/10 px-4 py-3 text-sm font-semibold text-petro">
+                                        Acciones
+                                    </th>
                                 </tr>
                             ))}
                         </thead>
@@ -156,7 +229,7 @@ export default function AdminAmbulancias() {
                             {table.getRowModel().rows.length === 0 ? (
                                 <tr>
                                     <td
-                                        colSpan={columnas.length}
+                                        colSpan={columnas.length + 1}
                                         className="px-4 py-8 text-center text-sm text-petro/60"
                                     >
                                         No se encontraron ambulancias.
@@ -176,6 +249,15 @@ export default function AdminAmbulancias() {
                                                 )}
                                             </td>
                                         ))}
+                                        <td className="px-4 py-4 text-sm">
+                                            <button
+                                                type="button"
+                                                onClick={() => setAmbulanciaEditando(row.original)}
+                                                className="rounded-lg border border-turquesa/30 px-3 py-2 text-sm font-semibold text-turquesa transition hover:bg-turquesa/10"
+                                            >
+                                                Editar
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))
                             )}
@@ -184,20 +266,15 @@ export default function AdminAmbulancias() {
                 </div>
                 <div className="flex flex-col gap-3 border-t border-petro/10 bg-petro/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-sm text-petro/60">
-                        Página{" "}
-                        {table.getState().pagination.pageIndex + 1}{" "}
-                        de {table.getPageCount() || 1}
+                        Página {table.getState().pagination.pageIndex + 1} de{" "}
+                        {table.getPageCount() || 1}
                     </p>
 
                     <div className="flex gap-2">
                         <button
                             type="button"
-                            onClick={() =>
-                                table.previousPage()
-                            }
-                            disabled={
-                                !table.getCanPreviousPage()
-                            }
+                            onClick={() => table.previousPage()}
+                            disabled={!table.getCanPreviousPage()}
                             className="rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm font-semibold text-petro disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             Anterior
@@ -205,12 +282,8 @@ export default function AdminAmbulancias() {
 
                         <button
                             type="button"
-                            onClick={() =>
-                                table.nextPage()
-                            }
-                            disabled={
-                                !table.getCanNextPage()
-                            }
+                            onClick={() => table.nextPage()}
+                            disabled={!table.getCanNextPage()}
                             className="rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm font-semibold text-petro disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             Siguiente
@@ -218,6 +291,69 @@ export default function AdminAmbulancias() {
                     </div>
                 </div>
             </div>
+
+            {/* Eeitar ambulancia */}
+
+            {ambulanciaEditando && (
+                <>
+                    <div className="my-8 border-t border-petro/10" />
+
+                    <div ref={editarRef} className="rounded-xl bg-blanco p-6 shadow-sm">
+                        <div className="mb-4 flex items-start justify-between gap-4">
+                            <div>
+                                <h2 className="text-xl font-semibold text-petro">
+                                    Editar ambulancia
+                                </h2>
+
+                                <p className="mt-1 text-sm text-petro/60">
+                                    Modificando{" "}
+                                    <span className="font-semibold text-petro">
+                                        {ambulanciaEditando.patente}
+                                    </span>
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setAmbulanciaEditando(null)}
+                                className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+
+                        <AmbulanciaForm
+                            key={ambulanciaEditando.id}
+                            valoresIniciales={{
+                                patente: ambulanciaEditando.patente,
+
+                                disponible: ambulanciaEditando.disponible,
+
+                                insumos: ambulanciaEditando.insumos.map((insumo) => insumo.id),
+                            }}
+                            textoBoton="Guardar cambios"
+                            isPending={actualizarAmbulanciaMutation.isPending}
+                            onSubmit={handleActualizarAmbulancia}
+                        />
+
+                        {actualizarAmbulanciaMutation.isError && (
+                            <div className="mt-4 rounded-lg border border-coral/30 bg-coral/5 p-3">
+                                <p className="text-sm font-semibold text-coral">
+                                    {obtenerMensajeError(actualizarAmbulanciaMutation.error)}
+                                </p>
+                            </div>
+                        )}
+
+                        <button
+                            type="button"
+                            onClick={() => setAmbulanciaEditando(null)}
+                            className="mt-3 text-sm font-semibold text-petro/60 transition hover:text-petro"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </>
+            )}
         </section>
     );
 }

@@ -60,3 +60,12 @@ export interface IngresoEgresoRequest {
 export interface CancelarTurnoRequest {
   observaciones: string;
 }
+
+export interface ResumenTurnos {
+  turnosActivos: number;
+  ambulanciasDisponibles: number;
+  ambulanciasTotales: number;
+  alertas: number;
+  turnosConInconsistencias: Turno[];
+  listaAmbulancias: Ambulancia[];
+}

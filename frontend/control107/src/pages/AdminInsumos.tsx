@@ -1,6 +1,4 @@
-import {
-    useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
     flexRender,
@@ -15,21 +13,20 @@ import {
 } from "@tanstack/react-table";
 
 import {
+    useActualizarInsumo,
     useCrearInsumo,
     useInsumos,
 } from "../hooks/useInsumos";
+
+import { useCategorias } from "../hooks/useCategorias";
 
 import InsumoForm from "../components/InsumoForm";
 
 import CategoriaBadge from "../components/CategoriaBadge";
 
-
 import { obtenerMensajeError } from "../utils/error";
 
-import type {
-    Insumo,
-    InsumoRequest,
-} from "../interfaces/Insumo";
+import type { Insumo, InsumoRequest } from "../interfaces/Insumo";
 
 const columnas: ColumnDef<Insumo>[] = [
     {
@@ -37,32 +34,20 @@ const columnas: ColumnDef<Insumo>[] = [
         header: "Nombre",
 
         sortingFn: (rowA, rowB) =>
-            rowA.original.nombre.localeCompare(
-                rowB.original.nombre,
-                "es",
-                {
-                    sensitivity: "base",
-                }
-            ),
+            rowA.original.nombre.localeCompare(rowB.original.nombre, "es", {
+                sensitivity: "base",
+            }),
     },
     {
         accessorKey: "categoria",
         header: "Categoría",
 
         sortingFn: (rowA, rowB) =>
-            rowA.original.categoria.localeCompare(
-                rowB.original.categoria,
-                "es",
-                {
-                    sensitivity: "base",
-                }
-            ),
+            rowA.original.categoria.localeCompare(rowB.original.categoria, "es", {
+                sensitivity: "base",
+            }),
 
-        cell: ({ row }) => (
-            <CategoriaBadge
-                nombre={row.original.categoria}
-            />
-        ),
+        cell: ({ row }) => <CategoriaBadge nombre={row.original.categoria} />,
     },
     {
         accessorKey: "puntoControl",
@@ -86,9 +71,7 @@ const columnas: ColumnDef<Insumo>[] = [
                         : "rounded-md bg-verde/10 px-2 py-1 text-xs font-semibold text-verde"
                 }
             >
-                {row.original.critico
-                    ? "Crítico"
-                    : "Normal"}
+                {row.original.critico ? "Crítico" : "Normal"}
             </span>
         ),
     },
@@ -97,17 +80,14 @@ const columnas: ColumnDef<Insumo>[] = [
 const sinInsumos: Insumo[] = [];
 
 export default function AdminInsumos() {
-    const [sorting, setSorting] =
-        useState<SortingState>([]);
+    const [sorting, setSorting] = useState<SortingState>([]);
 
-    const [globalFilter, setGlobalFilter] =
-        useState("");
+    const [globalFilter, setGlobalFilter] = useState("");
 
-    const [pagination, setPagination] =
-        useState<PaginationState>({
-            pageIndex: 0,
-            pageSize: 10,
-        });
+    const [pagination, setPagination] = useState<PaginationState>({
+        pageIndex: 0,
+        pageSize: 10,
+    });
 
     const {
         data: insumos = sinInsumos,
@@ -116,12 +96,32 @@ export default function AdminInsumos() {
         error,
     } = useInsumos();
 
-    const crearInsumoMutation =
-        useCrearInsumo();
+    const crearInsumoMutation = useCrearInsumo();
 
-    function handleCrearInsumo(
-        insumo: InsumoRequest
-    ) {
+    const actualizarInsumoMutation = useActualizarInsumo();
+
+    const { data: categorias = [] } = useCategorias();
+
+    const [insumoEditando, setInsumoEditando] = useState<Insumo | null>(null);
+
+    const categoriaActual = insumoEditando
+        ? categorias.find(
+            (categoria) => categoria.nombre === insumoEditando.categoria,
+        )
+        : undefined;
+
+    const editarRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (insumoEditando) {
+            editarRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        }
+    }, [insumoEditando]);
+
+    function handleCrearInsumo(insumo: InsumoRequest) {
         crearInsumoMutation.mutate(insumo);
     }
 
@@ -148,9 +148,7 @@ export default function AdminInsumos() {
     if (isLoading) {
         return (
             <section>
-                <p className="text-petro/60">
-                    Cargando insumos...
-                </p>
+                <p className="text-petro/60">Cargando insumos...</p>
             </section>
         );
     }
@@ -162,19 +160,33 @@ export default function AdminInsumos() {
                     No se pudieron cargar los insumos.
                 </p>
 
-                <p className="mt-1 text-sm text-petro/60">
-                    {error.message}
-                </p>
+                <p className="mt-1 text-sm text-petro/60">{error.message}</p>
             </section>
+        );
+    }
+
+    function handleActualizarInsumo(insumo: InsumoRequest) {
+        if (!insumoEditando) {
+            return;
+        }
+
+        actualizarInsumoMutation.mutate(
+            {
+                id: insumoEditando.id,
+                insumo,
+            },
+            {
+                onSuccess: () => {
+                    setInsumoEditando(null);
+                },
+            },
         );
     }
 
     return (
         <section className="text-petro">
             <div className="mb-6">
-                <h1 className="text-3xl font-bold">
-                    Insumos
-                </h1>
+                <h1 className="text-3xl font-bold">Insumos</h1>
 
                 <p className="mt-2 text-sm text-petro/60">
                     Insumos registrados en Control107.
@@ -183,9 +195,7 @@ export default function AdminInsumos() {
 
             {/* Seccion de nuevo insumo */}
             <div className="mb-6 rounded-xl bg-blanco p-6 shadow-sm">
-                <h2 className="mb-4 text-xl font-semibold text-petro">
-                    Nuevo insumo
-                </h2>
+                <h2 className="mb-4 text-xl font-semibold text-petro">Nuevo insumo</h2>
 
                 <InsumoForm
                     onSubmit={handleCrearInsumo}
@@ -196,27 +206,19 @@ export default function AdminInsumos() {
                 {crearInsumoMutation.isError && (
                     <div className="mt-4 rounded-lg border border-coral/30 bg-coral/5 p-3">
                         <p className="text-sm font-semibold text-coral">
-                            {obtenerMensajeError(
-                                crearInsumoMutation.error
-                            )}
+                            {obtenerMensajeError(crearInsumoMutation.error)}
                         </p>
                     </div>
                 )}
-
             </div>
-            
+
             {/* divisor */}
             <div className="my-8 border-t border-petro/10" />
 
-                <h3 className="mb-5 text-2xl font-bold">
-                    Buscar / Editar Insumos
-                </h3>
+            <h3 className="mb-5 text-2xl font-bold">Buscar / Editar Insumos</h3>
 
             <div className="mb-4">
-                <label
-                    htmlFor="buscar-insumos"
-                    className="sr-only"
-                >
+                <label htmlFor="buscar-insumos" className="sr-only">
                     Buscar insumos
                 </label>
 
@@ -224,11 +226,7 @@ export default function AdminInsumos() {
                     id="buscar-insumos"
                     type="search"
                     value={globalFilter}
-                    onChange={(event) =>
-                        setGlobalFilter(
-                            event.target.value
-                        )
-                    }
+                    onChange={(event) => setGlobalFilter(event.target.value)}
                     placeholder="Buscar por nombre, categoría o prioridad..."
                     className="w-full max-w-md rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm text-petro outline-none transition focus:border-turquesa focus:ring-2 focus:ring-turquesa/20"
                 />
@@ -238,85 +236,75 @@ export default function AdminInsumos() {
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse text-left">
                         <thead className="bg-petro/5">
-                            {table
-                                .getHeaderGroups()
-                                .map((headerGroup) => (
-                                    <tr key={headerGroup.id}>
-                                        {headerGroup.headers.map(
-                                            (header) => {
-                                                const orden =
-                                                    header.column.getIsSorted();
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <tr key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => {
+                                        const orden = header.column.getIsSorted();
 
-                                                return (
-                                                    <th
-                                                        key={header.id}
-                                                        className="border-b border-petro/10 px-4 py-3 text-sm font-semibold text-petro"
-                                                    >
-                                                        <button
-                                                            type="button"
-                                                            onClick={
-                                                                header.column.getToggleSortingHandler()
-                                                            }
-                                                            className="inline-flex items-center gap-1"
-                                                        >
-                                                            {flexRender(
-                                                                header.column
-                                                                    .columnDef
-                                                                    .header,
-                                                                header.getContext()
-                                                            )}
+                                        return (
+                                            <th
+                                                key={header.id}
+                                                className="border-b border-petro/10 px-4 py-3 text-sm font-semibold text-petro"
+                                            >
+                                                <button
+                                                    type="button"
+                                                    onClick={header.column.getToggleSortingHandler()}
+                                                    className="inline-flex items-center gap-1"
+                                                >
+                                                    {flexRender(
+                                                        header.column.columnDef.header,
+                                                        header.getContext(),
+                                                    )}
 
-                                                            {orden ===
-                                                                "asc" &&
-                                                                " ↑"}
+                                                    {orden === "asc" && " ↑"}
 
-                                                            {orden ===
-                                                                "desc" &&
-                                                                " ↓"}
-                                                        </button>
-                                                    </th>
-                                                );
-                                            }
-                                        )}
-                                    </tr>
-                                ))}
+                                                    {orden === "desc" && " ↓"}
+                                                </button>
+                                            </th>
+                                        );
+                                    })}
+                                    <th className="border-b border-petro/10 px-4 py-3 text-sm font-semibold text-petro">
+                                        Acciones
+                                    </th>
+                                </tr>
+                            ))}
                         </thead>
 
                         <tbody>
                             {table.getRowModel().rows.length === 0 ? (
                                 <tr>
                                     <td
-                                        colSpan={columnas.length}
+                                        colSpan={columnas.length + 1}
                                         className="px-4 py-8 text-center text-sm text-petro/60"
                                     >
                                         No se encontraron insumos.
                                     </td>
                                 </tr>
                             ) : (
-                                table
-                                    .getRowModel()
-                                    .rows.map((row) => (
-                                        <tr
-                                            key={row.id}
-                                            className="border-b border-petro/10 last:border-b-0 hover:bg-petro/5"
-                                        >
-                                            {row
-                                                .getVisibleCells()
-                                                .map((cell) => (
-                                                    <td
-                                                        key={cell.id}
-                                                        className="px-4 py-4 text-sm"
-                                                    >
-                                                        {flexRender(
-                                                            cell.column
-                                                                .columnDef
-                                                                .cell,
-                                                            cell.getContext()
-                                                        )}
-                                                    </td>
-                                                ))}
-                                        </tr>
-                                    ))
+                                table.getRowModel().rows.map((row) => (
+                                    <tr
+                                        key={row.id}
+                                        className="border-b border-petro/10 last:border-b-0 hover:bg-petro/5"
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <td key={cell.id} className="px-4 py-4 text-sm">
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext(),
+                                                )}
+                                            </td>
+                                        ))}
+                                        <td className="px-4 py-4 text-sm">
+                                            <button
+                                                type="button"
+                                                onClick={() => setInsumoEditando(row.original)}
+                                                className="rounded-lg border border-turquesa/30 px-3 py-2 text-sm font-semibold text-turquesa transition hover:bg-turquesa/10"
+                                            >
+                                                Editar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
                             )}
                         </tbody>
                     </table>
@@ -324,21 +312,15 @@ export default function AdminInsumos() {
 
                 <div className="flex flex-col gap-3 border-t border-petro/10 bg-petro/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-sm text-petro/60">
-                        Página{" "}
-                        {table.getState().pagination.pageIndex +
-                            1}{" "}
-                        de {table.getPageCount() || 1}
+                        Página {table.getState().pagination.pageIndex + 1} de{" "}
+                        {table.getPageCount() || 1}
                     </p>
 
                     <div className="flex gap-2">
                         <button
                             type="button"
-                            onClick={() =>
-                                table.previousPage()
-                            }
-                            disabled={
-                                !table.getCanPreviousPage()
-                            }
+                            onClick={() => table.previousPage()}
+                            disabled={!table.getCanPreviousPage()}
                             className="rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm font-semibold text-petro disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             Anterior
@@ -346,12 +328,8 @@ export default function AdminInsumos() {
 
                         <button
                             type="button"
-                            onClick={() =>
-                                table.nextPage()
-                            }
-                            disabled={
-                                !table.getCanNextPage()
-                            }
+                            onClick={() => table.nextPage()}
+                            disabled={!table.getCanNextPage()}
                             className="rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm font-semibold text-petro disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             Siguiente
@@ -359,6 +337,78 @@ export default function AdminInsumos() {
                     </div>
                 </div>
             </div>
+
+            {/* Editar insumos */}
+
+            {insumoEditando && (
+                <>
+                    <div className="my-8 border-t border-petro/10" />
+
+                    <div ref={editarRef} className="rounded-xl bg-blanco p-6 shadow-sm">
+                        <div className="mb-4 flex items-start justify-between gap-4">
+                            <div>
+                                <h2 className="text-xl font-semibold text-petro">
+                                    Editar insumo
+                                </h2>
+
+                                <p className="mt-1 text-sm text-petro/60">
+                                    Modificando{" "}
+                                    <span className="font-semibold text-petro">
+                                        {insumoEditando.nombre}
+                                    </span>
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setInsumoEditando(null)}
+                                className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+
+                        {!categoriaActual ? (
+                            <div className="rounded-lg border border-coral/30 bg-coral/5 p-3">
+                                <p className="text-sm font-semibold text-coral">
+                                    No se pudo identificar la categoría actual del insumo.
+                                </p>
+                            </div>
+                        ) : (
+                            <>
+                                <InsumoForm
+                                    key={insumoEditando.id}
+                                    valoresIniciales={{
+                                        nombre: insumoEditando.nombre,
+                                        categoriaId: categoriaActual.id,
+                                        puntoControl: insumoEditando.puntoControl,
+                                        critico: insumoEditando.critico,
+                                    }}
+                                    textoBoton="Guardar cambios"
+                                    isPending={actualizarInsumoMutation.isPending}
+                                    onSubmit={handleActualizarInsumo}
+                                />
+
+                                {actualizarInsumoMutation.isError && (
+                                    <div className="mt-4 rounded-lg border border-coral/30 bg-coral/5 p-3">
+                                        <p className="text-sm font-semibold text-coral">
+                                            {obtenerMensajeError(actualizarInsumoMutation.error)}
+                                        </p>
+                                    </div>
+                                )}
+
+                                <button
+                                    type="button"
+                                    onClick={() => setInsumoEditando(null)}
+                                    className="mt-3 text-sm font-semibold text-petro/60 transition hover:text-petro"
+                                >
+                                    Cancelar
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </>
+            )}
         </section>
     );
 }
