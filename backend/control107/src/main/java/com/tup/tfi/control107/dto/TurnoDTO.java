@@ -61,6 +61,8 @@ public class TurnoDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ControlInsumoDTO {
+        private Long insumoId;
+        private String colorCategoria;
         private String nombre;
         private String categoria;
         private boolean esCritico;
@@ -75,6 +77,8 @@ public class TurnoDTO {
 
         public ControlInsumoDTO(ControlInsumo controlInsumo) {
             if (null == controlInsumo) return;
+            this.insumoId = controlInsumo.getInsumo().getId();
+            this.colorCategoria = controlInsumo.getInsumo().getCategoria().getColor();
             this.nombre = controlInsumo.getInsumo().getNombre();
             this.categoria = controlInsumo.getInsumo().getCategoria().getNombre();
             this.esCritico = controlInsumo.getInsumo().isCritico();
