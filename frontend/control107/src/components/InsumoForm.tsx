@@ -29,6 +29,8 @@ export default function InsumoForm({
             categoriaId: valoresIniciales?.categoriaId ?? 0,
             puntoControl: valoresIniciales?.puntoControl ?? 1,
             critico: valoresIniciales?.critico ?? false,
+            esOxigeno: valoresIniciales?.esOxigeno ?? false,
+            capacidadMaxima: valoresIniciales?.capacidadMaxima ?? 0,
         } as InsumoRequest,
 
         validators: {
@@ -57,6 +59,14 @@ export default function InsumoForm({
                     };
                 }
 
+                if (value.esOxigeno && value.capacidadMaxima <= 0) {
+                    return {
+                        fields: {
+                            capacidadMaxima: "La capacidad máxima debe ser mayor a 0",
+                        },
+                    };
+                }
+
                 return undefined;
             },
         },
@@ -67,6 +77,8 @@ export default function InsumoForm({
                 categoriaId: value.categoriaId,
                 puntoControl: value.puntoControl,
                 critico: value.critico,
+                esOxigeno: value.esOxigeno,
+                capacidadMaxima: value.esOxigeno ? value.capacidadMaxima : 0,
             });
         },
     });
@@ -180,26 +192,72 @@ export default function InsumoForm({
                 )}
             </form.Field>
 
-            <form.Field name="critico">
+
+            <form.Field name="esOxigeno">
                 {(field) => (
                     <label className="flex items-center gap-3 rounded-lg border border-petro/10 p-3">
                         <input
                             type="checkbox"
                             checked={field.state.value}
-                            onChange={(event) => field.handleChange(event.target.checked)}
+                            onChange={(event) => {
+                                const esOxigeno = event.target.checked;
+
+                                field.handleChange(esOxigeno);
+
+                                if (esOxigeno) {
+                                    form.setFieldValue("critico", true);
+                                }
+                            }}
                             className="h-4 w-4 accent-turquesa"
                         />
 
                         <div>
-                            <p className="text-sm font-semibold text-petro">Insumo crítico</p>
+                            <p className="text-sm font-semibold text-petro">
+                                Insumo de oxígeno
+                            </p>
 
                             <p className="text-xs text-petro/60">
-                                Marcar si requiere tratamiento como insumo crítico.
+                                Marcar si el insumo representa un tubo de oxígeno.
                             </p>
                         </div>
                     </label>
                 )}
             </form.Field>
+
+            <form.Subscribe selector={(state) => state.values.esOxigeno}>
+                {(esOxigeno) => (
+                    <form.Field name="critico">
+                        {(field) => (
+                            <label
+                                className={`flex items-center gap-3 rounded-lg border p-3 ${esOxigeno
+                                        ? "cursor-not-allowed border-petro/10 bg-petro/5 opacity-60"
+                                        : "border-petro/10"
+                                    }`}
+                            >
+                                <input
+                                    type="checkbox"
+                                    checked={field.state.value}
+                                    disabled={esOxigeno}
+                                    onChange={(event) => field.handleChange(event.target.checked)}
+                                    className="h-4 w-4 accent-turquesa"
+                                />
+
+                                <div>
+                                    <p className="text-sm font-semibold text-petro">
+                                        Insumo crítico
+                                    </p>
+
+                                    <p className="text-xs text-petro/60">
+                                        {esOxigeno
+                                            ? "Los insumos de oxígeno son críticos obligatoriamente."
+                                            : "Marcar si requiere tratamiento como insumo crítico."}
+                                    </p>
+                                </div>
+                            </label>
+                        )}
+                    </form.Field>
+                )}
+            </form.Subscribe>
 
             <button
                 type="submit"

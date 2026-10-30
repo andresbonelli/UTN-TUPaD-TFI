@@ -383,6 +383,8 @@ export default function AdminInsumos() {
                                         categoriaId: categoriaActual.id,
                                         puntoControl: insumoEditando.puntoControl,
                                         critico: insumoEditando.critico,
+                                        esOxigeno: insumoEditando.esOxigeno,
+                                        capacidadMaxima: insumoEditando.capacidadMaxima,
                                     }}
                                     textoBoton="Guardar cambios"
                                     isPending={actualizarInsumoMutation.isPending}

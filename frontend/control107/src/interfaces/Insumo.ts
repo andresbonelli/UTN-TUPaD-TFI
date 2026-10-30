@@ -1,9 +1,26 @@
+// export interface Insumo {
+//   id: number;
+//   nombre: string;
+//   categoria: string;
+//   puntoControl: number;
+//   critico: boolean; //no aparece como "esCritico" en el endpoint
+// }
+
+// export interface InsumoRequest {
+//     nombre: string;
+//     categoriaId: number;
+//     puntoControl: number;
+//     critico: boolean;
+// }
+
 export interface Insumo {
-  id: number;
-  nombre: string;
-  categoria: string;
-  puntoControl: number;
-  critico: boolean; //no aparece como "esCritico" en el endpoint
+    id: number;
+    nombre: string;
+    categoria: string;
+    puntoControl: number;
+    critico: boolean;
+    esOxigeno: boolean;
+    capacidadMaxima: number;
 }
 
 export interface InsumoRequest {
@@ -11,4 +28,6 @@ export interface InsumoRequest {
     categoriaId: number;
     puntoControl: number;
     critico: boolean;
+    esOxigeno: boolean;
+    capacidadMaxima: number;
 }
