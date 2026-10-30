@@ -1,13 +1,13 @@
 import type { ControlInsumo } from "../../interfaces/Turno";
-import { CONFIGURACION_OXIGENO } from "../../config/oxigeno";
+
+import type { Insumo } from "../../interfaces/Insumo";
 
 interface CardOxigenoProps {
     controles: ControlInsumo[];
+    insumos: Insumo[];
 }
 
-export default function CardOxigeno({
-    controles,
-}: CardOxigenoProps) {
+export default function CardOxigeno({ controles, insumos }: CardOxigenoProps) {
     return (
         <section className="rounded-xl border border-ambar/40 bg-blanco p-6 shadow-sm">
             <div className="mb-5">
@@ -16,10 +16,7 @@ export default function CardOxigeno({
                         CRÍTICO
                     </span>
 
-                    <h3 className="text-xl font-semibold text-petro">
-                        Oxígeno
-                    </h3>
-
+                    <h3 className="text-xl font-semibold text-petro">Oxígeno</h3>
                 </div>
 
                 <p className="mt-2 text-sm text-petro/60">
@@ -29,34 +26,24 @@ export default function CardOxigeno({
 
             <div className="space-y-4">
                 {controles.map((control) => {
-                    const configuracion =
-                        CONFIGURACION_OXIGENO[control.nombre];
+                    const insumo = insumos.find((item) => item.nombre === control.nombre);
 
-                    const presionActual =
-                        control.cantidadIngreso ?? 0;
+                    const presionActual = control.cantidadIngreso ?? 0;
 
                     const presionMaxima =
-                        configuracion?.maxBar ?? presionActual;
+                        insumo?.esOxigeno && insumo.capacidadMaxima > 0
+                            ? insumo.capacidadMaxima
+                            : presionActual;
 
-                    const tieneFaltante =
-                        control.ingresoFaltante > 0;
+                    const tieneFaltante = control.ingresoFaltante > 0;
 
-                    const estaLleno =
-                        presionActual >= presionMaxima;
+                    const estaLleno = presionActual >= presionMaxima;
 
-                    const estadoOxigeno =
-                        tieneFaltante
-                            ? "CAMBIAR"
-                            : estaLleno
-                                ? "LLENO"
-                                : "OPERATIVO";
-
-                    // const colorBarra =
-                    //     estadoOxigeno === "CAMBIAR"
-                    //         ? "accent-coral"
-                    //         : estadoOxigeno === "LLENO"
-                    //             ? "accent-turquesa"
-                    //             : "accent-verde";
+                    const estadoOxigeno = tieneFaltante
+                        ? "CAMBIAR"
+                        : estaLleno
+                            ? "LLENO"
+                            : "OPERATIVO";
 
                     const colorBarra =
                         estadoOxigeno === "CAMBIAR"
@@ -74,12 +61,7 @@ export default function CardOxigeno({
 
                     const porcentaje =
                         presionMaxima > 0
-                            ? Math.min(
-                                100,
-                                Math.round(
-                                    (presionActual / presionMaxima) * 100
-                                )
-                            )
+                            ? Math.min(100, Math.round((presionActual / presionMaxima) * 100))
                             : 0;
 
                     return (
@@ -89,9 +71,7 @@ export default function CardOxigeno({
                         >
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                 <div>
-                                    <h4 className="font-semibold text-petro">
-                                        {control.nombre}
-                                    </h4>
+                                    <h4 className="font-semibold text-petro">{control.nombre}</h4>
 
                                     <p className="mt-1 text-sm text-petro/60">
                                         Presión registrada
@@ -122,9 +102,7 @@ export default function CardOxigeno({
                                         {presionActual} bar
                                     </p>
 
-                                    <p className="text-sm text-petro/60">
-                                        {porcentaje}%
-                                    </p>
+                                    <p className="text-sm text-petro/60">{porcentaje}%</p>
                                 </div>
 
                                 {/* <progress
@@ -153,9 +131,7 @@ export default function CardOxigeno({
                                 <div className="mt-2 flex justify-between text-xs text-petro/60">
                                     {/* <span>0 bar</span> */}
 
-                                    <span>
-                                        Máximo: {presionMaxima} bar
-                                    </span>
+                                    <span>Máximo: {presionMaxima} bar</span>
                                 </div>
                             </div>
 
@@ -166,18 +142,19 @@ export default function CardOxigeno({
                                     </p>
 
                                     <p className="mt-1 text-sm text-petro/70">
-                                        Faltante registrado:{" "}
-                                        {control.ingresoFaltante} bar
+                                        Faltante registrado: {control.ingresoFaltante} bar
                                     </p>
                                 </div>
                             )}
 
-                            {!configuracion && (
-                                <p className="mt-3 text-xs text-ambar">
-                                    No se encontró una presión máxima configurada
-                                    para este producto.
-                                </p>
-                            )}
+                            {(!insumo ||
+                                !insumo.esOxigeno ||
+                                insumo.capacidadMaxima <= 0) && (
+                                    <p className="mt-3 text-xs text-ambar">
+                                        No se encontró una presión máxima válida para este insumo de
+                                        oxígeno.
+                                    </p>
+                                )}
                         </article>
                     );
                 })}

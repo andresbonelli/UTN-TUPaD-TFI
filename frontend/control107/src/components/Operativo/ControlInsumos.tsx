@@ -1,19 +1,45 @@
 import type { ControlInsumo } from "../../interfaces/Turno";
-import CardOxigeno from "./CardOxigeno";
 import CategoriaBadge from "../CategoriaBadge";
+import { useInsumos } from "../../hooks/useInsumos";
+import CardOxigeno from "./CardOxigeno";
 
 interface ControlInsumosProps {
     controles: ControlInsumo[];
 }
 
-export default function ControlInsumos({
-    controles,
-}: ControlInsumosProps) {
-    const controlesOxigeno = controles.filter((control) => control.esCritico && control.categoria === "OXIGENO");
+export default function ControlInsumos({ controles }: ControlInsumosProps) {
+    const { data: insumos = [], isLoading, isError } = useInsumos();
 
-    const controlesCriticos = controles.filter((control) => control.esCritico && control.categoria !== "OXIGENO");
+    const esControlOxigeno = (control: ControlInsumo) =>
+        insumos.some(
+            (insumo) => insumo.nombre === control.nombre && insumo.esOxigeno,
+        );
+
+    const controlesOxigeno = controles.filter(esControlOxigeno);
+
+    const controlesCriticos = controles.filter(
+        (control) => control.esCritico && !esControlOxigeno(control),
+    );
 
     const controlesNormales = controles.filter((control) => !control.esCritico);
+
+    if (isLoading) {
+        return (
+            <section className="mt-6 rounded-xl bg-blanco p-6 shadow-sm">
+                <p className="text-petro">Cargando control de insumos...</p>
+            </section>
+        );
+    }
+
+    if (isError) {
+        return (
+            <section className="mt-6 rounded-xl border border-coral/30 bg-coral/5 p-6">
+                <p className="font-semibold text-coral">
+                    No se pudo cargar el catálogo de insumos.
+                </p>
+            </section>
+        );
+    }
 
     return (
         <section className="mt-6 space-y-6">
@@ -28,7 +54,7 @@ export default function ControlInsumos({
             </div>
 
             {controlesOxigeno.length > 0 && (
-                <CardOxigeno controles={controlesOxigeno} />
+                <CardOxigeno controles={controlesOxigeno} insumos={insumos} />
             )}
 
             {controlesCriticos.length > 0 && (
@@ -45,9 +71,7 @@ export default function ControlInsumos({
                             >
                                 <div className="flex items-start justify-between gap-4">
                                     <div>
-                                        <p className="font-semibold text-petro">
-                                            {control.nombre}
-                                        </p>
+                                        <p className="font-semibold text-petro">{control.nombre}</p>
 
                                         <div className="mt-1">
                                             <CategoriaBadge nombre={control.categoria} />
@@ -61,9 +85,7 @@ export default function ControlInsumos({
 
                                 <div className="mt-4 flex gap-6">
                                     <div>
-                                        <p className="text-xs text-petro/60">
-                                            Ingreso
-                                        </p>
+                                        <p className="text-xs text-petro/60">Ingreso</p>
 
                                         <p className="font-semibold text-petro">
                                             {/* {control.cantidadIngreso ?? "Sin registrar"} */}
@@ -72,9 +94,7 @@ export default function ControlInsumos({
                                     </div>
 
                                     <div>
-                                        <p className="text-xs text-petro/60">
-                                            Faltante
-                                        </p>
+                                        <p className="text-xs text-petro/60">Faltante</p>
 
                                         <p
                                             className={
@@ -107,9 +127,7 @@ export default function ControlInsumos({
                             >
                                 <div className="flex items-center justify-between gap-4">
                                     <div>
-                                        <p className="font-medium text-petro">
-                                            {control.nombre}
-                                        </p>
+                                        <p className="font-medium text-petro">{control.nombre}</p>
 
                                         <div className="mt-1">
                                             <CategoriaBadge nombre={control.categoria} />
@@ -117,9 +135,7 @@ export default function ControlInsumos({
                                     </div>
 
                                     <div className="text-right">
-                                        <p className="text-xs text-petro/60">
-                                            Ingreso
-                                        </p>
+                                        <p className="text-xs text-petro/60">Ingreso</p>
 
                                         <p className="font-semibold text-petro">
                                             {/* {control.cantidadIngreso ?? "Sin registrar"} */}

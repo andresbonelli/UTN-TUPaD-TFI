@@ -4,23 +4,17 @@ import ControlInsumos from "../components/Operativo/ControlInsumos";
 import ControlIngreso from "../components/Operativo/ControlIngreso";
 import ControlEgreso from "../components/Operativo/ControlEgreso";
 import CancelarTurno from "../components/Operativo/CancelarTurno";
-import { useAuthStore } from "../stores/authStore";
 import BotonLogout from "../components/Auth/BotonLogout";
 
 
 export default function OperativoEnfermero() {
-    const usuario = useAuthStore(
-        (state) => state.usuario
-    );
 
-    const enfermeroId = usuario?.id ?? 0; // usuario autenticado | null
-
-    const {
-        data: turnos,
-        isLoading,
-        isError,
-        error,
-    } = useTurnosPorEnfermero(enfermeroId);
+const {
+    data: turnos,
+    isLoading,
+    isError,
+    error,
+} = useTurnosPorEnfermero();
 
     if (isLoading) {
         return (

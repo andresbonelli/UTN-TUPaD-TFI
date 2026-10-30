@@ -93,8 +93,7 @@ export default function FormularioControlIngreso({
 
             <div className="space-y-4">
                 {controles.map(({ control, insumo }, index) => {
-                    const esOxigeno =
-                        control.esCritico && control.categoria === "OXIGENO";
+                    const esOxigeno = insumo.esOxigeno;
 
                     return (
                         <article

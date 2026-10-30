@@ -50,17 +50,10 @@ export function useResumenTurnos() {
   });
 }
 
-export function useTurnosPorEnfermero(
-  enfermeroId: number
-) {
+export function useTurnosPorEnfermero() {
   return useQuery<Turno[]>({
-    queryKey: [
-      "turnos",
-      "enfermero",
-      enfermeroId,
-    ],
-    queryFn: () =>
-      listarTurnosPorEnfermero(enfermeroId),
+    queryKey: ["turnos", "enfermero"],
+    queryFn: listarTurnosPorEnfermero,
   });
 }
 
