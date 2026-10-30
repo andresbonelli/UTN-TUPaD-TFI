@@ -30,4 +30,12 @@ public class Insumo extends BaseEntity {
     @Builder.Default
     @Column(name = "critico", nullable = false)
     private boolean critico = false;
+
+    @Builder.Default
+    @Column(name = "oxigeno", nullable = false)
+    private boolean oxigeno = false;
+
+    @Column(name = "capacidad_maxima")
+    private Double capacidadMaxima;
+
 }

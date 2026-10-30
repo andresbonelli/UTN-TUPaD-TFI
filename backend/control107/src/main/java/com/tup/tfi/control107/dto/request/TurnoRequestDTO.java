@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 public class TurnoRequestDTO {
     private LocalDate fecha;
     private HorarioTurno horario;
-    private Long adminId;
     private Long enfermeroId;
     private Long ambulanciaId;
     private String nombreChofer;

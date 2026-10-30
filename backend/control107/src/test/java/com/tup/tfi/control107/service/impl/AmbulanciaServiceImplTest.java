@@ -4,8 +4,10 @@ import com.tup.tfi.control107.dto.AmbulanciaDTO;
 import com.tup.tfi.control107.dto.request.AmbulanciaRequestDTO;
 import com.tup.tfi.control107.model.entity.Ambulancia;
 import com.tup.tfi.control107.model.entity.Insumo;
+import com.tup.tfi.control107.model.enums.EstadoTurno;
 import com.tup.tfi.control107.repository.AmbulanciaRepository;
 import com.tup.tfi.control107.repository.InsumoRepository;
+import com.tup.tfi.control107.repository.TurnoRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,12 +33,17 @@ class AmbulanciaServiceImplTest {
     @Mock
     private InsumoRepository insumoRepository;
 
+    @Mock
+    private TurnoRepository turnoRepository;
+
     @InjectMocks
     private AmbulanciaServiceImpl ambulanciaServiceImpl;
 
     private Ambulancia ambulancia;
     private Insumo insumo;
     private AmbulanciaRequestDTO requestDTO;
+
+    private static final String PATENTE = "AB123CD";
 
     @BeforeEach
     void setUp() {
@@ -48,13 +55,13 @@ class AmbulanciaServiceImplTest {
         insumo.setId(100L);
 
         ambulancia = Ambulancia.builder()
-                .patente("AB 123 CD")
+                .patente(PATENTE)
                 .disponible(true)
                 .insumos(Set.of(insumo))
                 .build();
         ambulancia.setId(1L);
 
-        requestDTO = new AmbulanciaRequestDTO("AB 123 CD", true, Set.of(100L));
+        requestDTO = new AmbulanciaRequestDTO(PATENTE, true, Set.of(100L));
     }
 
     @Test
@@ -65,7 +72,7 @@ class AmbulanciaServiceImplTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
-        assertEquals("AB 123 CD", resultado.get(0).getPatente());
+        assertEquals(PATENTE, resultado.get(0).getPatente());
         verify(ambulanciaRepository, times(1)).findAllByEliminadoIsFalse();
     }
 
@@ -77,7 +84,7 @@ class AmbulanciaServiceImplTest {
 
         assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
-        assertEquals("AB 123 CD", resultado.getPatente());
+        assertEquals(PATENTE, resultado.getPatente());
         verify(ambulanciaRepository, times(1)).findById(1L);
     }
 
@@ -97,7 +104,7 @@ class AmbulanciaServiceImplTest {
         AmbulanciaDTO resultado = ambulanciaServiceImpl.crearAmbulancia(requestDTO);
 
         assertNotNull(resultado);
-        assertEquals("AB 123 CD", resultado.getPatente());
+        assertEquals(PATENTE, resultado.getPatente());
         verify(insumoRepository, times(1)).findByIdAndEliminadoIsFalse(100L);
         verify(ambulanciaRepository, times(1)).save(any(Ambulancia.class));
     }
@@ -112,6 +119,17 @@ class AmbulanciaServiceImplTest {
     }
 
     @Test
+    void crearAmbulancia_errorPatenteDuplicada() {
+        when(ambulanciaRepository.existsByPatenteIgnoreCaseAndEliminadoIsFalse(PATENTE)).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> ambulanciaServiceImpl.crearAmbulancia(requestDTO));
+
+        assertEquals("Ya existe una ambulancia con esa patente", ex.getMessage());
+        verify(insumoRepository, never()).findByIdAndEliminadoIsFalse(anyLong());
+        verify(ambulanciaRepository, never()).save(any(Ambulancia.class));
+    }
+
+    @Test
     void actualizarAmbulancia() {
         when(ambulanciaRepository.findById(1L)).thenReturn(Optional.of(ambulancia));
         when(insumoRepository.findByIdAndEliminadoIsFalse(100L)).thenReturn(Optional.of(insumo));
@@ -120,10 +138,21 @@ class AmbulanciaServiceImplTest {
         AmbulanciaDTO resultado = ambulanciaServiceImpl.actualizarAmbulancia(1L, requestDTO);
 
         assertNotNull(resultado);
-        assertEquals("AB 123 CD", resultado.getPatente());
+        assertEquals(PATENTE, resultado.getPatente());
         verify(ambulanciaRepository, times(1)).findById(1L);
         verify(insumoRepository, times(1)).findByIdAndEliminadoIsFalse(100L);
         verify(ambulanciaRepository, times(1)).save(ambulancia);
+    }
+
+    @Test
+    void actualizarAmbulancia_errorPatenteDuplicada() {
+        when(ambulanciaRepository.existsByPatenteIgnoreCaseAndEliminadoIsFalseAndIdNot(PATENTE, 1L)).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> ambulanciaServiceImpl.actualizarAmbulancia(1L, requestDTO));
+
+        assertEquals("Ya existe una ambulancia con esa patente", ex.getMessage());
+        verify(ambulanciaRepository, never()).findById(anyLong());
+        verify(ambulanciaRepository, never()).save(any(Ambulancia.class));
     }
 
     @Test
@@ -144,8 +173,23 @@ class AmbulanciaServiceImplTest {
         ambulanciaServiceImpl.eliminarPorId(1L);
 
         assertTrue(ambulancia.isEliminado());
+        verify(turnoRepository).existsByAmbulanciaIdAndEstadoInAndEliminadoIsFalse(
+                1L, List.of(EstadoTurno.PROGRAMADO, EstadoTurno.EN_CURSO));
         verify(ambulanciaRepository, times(1)).findById(1L);
         verify(ambulanciaRepository, times(1)).save(ambulancia);
+    }
+
+    @Test
+    void eliminarPorId_errorTurnoProgramadoOEnCurso() {
+        when(turnoRepository.existsByAmbulanciaIdAndEstadoInAndEliminadoIsFalse(
+                1L, List.of(EstadoTurno.PROGRAMADO, EstadoTurno.EN_CURSO))).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class, () -> ambulanciaServiceImpl.eliminarPorId(1L));
+
+        assertEquals("No se puede eliminar ambulancia usada en turnos abiertos", ex.getMessage());
+        verify(ambulanciaRepository, never()).findById(anyLong());
+        verify(ambulanciaRepository, never()).save(any(Ambulancia.class));
     }
 
     @Test

@@ -9,8 +9,8 @@ import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
 import com.tup.tfi.control107.model.entity.*;
 import com.tup.tfi.control107.model.enums.EstadoTurno;
 import com.tup.tfi.control107.model.enums.HorarioTurno;
+import com.tup.tfi.control107.model.enums.RolUsuario;
 import com.tup.tfi.control107.repository.AmbulanciaRepository;
-import com.tup.tfi.control107.repository.InsumoRepository;
 import com.tup.tfi.control107.repository.TurnoRepository;
 import com.tup.tfi.control107.repository.UsuarioRepository;
 import com.tup.tfi.control107.service.TurnoService;
@@ -30,16 +30,14 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
 
     private final TurnoRepository repository;
     private final AmbulanciaRepository ambulanciaRepository;
-    private final InsumoRepository insumoRepository;
     private final UsuarioRepository usuarioRepository;
 
     private static final String OBSERVACIONES_CANCELADO = "Turno cancelado";
 
-    public TurnoServiceImpl(TurnoRepository repository, AmbulanciaRepository ambulanciaRepository, InsumoRepository insumoRepository, UsuarioRepository usuarioRepository) {
+    public TurnoServiceImpl(TurnoRepository repository, AmbulanciaRepository ambulanciaRepository, UsuarioRepository usuarioRepository) {
         super(repository, Turno.class);
         this.repository = repository;
         this.ambulanciaRepository = ambulanciaRepository;
-        this.insumoRepository = insumoRepository;
         this.usuarioRepository = usuarioRepository;
     }
 
@@ -59,20 +57,19 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
                                 .anyMatch(i -> i.getIngresoFaltante() > 0 && i.getInsumo().isCritico()))
                         .count()
                 )
-                .inconsistencias(turnosActivos.stream()
-                        .flatMap(t -> t.getControlInsumos().stream())
-                        .filter(i -> i.getIngresoFaltante() > 0)
-                        .count()
-                )
+                .turnosConInconsistencias(turnosActivos.stream()
+                        .filter(t -> t.getControlInsumos().stream()
+                                .anyMatch(i -> i.getIngresoFaltante() > 0))
+                        .map(TurnoDTO::new).toList())
                 .listaAmbulancias(ambulancias.stream().map(AmbulanciaDTO::new).toList())
                 .build();
     }
 
     @Transactional
     @Override
-    public TurnoDTO crearTurno(TurnoRequestDTO request) {
-        Usuario admin = obtenerUsuario(request.getAdminId());
-        Usuario enfermero = obtenerUsuario(request.getEnfermeroId());
+    public TurnoDTO crearTurno(Long adminId, TurnoRequestDTO request) {
+        Usuario admin = obtenerUsuario(adminId, RolUsuario.ADMINISTRADOR);
+        Usuario enfermero = obtenerUsuario(request.getEnfermeroId(), RolUsuario.ENFERMERO);
         Ambulancia ambulancia = obtenerAmbulancia(request.getAmbulanciaId());
         validarDisponibilidad(request.getAmbulanciaId(), request.getEnfermeroId(), request.getFecha(), request.getHorario(), null);
         Turno t = request.toTurno(admin, enfermero, ambulancia);
@@ -137,6 +134,11 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
     }
 
     @Override
+    public List<TurnoDTO> obtenerPorEnfermeroId(Long enfermeroId) {
+        return repository.findAllByEnfermeroIdAndEliminadoIsFalseOrderByFechaDesc(enfermeroId).stream().map(TurnoDTO::new).toList();
+    }
+
+    @Override
     public List<TurnoDTO> obtenerTurnosActivos() {
         return obtenerActivos().stream().map(TurnoDTO::new).toList();
     }
@@ -169,7 +171,7 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
                     ));
         }
         Ambulancia ambulancia = request.getAmbulanciaId() != null ? obtenerAmbulancia(request.getAmbulanciaId()) : null;
-        Usuario enfermero = request.getEnfermeroId() != null ? obtenerUsuario(request.getEnfermeroId()) : null;
+        Usuario enfermero = request.getEnfermeroId() != null ? obtenerUsuario(request.getEnfermeroId(), RolUsuario.ENFERMERO) : null;
 
         Long targetAmbulanciaId = null != ambulancia ? ambulancia.getId() : (null != t.getAmbulancia() ? t.getAmbulancia().getId() : null);
         Long targetEnfermeroId = null != enfermero ? enfermero.getId() : (null != t.getEnfermero() ? t.getEnfermero().getId() : null);
@@ -244,10 +246,14 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
         );
     }
 
-    private Usuario obtenerUsuario(Long usuarioId) {
-        return usuarioRepository.findByIdAndEliminadoIsFalse(usuarioId).orElseThrow(
+    private Usuario obtenerUsuario(Long usuarioId, RolUsuario rol) {
+        Usuario encontrado = usuarioRepository.findByIdAndEliminadoIsFalse(usuarioId).orElseThrow(
                 () -> new EntityNotFoundException("Usuario no encontrado")
         );
+        if (!encontrado.getRol().equals(rol)) {
+            throw new IllegalArgumentException("El usuario solicitado no tiene el rol {" + rol.name() + "}");
+        }
+        return encontrado;
     }
 
 }

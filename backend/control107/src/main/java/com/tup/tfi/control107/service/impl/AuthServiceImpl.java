@@ -13,7 +13,6 @@ import com.tup.tfi.control107.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,12 +26,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginDTO login(LoginRequestDTO request) throws CredencialesInvalidasException {
-        Optional<Usuario> usuario = usuarioRepository.findByEmailAndEliminadoIsFalse(request.mail());
-        if (usuario.isEmpty()) {
-            throw new CredencialesInvalidasException();
-        }
-        verificarClave(request, usuario.get());
-        String accessToken = jwtUtil.createToken(new UsuarioDTO(usuario.get()));
+        Usuario usuario = usuarioRepository
+                .findByEmailAndEliminadoIsFalse(request.mail().toLowerCase().trim())
+                .orElseThrow(CredencialesInvalidasException::new);
+        verificarClave(request, usuario);
+        String accessToken = jwtUtil.createToken(new UsuarioDTO(usuario));
         return new LoginDTO(
                 accessToken,
                 jwtUtil.getExpirationTime(),

@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
     salt        VARCHAR(255) NULL,
 
     CONSTRAINT pk_usuarios PRIMARY KEY (id),
-    CONSTRAINT uk_usuarios_dni UNIQUE (dni),
-    CONSTRAINT uk_usuarios_email UNIQUE (email),
+    INDEX idx_usuarios_dni (dni),
+    INDEX idx_usuarios_email (email),
     INDEX idx_usuarios_rol_activo (rol, activo, eliminado)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS ambulancias (
     disponible  BOOLEAN     NOT NULL DEFAULT TRUE,
 
     CONSTRAINT pk_ambulancias PRIMARY KEY (id),
-    CONSTRAINT uk_ambulancias_patente UNIQUE (patente),   -- índice único sobre patente
+    INDEX idx_ambulancias_patente (patente),
     INDEX idx_ambulancias_disponible (disponible, eliminado)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS categorias (
     color       VARCHAR(7)   NOT NULL,   -- hexadecimal, ej: #FF0000
 
     CONSTRAINT pk_categorias PRIMARY KEY (id),
-    CONSTRAINT uk_categorias_nombre UNIQUE (nombre)
+    INDEX idx_categorias_nombre (nombre)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------

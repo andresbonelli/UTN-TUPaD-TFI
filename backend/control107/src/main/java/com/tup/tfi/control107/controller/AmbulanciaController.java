@@ -3,8 +3,10 @@ package com.tup.tfi.control107.controller;
 import com.tup.tfi.control107.dto.AmbulanciaDTO;
 import com.tup.tfi.control107.dto.request.AmbulanciaRequestDTO;
 import com.tup.tfi.control107.service.AmbulanciaService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,6 +14,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/ambulancias")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
+@PreAuthorize("hasRole('ADMINISTRADOR')")
 public class AmbulanciaController {
 
     private final AmbulanciaService ambulanciaService;

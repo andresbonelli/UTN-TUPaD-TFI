@@ -4,6 +4,7 @@ import com.tup.tfi.control107.dto.InsumoDTO;
 import com.tup.tfi.control107.dto.request.InsumoRequestDTO;
 import com.tup.tfi.control107.model.entity.CategoriaInsumo;
 import com.tup.tfi.control107.model.entity.Insumo;
+import com.tup.tfi.control107.repository.AmbulanciaRepository;
 import com.tup.tfi.control107.repository.CategoriaRepository;
 import com.tup.tfi.control107.repository.InsumoRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -30,30 +31,37 @@ class InsumoServiceImplTest {
     @Mock
     private CategoriaRepository categoriaRepository;
 
+    @Mock
+    private AmbulanciaRepository ambulanciaRepository;
+
     @InjectMocks
     private InsumoServiceImpl insumoService;
 
     private CategoriaInsumo categoria;
     private Insumo insumo;
     private InsumoRequestDTO requestDTO;
+    
+    private static final String NOMBRE_CATEGORIA = "FARMACOLOGICOS";
+    private static final String COLOR_CATEGORIA = "#D9574C";
+    private static final String NOMBRE_INSUMO = "Adrenalina 1mg";
 
     @BeforeEach
     void setUp() {
         categoria = CategoriaInsumo.builder()
-                .nombre("FARMACOLOGICOS")
-                .color("#D9574C")
+                .nombre(NOMBRE_CATEGORIA)
+                .color(COLOR_CATEGORIA)
                 .build();
         categoria.setId(10L);
 
         insumo = Insumo.builder()
-                .nombre("Adrenalina 1mg")
+                .nombre(NOMBRE_INSUMO)
                 .categoria(categoria)
                 .puntoControl(20)
                 .critico(true)
                 .build();
         insumo.setId(1L);
 
-        requestDTO = new InsumoRequestDTO("Adrenalina 1mg", 10L, 20, true);
+        requestDTO = new InsumoRequestDTO(NOMBRE_INSUMO, 10L, 20, true, false, null);
     }
 
     @Test
@@ -64,7 +72,7 @@ class InsumoServiceImplTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
-        assertEquals("Adrenalina 1mg", resultado.get(0).getNombre());
+        assertEquals(NOMBRE_INSUMO, resultado.get(0).getNombre());
         verify(insumoRepository, times(1)).findAllByEliminadoIsFalse();
     }
 
@@ -76,7 +84,7 @@ class InsumoServiceImplTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
-        assertTrue(resultado.get(0).isEsCritico());
+        assertTrue(resultado.get(0).isCritico());
         verify(insumoRepository, times(1)).findByCriticoIsTrueAndEliminadoIsFalse();
     }
 
@@ -88,7 +96,7 @@ class InsumoServiceImplTest {
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
-        assertEquals("FARMACOLOGICOS", resultado.get(0).getCategoria());
+        assertEquals(NOMBRE_CATEGORIA, resultado.get(0).getCategoria());
         verify(insumoRepository, times(1)).findByCategoriaIdAndEliminadoIsFalse(10L);
     }
 
@@ -100,7 +108,7 @@ class InsumoServiceImplTest {
 
         assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
-        assertEquals("Adrenalina 1mg", resultado.getNombre());
+        assertEquals(NOMBRE_INSUMO, resultado.getNombre());
         verify(insumoRepository, times(1)).findById(1L);
     }
 
@@ -120,7 +128,7 @@ class InsumoServiceImplTest {
         InsumoDTO resultado = insumoService.crearInsumo(requestDTO);
 
         assertNotNull(resultado);
-        assertEquals("Adrenalina 1mg", resultado.getNombre());
+        assertEquals(NOMBRE_INSUMO, resultado.getNombre());
         verify(categoriaRepository, times(1)).findByIdAndEliminadoIsFalse(10L);
         verify(insumoRepository, times(1)).save(any(Insumo.class));
     }
@@ -135,6 +143,17 @@ class InsumoServiceImplTest {
     }
 
     @Test
+    void crearInsumo_errorNombreDuplicado() {
+        when(insumoRepository.existsByNombreIgnoreCaseAndEliminadoIsFalse(NOMBRE_INSUMO)).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> insumoService.crearInsumo(requestDTO));
+
+        assertEquals("Ya existe un insumo con ese nombre", ex.getMessage());
+        verify(categoriaRepository, never()).findByIdAndEliminadoIsFalse(anyLong());
+        verify(insumoRepository, never()).save(any(Insumo.class));
+    }
+
+    @Test
     void actualizarInsumo_ok_conCategoria() {
         when(insumoRepository.findById(1L)).thenReturn(Optional.of(insumo));
         when(categoriaRepository.findByIdAndEliminadoIsFalse(10L)).thenReturn(Optional.of(categoria));
@@ -143,15 +162,26 @@ class InsumoServiceImplTest {
         InsumoDTO resultado = insumoService.actualizarInsumo(1L, requestDTO);
 
         assertNotNull(resultado);
-        assertEquals("Adrenalina 1mg", resultado.getNombre());
+        assertEquals(NOMBRE_INSUMO, resultado.getNombre());
         verify(insumoRepository, times(1)).findById(1L);
         verify(categoriaRepository, times(1)).findByIdAndEliminadoIsFalse(10L);
         verify(insumoRepository, times(1)).save(insumo);
     }
 
     @Test
+    void actualizarInsumo_errorNombreDuplicado() {
+        when(insumoRepository.existsByNombreIgnoreCaseAndEliminadoIsFalseAndIdNot(NOMBRE_INSUMO, 1L)).thenReturn(true);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> insumoService.actualizarInsumo(1L, requestDTO));
+
+        assertEquals("Ya existe un insumo con ese nombre", ex.getMessage());
+        verify(insumoRepository, never()).findById(anyLong());
+        verify(insumoRepository, never()).save(any(Insumo.class));
+    }
+
+    @Test
     void actualizarInsumo_ok_sinCategoria() {
-        InsumoRequestDTO requestSinCategoria = new InsumoRequestDTO("Adrenalina 1mg", null, 20, true);
+        InsumoRequestDTO requestSinCategoria = new InsumoRequestDTO(NOMBRE_INSUMO, null, 20, true, false, null);
         when(insumoRepository.findById(1L)).thenReturn(Optional.of(insumo));
         when(insumoRepository.save(any(Insumo.class))).thenReturn(insumo);
 
