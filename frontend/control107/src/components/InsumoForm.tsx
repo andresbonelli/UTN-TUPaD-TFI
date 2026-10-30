@@ -225,13 +225,63 @@ export default function InsumoForm({
             </form.Field>
 
             <form.Subscribe selector={(state) => state.values.esOxigeno}>
+                {(esOxigeno) =>
+                    esOxigeno ? (
+                        <form.Field name="capacidadMaxima">
+                            {(field) => (
+                                <div className="flex flex-col gap-2">
+                                    <label
+                                        htmlFor={field.name}
+                                        className="text-sm font-medium text-petro"
+                                    >
+                                        Capacidad máxima
+                                    </label>
+
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            id={field.name}
+                                            name={field.name}
+                                            type="number"
+                                            min={1}
+                                            step={1}
+                                            value={field.state.value}
+                                            onBlur={field.handleBlur}
+                                            onChange={(event) =>
+                                                field.handleChange(
+                                                    Number(event.target.value)
+                                                )
+                                            }
+                                            className={input}
+                                        />
+
+                                        <span className="min-w-fit text-sm font-medium text-petro/60">
+                                            bar
+                                        </span>
+                                    </div>
+
+                                    {field.state.meta.errors.map((error) => (
+                                        <p
+                                            key={String(error)}
+                                            className="text-xs text-coral"
+                                        >
+                                            {String(error)}
+                                        </p>
+                                    ))}
+                                </div>
+                            )}
+                        </form.Field>
+                    ) : null
+                }
+            </form.Subscribe>
+
+            <form.Subscribe selector={(state) => state.values.esOxigeno}>
                 {(esOxigeno) => (
                     <form.Field name="critico">
                         {(field) => (
                             <label
                                 className={`flex items-center gap-3 rounded-lg border p-3 ${esOxigeno
-                                        ? "cursor-not-allowed border-petro/10 bg-petro/5 opacity-60"
-                                        : "border-petro/10"
+                                    ? "cursor-not-allowed border-petro/10 bg-petro/5 opacity-60"
+                                    : "border-petro/10"
                                     }`}
                             >
                                 <input
@@ -256,6 +306,8 @@ export default function InsumoForm({
                             </label>
                         )}
                     </form.Field>
+
+
                 )}
             </form.Subscribe>
 

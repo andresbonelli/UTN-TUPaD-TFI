@@ -5,6 +5,7 @@ import type {
     IngresoEgresoRequest,
     ResumenTurnos,
     Turno,
+    TurnoRequest,
 } from "../interfaces/Turno";
 
 export async function listarTurnos(): Promise<Turno[]> {
@@ -56,6 +57,29 @@ export async function cancelarTurno(
 
 export async function obtenerResumenTurnos(): Promise<ResumenTurnos> {
     const response = await api.get<ResumenTurnos>("/turnos/resumen");
+
+    return response.data;
+}
+
+export async function crearTurno(
+    turno: TurnoRequest,
+): Promise<Turno> {
+    const response = await api.post<Turno>(
+        "/turnos",
+        turno,
+    );
+
+    return response.data;
+}
+
+export async function actualizarTurno(
+    id: number,
+    turno: TurnoRequest,
+): Promise<Turno> {
+    const response = await api.put<Turno>(
+        `/turnos/${id}`,
+        turno,
+    );
 
     return response.data;
 }

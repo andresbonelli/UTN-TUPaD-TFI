@@ -12,19 +12,6 @@ export type EstadoTurno =
     | "FINALIZADO"
     | "CANCELADO";
 
-// export interface ControlInsumo {
-//     nombre: string;
-//     categoria: string;
-//     esCritico: boolean;
-
-//     cantidadIngreso: number;
-//     cantidadEgreso: number | null;
-
-//     ingresoFaltante: number;
-
-//     cantidadUsada: number | null;
-//     cantidadRestockeo: number;
-// }
 
 export interface ControlInsumo {
     insumoId: number;
@@ -85,4 +72,13 @@ export interface ResumenTurnos {
   alertas: number;
   turnosConInconsistencias: Turno[];
   listaAmbulancias: Ambulancia[];
+}
+
+export interface TurnoRequest {
+    fecha: string;
+    horario: HorarioTurno;
+    enfermeroId: number;
+    ambulanciaId: number;
+    nombreChofer: string;
+    nombreMedico: string;
 }

@@ -9,6 +9,7 @@ import type {
   IngresoEgresoRequest,
   ResumenTurnos,
   Turno,
+  TurnoRequest,
 } from "../interfaces/Turno";
 
 import {
@@ -20,6 +21,8 @@ import {
   registrarEgreso,
   registrarIngreso,
   cancelarTurno,
+  crearTurno,
+  actualizarTurno,
 } from "../services/turno";
 
 export function useTurnos() {
@@ -29,10 +32,50 @@ export function useTurnos() {
   });
 }
 
+export function useCrearTurno() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    Turno,
+    Error,
+    TurnoRequest
+  >({
+    mutationFn: crearTurno,
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["turnos"],
+      });
+    },
+  });
+}
+
 export function useTurno(id: number) {
   return useQuery<Turno>({
     queryKey: ["turnos", id],
     queryFn: () => obtenerTurno(id),
+  });
+}
+
+export function useActualizarTurno() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    Turno,
+    Error,
+    {
+      id: number;
+      turno: TurnoRequest;
+    }
+  >({
+    mutationFn: ({ id, turno }) =>
+      actualizarTurno(id, turno),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["turnos"],
+      });
+    },
   });
 }
 
@@ -110,4 +153,5 @@ export function useCancelarTurno() {
     },
   });
 }
+
 
