@@ -74,6 +74,7 @@ public class TurnoDTO {
         // Solo para oxigeno
         private Double capacidadMaxima;
         private boolean esOxigeno;
+        private Integer puntoControl;
 
         public ControlInsumoDTO(ControlInsumo controlInsumo) {
             if (null == controlInsumo) return;
@@ -89,6 +90,7 @@ public class TurnoDTO {
             this.cantidadRestockeo = controlInsumo.getCantidadRestockeo();
             this.capacidadMaxima = controlInsumo.getInsumo().getCapacidadMaxima();
             this.esOxigeno = controlInsumo.getInsumo().isOxigeno();
+            this.puntoControl = controlInsumo.getInsumo().getPuntoControl();
         }
     }
 
