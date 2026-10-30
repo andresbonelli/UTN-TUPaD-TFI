@@ -27,7 +27,6 @@ export async function listarTurnosActivos(): Promise<Turno[]> {
 
 export async function listarTurnosPorEnfermero(): Promise<Turno[]> {
     const response = await api.get<Turno[]>("/turnos/enfermero");
-
     return response.data;
 }
 
@@ -56,7 +55,7 @@ export async function cancelarTurno(
 }
 
 export async function obtenerResumenTurnos(): Promise<ResumenTurnos> {
-  const response = await api.get<ResumenTurnos>("/turnos/resumen");
+    const response = await api.get<ResumenTurnos>("/turnos/resumen");
 
-  return response.data;
+    return response.data;
 }

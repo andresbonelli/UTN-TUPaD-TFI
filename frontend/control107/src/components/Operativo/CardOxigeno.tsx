@@ -1,13 +1,10 @@
 import type { ControlInsumo } from "../../interfaces/Turno";
 
-import type { Insumo } from "../../interfaces/Insumo";
-
 interface CardOxigenoProps {
     controles: ControlInsumo[];
-    insumos: Insumo[];
 }
 
-export default function CardOxigeno({ controles, insumos }: CardOxigenoProps) {
+export default function CardOxigeno({ controles }: CardOxigenoProps) {
     return (
         <section className="rounded-xl border border-ambar/40 bg-blanco p-6 shadow-sm">
             <div className="mb-5">
@@ -26,13 +23,11 @@ export default function CardOxigeno({ controles, insumos }: CardOxigenoProps) {
 
             <div className="space-y-4">
                 {controles.map((control) => {
-                    const insumo = insumos.find((item) => item.nombre === control.nombre);
-
                     const presionActual = control.cantidadIngreso ?? 0;
 
                     const presionMaxima =
-                        insumo?.esOxigeno && insumo.capacidadMaxima > 0
-                            ? insumo.capacidadMaxima
+                        control.capacidadMaxima > 0
+                            ? control.capacidadMaxima
                             : presionActual;
 
                     const tieneFaltante = control.ingresoFaltante > 0;
@@ -77,18 +72,7 @@ export default function CardOxigeno({ controles, insumos }: CardOxigenoProps) {
                                         Presión registrada
                                     </p>
                                 </div>
-
-                                {/* <span
-                                    className={
-                                        tieneFaltante
-                                            ? "w-fit rounded-md bg-coral/10 px-2.5 py-1 text-sm font-semibold text-coral"
-                                            : "w-fit rounded-md bg-verde/10 px-2.5 py-1 text-sm font-semibold text-verde"
-                                    }
-                                >
-                                    {tieneFaltante
-                                        ? "Cambiar"
-                                        : "Correcto"}
-                                </span> */}
+ 
                                 <span
                                     className={`w-fit rounded-md px-2.5 py-1 text-sm font-semibold ${estadoColor}`}
                                 >
@@ -105,12 +89,6 @@ export default function CardOxigeno({ controles, insumos }: CardOxigenoProps) {
                                     <p className="text-sm text-petro/60">{porcentaje}%</p>
                                 </div>
 
-                                {/* <progress
-                                    value={presionActual}
-                                    max={presionMaxima}
-                                    className={`h-3 w-full ${colorBarra}`}
-                                    aria-label={`Presión de ${control.nombre}`}
-                                /> */}
 
                                 <div
                                     className="h-3 w-full overflow-hidden rounded-full bg-petro/10"
@@ -129,7 +107,6 @@ export default function CardOxigeno({ controles, insumos }: CardOxigenoProps) {
                                 </div>
 
                                 <div className="mt-2 flex justify-between text-xs text-petro/60">
-                                    {/* <span>0 bar</span> */}
 
                                     <span>Máximo: {presionMaxima} bar</span>
                                 </div>
@@ -147,9 +124,7 @@ export default function CardOxigeno({ controles, insumos }: CardOxigenoProps) {
                                 </div>
                             )}
 
-                            {(!insumo ||
-                                !insumo.esOxigeno ||
-                                insumo.capacidadMaxima <= 0) && (
+                            {control.capacidadMaxima <= 0 && (
                                     <p className="mt-3 text-xs text-ambar">
                                         No se encontró una presión máxima válida para este insumo de
                                         oxígeno.

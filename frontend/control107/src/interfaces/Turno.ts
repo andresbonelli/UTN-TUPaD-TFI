@@ -12,19 +12,36 @@ export type EstadoTurno =
     | "FINALIZADO"
     | "CANCELADO";
 
+// export interface ControlInsumo {
+//     nombre: string;
+//     categoria: string;
+//     esCritico: boolean;
+
+//     cantidadIngreso: number;
+//     cantidadEgreso: number | null;
+
+//     ingresoFaltante: number;
+
+//     cantidadUsada: number | null;
+//     cantidadRestockeo: number;
+// }
+
 export interface ControlInsumo {
+    insumoId: number;
     nombre: string;
     categoria: string;
+    colorCategoria: string;
+    puntoControl: number;
     esCritico: boolean;
-
     cantidadIngreso: number;
     cantidadEgreso: number | null;
-
     ingresoFaltante: number;
-
     cantidadUsada: number | null;
     cantidadRestockeo: number;
+    capacidadMaxima: number;
+    esOxigeno: boolean;
 }
+
 export interface Turno {
     id: number;
     fecha: string;

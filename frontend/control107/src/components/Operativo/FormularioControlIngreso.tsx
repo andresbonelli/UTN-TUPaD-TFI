@@ -1,24 +1,14 @@
 import { useForm } from "@tanstack/react-form";
 import { useRegistrarIngreso } from "../../hooks/useTurnos";
-import type { Insumo } from "../../interfaces/Insumo";
 import type {
     ControlInsumo,
     IngresoEgresoRequest,
 } from "../../interfaces/Turno";
 
-import CategoriaBadge from "../CategoriaBadge";
-
-interface ControlRelacionado {
-    control: ControlInsumo;
-    insumo: Insumo;
-}
-
 interface FormularioControlIngresoProps {
     turnoId: number;
-    controles: ControlRelacionado[];
+    controles: ControlInsumo[];
 }
-
-// ControlRelacionado y FormularioControlIngresoProps relacionan el control con el insumo
 
 interface CantidadIngreso {
     insumoId: number;
@@ -34,14 +24,12 @@ export default function FormularioControlIngreso({
     turnoId,
     controles,
 }: FormularioControlIngresoProps) {
-
-    const registrarIngresoMutation =
-        useRegistrarIngreso();
+    const registrarIngresoMutation = useRegistrarIngreso();
 
     const form = useForm({
         defaultValues: {
-            insumos: controles.map(({ insumo }) => ({
-                insumoId: insumo.id,
+            insumos: controles.map((control) => ({
+                insumoId: control.insumoId,
                 cantidad: 0,
             })),
             observaciones: "",
@@ -50,7 +38,7 @@ export default function FormularioControlIngreso({
         validators: {
             onSubmit: ({ value }) => {
                 const tieneCantidadNegativa = value.insumos.some(
-                    (item) => item.cantidad < 0
+                    (item) => item.cantidad < 0,
                 );
 
                 if (tieneCantidadNegativa) {
@@ -60,7 +48,6 @@ export default function FormularioControlIngreso({
                 return undefined;
             },
         },
-
 
         onSubmit: async ({ value }) => {
             const request: IngresoEgresoRequest = {
@@ -92,12 +79,12 @@ export default function FormularioControlIngreso({
             </p>
 
             <div className="space-y-4">
-                {controles.map(({ control, insumo }, index) => {
-                    const esOxigeno = insumo.esOxigeno;
+                {controles.map((control, index) => {
+                    const esOxigeno = control.esOxigeno;
 
                     return (
                         <article
-                            key={insumo.id}
+                            key={control.insumoId}
                             className={
                                 esOxigeno
                                     ? "rounded-xl border border-ambar/40 bg-ambar/5 p-4"
@@ -108,12 +95,19 @@ export default function FormularioControlIngreso({
                         >
                             <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                 <div>
-                                    <p className="font-semibold text-petro">
-                                        {control.nombre}
-                                    </p>
+                                    <p className="font-semibold text-petro">{control.nombre}</p>
 
                                     <div className="mt-1">
-                                        <CategoriaBadge nombre={control.categoria} />
+                                        <span
+                                            className="inline-block rounded-full border px-2 py-1 text-xs font-semibold"
+                                            style={{
+                                                borderColor: control.colorCategoria,
+                                                color: control.colorCategoria,
+                                                backgroundColor: `${control.colorCategoria}15`,
+                                            }}
+                                        >
+                                            {control.categoria}
+                                        </span>
                                     </div>
                                 </div>
 
@@ -136,15 +130,31 @@ export default function FormularioControlIngreso({
                                 <form.Field
                                     name={`insumos[${index}].cantidad`}
                                     validators={{
-                                        onChange: ({ value }) =>
-                                            value < 0 ? "La cantidad no puede ser negativa" : undefined,
+                                        onChange: ({ value }) => {
+                                            if (value < 0) {
+                                                return "La cantidad no puede ser negativa";
+                                            }
+
+                                            if (
+                                                esOxigeno &&
+                                                value > control.capacidadMaxima
+                                            ) {
+                                                return `La presión no puede superar ${control.capacidadMaxima} bar`;
+                                            }
+
+                                            return undefined;
+                                        },
                                     }}
                                 >
                                     {(field) => (
                                         <div>
-                                            <label htmlFor={field.name}
-                                                className="text-sm font-medium text-petro">
-                                                {esOxigeno ? "Presion encontrada" : "Cantidad encontrada"}
+                                            <label
+                                                htmlFor={field.name}
+                                                className="text-sm font-medium text-petro"
+                                            >
+                                                {esOxigeno
+                                                    ? "Presion encontrada"
+                                                    : "Cantidad encontrada"}
                                             </label>
 
                                             <div className="mt-2 flex items-center gap-3">
@@ -153,24 +163,20 @@ export default function FormularioControlIngreso({
                                                     name={field.name}
                                                     type="number"
                                                     min="0"
+                                                    max={esOxigeno ? control.capacidadMaxima : undefined}
                                                     step="1"
                                                     value={field.state.value}
                                                     onBlur={field.handleBlur}
                                                     onChange={(event) =>
-                                                        field.handleChange(
-                                                            Number(event.target.value)
-                                                        )
+                                                        field.handleChange(Number(event.target.value))
                                                     }
                                                     className="w-full rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-petro outline-none focus:border-turquesa focus:ring-2 focus:ring-turquesa/20"
                                                 />
 
                                                 <span className="min-w-fit text-sm font-medium text-petro/60">
-                                                    {esOxigeno
-                                                        ? "bar"
-                                                        : "unidades"}
+                                                    {esOxigeno ? "bar" : "unidades"}
                                                 </span>
                                             </div>
-
 
                                             {field.state.meta.errors.map((error) => (
                                                 <p
@@ -189,14 +195,15 @@ export default function FormularioControlIngreso({
                                         Punto de control
                                     </p>
 
-
-
                                     <p className="mt-2 rounded-lg bg-blanco px-3 py-2 font-semibold text-petro">
-                                        {insumo.puntoControl}{" "}
-                                        {esOxigeno
-                                            ? "bar"
-                                            : "unidades"}
+                                        {control.puntoControl} {esOxigeno ? "bar" : "unidades"}
                                     </p>
+
+                                    {esOxigeno && (
+                                        <p className="mt-2 text-sm text-petro/60">
+                                            Capacidad máxima: {control.capacidadMaxima} bar
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </article>
@@ -221,9 +228,7 @@ export default function FormularioControlIngreso({
                             placeholder="Registra faltantes, condiciones críticas u otras observaciones"
                             value={field.state.value}
                             onBlur={field.handleBlur}
-                            onChange={(event) =>
-                                field.handleChange(event.target.value)
-                            }
+                            onChange={(event) => field.handleChange(event.target.value)}
                             className="mt-2 w-full resize-none rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-petro outline-none focus:border-turquesa focus:ring-2 focus:ring-turquesa/20"
                         />
                     </div>

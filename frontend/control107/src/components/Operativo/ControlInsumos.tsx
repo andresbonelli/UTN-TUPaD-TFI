@@ -1,6 +1,5 @@
 import type { ControlInsumo } from "../../interfaces/Turno";
-import CategoriaBadge from "../CategoriaBadge";
-import { useInsumos } from "../../hooks/useInsumos";
+
 import CardOxigeno from "./CardOxigeno";
 
 interface ControlInsumosProps {
@@ -8,12 +7,7 @@ interface ControlInsumosProps {
 }
 
 export default function ControlInsumos({ controles }: ControlInsumosProps) {
-    const { data: insumos = [], isLoading, isError } = useInsumos();
-
-    const esControlOxigeno = (control: ControlInsumo) =>
-        insumos.some(
-            (insumo) => insumo.nombre === control.nombre && insumo.esOxigeno,
-        );
+    const esControlOxigeno = (control: ControlInsumo) => control.esOxigeno;
 
     const controlesOxigeno = controles.filter(esControlOxigeno);
 
@@ -22,24 +16,6 @@ export default function ControlInsumos({ controles }: ControlInsumosProps) {
     );
 
     const controlesNormales = controles.filter((control) => !control.esCritico);
-
-    if (isLoading) {
-        return (
-            <section className="mt-6 rounded-xl bg-blanco p-6 shadow-sm">
-                <p className="text-petro">Cargando control de insumos...</p>
-            </section>
-        );
-    }
-
-    if (isError) {
-        return (
-            <section className="mt-6 rounded-xl border border-coral/30 bg-coral/5 p-6">
-                <p className="font-semibold text-coral">
-                    No se pudo cargar el catálogo de insumos.
-                </p>
-            </section>
-        );
-    }
 
     return (
         <section className="mt-6 space-y-6">
@@ -54,7 +30,7 @@ export default function ControlInsumos({ controles }: ControlInsumosProps) {
             </div>
 
             {controlesOxigeno.length > 0 && (
-                <CardOxigeno controles={controlesOxigeno} insumos={insumos} />
+                <CardOxigeno controles={controlesOxigeno} />
             )}
 
             {controlesCriticos.length > 0 && (
@@ -74,7 +50,16 @@ export default function ControlInsumos({ controles }: ControlInsumosProps) {
                                         <p className="font-semibold text-petro">{control.nombre}</p>
 
                                         <div className="mt-1">
-                                            <CategoriaBadge nombre={control.categoria} />
+                                            <span
+                                                className="inline-block rounded-full border px-2 py-1 text-xs font-semibold"
+                                                style={{
+                                                    borderColor: control.colorCategoria,
+                                                    color: control.colorCategoria,
+                                                    backgroundColor: `${control.colorCategoria}15`,
+                                                }}
+                                            >
+                                                {control.categoria}
+                                            </span>
                                         </div>
                                     </div>
 
@@ -130,7 +115,16 @@ export default function ControlInsumos({ controles }: ControlInsumosProps) {
                                         <p className="font-medium text-petro">{control.nombre}</p>
 
                                         <div className="mt-1">
-                                            <CategoriaBadge nombre={control.categoria} />
+                                            <span
+                                                className="inline-block rounded-full border px-2 py-1 text-xs font-semibold"
+                                                style={{
+                                                    borderColor: control.colorCategoria,
+                                                    color: control.colorCategoria,
+                                                    backgroundColor: `${control.colorCategoria}15`,
+                                                }}
+                                            >
+                                                {control.categoria}
+                                            </span>
                                         </div>
                                     </div>
 
