@@ -42,7 +42,9 @@ logging:
 
 app:
   cors:
-    allowed-origins: "*"
+    allowed-origins: "*,${FRONTEND.HOST:http://localhost:5173}"
+  data-loader:
+    enabled: true
 
 security:
   jwt:

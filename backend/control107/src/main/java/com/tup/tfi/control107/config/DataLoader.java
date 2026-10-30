@@ -16,6 +16,7 @@ import com.tup.tfi.control107.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Profile("dev")
+@ConditionalOnProperty(name = "app.data-loader.enabled", havingValue = "true", matchIfMissing = true)
 public class DataLoader implements CommandLineRunner {
 
     private final UsuarioRepository usuarioRepository;
