@@ -147,25 +147,27 @@ export default function SelectorInsumosAmbulancia({
         [onChange, seleccionados],
     );
 
-    const table = useReactTable({
-        data: datos,
-        columns: columnas,
+const table = useReactTable({
+    data: datos,
+    columns: columnas,
 
-        state: {
-            sorting,
-            globalFilter,
-            pagination,
-        },
+    state: {
+        sorting,
+        globalFilter,
+        pagination,
+    },
 
-        onSortingChange: setSorting,
-        onGlobalFilterChange: setGlobalFilter,
-        onPaginationChange: setPagination,
+    onSortingChange: setSorting,
+    onGlobalFilterChange: setGlobalFilter,
+    onPaginationChange: setPagination,
 
-        getCoreRowModel: getCoreRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-    });
+    autoResetPageIndex: false,
+
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+});
 
     return (
         <div className="flex flex-col gap-3">
