@@ -61,6 +61,8 @@ public class TurnoDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ControlInsumoDTO {
+        private Long insumoId;
+        private String colorCategoria;
         private String nombre;
         private String categoria;
         private boolean esCritico;
@@ -72,9 +74,12 @@ public class TurnoDTO {
         // Solo para oxigeno
         private Double capacidadMaxima;
         private boolean esOxigeno;
+        private Integer puntoControl;
 
         public ControlInsumoDTO(ControlInsumo controlInsumo) {
             if (null == controlInsumo) return;
+            this.insumoId = controlInsumo.getInsumo().getId();
+            this.colorCategoria = controlInsumo.getInsumo().getCategoria().getColor();
             this.nombre = controlInsumo.getInsumo().getNombre();
             this.categoria = controlInsumo.getInsumo().getCategoria().getNombre();
             this.esCritico = controlInsumo.getInsumo().isCritico();
@@ -85,6 +90,9 @@ public class TurnoDTO {
             this.cantidadRestockeo = controlInsumo.getCantidadRestockeo();
             this.capacidadMaxima = controlInsumo.getInsumo().getCapacidadMaxima();
             this.esOxigeno = controlInsumo.getInsumo().isOxigeno();
+            this.capacidadMaxima = controlInsumo.getInsumo().getCapacidadMaxima();
+            this.esOxigeno = controlInsumo.getInsumo().isOxigeno();
+            this.puntoControl = controlInsumo.getInsumo().getPuntoControl();
         }
     }
 
