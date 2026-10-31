@@ -71,8 +71,8 @@ public class DataLoader implements CommandLineRunner {
         UsuarioDTO admin = usuarioService.crearUsuario(adminDto);
         UsuarioDTO enfermero = usuarioService.crearUsuario(enfermeroDto);
 
-        String medico = "Matías Carro";
-        String chofer = "Juan Perez";
+        String medico = "Dr. Gutierrez";
+        String chofer = "Sr. Blanco";
 
         // 2. Cargar Categorías desde JSON
         List<CategoriaSeedDTO> categoriasData;
