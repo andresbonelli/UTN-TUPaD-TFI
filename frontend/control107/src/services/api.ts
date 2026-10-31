@@ -3,11 +3,10 @@ import type { AxiosError } from "axios";
 
 import { useAuthStore } from "../stores/authStore";
 
-export const API_URL =
-    "http://localhost:8080/api/v1";
+export const VITE_API_URL =  import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1";
 
 export const api = axios.create({
-    baseURL: API_URL,
+    baseURL: VITE_API_URL,
     timeout: 10000,
 });
 
