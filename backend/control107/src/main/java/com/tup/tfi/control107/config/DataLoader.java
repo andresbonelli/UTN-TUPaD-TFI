@@ -51,20 +51,20 @@ public class DataLoader implements CommandLineRunner {
 
         // 1. Cargar Usuarios
         UsuarioRequestDTO adminDto = new UsuarioRequestDTO(
-                "Hugo Catalan",
+                "Juan Perez",
                 "30111222",
-                "hugo.catalan@control107.gob.ar",
+                "juan.perez@control107.gob.ar",
                 RolUsuario.ADMINISTRADOR,
-                "1234",
+                "1234abcd!",
                 true
         );
 
         UsuarioRequestDTO enfermeroDto = new UsuarioRequestDTO(
-                "Andrés Bonelli",
+                "Eva Lopez",
                 "32333444",
-                "andres.bonelli@control107.gob.ar",
+                "eva.lopez@control107.gob.ar",
                 RolUsuario.ENFERMERO,
-                "1234",
+                "1234abcd!",
                 true
         );
 
