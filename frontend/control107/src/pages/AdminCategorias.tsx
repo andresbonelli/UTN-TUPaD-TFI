@@ -145,13 +145,14 @@ export default function AdminCategorias() {
                 )}
             </div>
 
+
+
             {/* Divisor */}
             <div className="my-8 border-t border-petro/10" />
 
+            <h2 className="mb-4 text-xl font-semibold text-petro">Administrar Categorias</h2>
+
             <div className="rounded-xl bg-blanco p-6 shadow-sm">
-                <h2 className="mb-4 text-xl font-semibold text-petro">
-                    Categorías registradas
-                </h2>
 
                 {!categorias ||
                     categorias.length === 0 ? (
@@ -208,9 +209,9 @@ export default function AdminCategorias() {
                 )}
             </div>
 
-            {/* Editar categorias */}
             {categoriaEditando && (
                 <>
+                    {/* Divisor - Editar categorias  */}
                     <div className="my-8 border-t border-petro/10" />
 
                     <div ref={editarRef} className="rounded-xl bg-blanco p-6 shadow-sm">

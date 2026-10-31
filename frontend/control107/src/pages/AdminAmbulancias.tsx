@@ -378,7 +378,7 @@ export default function AdminAmbulancias() {
                 </div>
             </div>
 
-            {/* Eeitar ambulancia */}
+            {/* Editar ambulancia */}
 
             {ambulanciaEditando && (
                 <>

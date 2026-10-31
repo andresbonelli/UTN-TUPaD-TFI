@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
     flexRender,
@@ -12,25 +12,41 @@ import {
     type SortingState,
 } from "@tanstack/react-table";
 
-import { useUsuarios } from "../hooks/useUsuarios";
+import {
+    useActualizarUsuario,
+    useCrearUsuario,
+    useUsuarios,
+} from "../hooks/useUsuarios";
 
-import type { Usuario } from "../interfaces/Usuario";
+import { useTurnos } from "../hooks/useTurnos";
+
+import UsuarioForm from "../components/UsuarioForm";
+
+import MensajeConfirmacion from "../components/MensajeConfirmacion";
+
+import type {
+    ActualizarUsuarioRequest,
+    Usuario,
+    UsuarioRequest,
+} from "../interfaces/Usuario";
+
+import { obtenerMensajeError } from "../utils/error";
 
 const columnas: ColumnDef<Usuario>[] = [
-    { accessorKey: "nombre", header: "Nombre", 
+    {
+        accessorKey: "nombre",
+        header: "Nombre",
         // Orden alfabetico
         sortingFn: (rowA, rowB) =>
-        rowA.original.nombre.localeCompare(
-            rowB.original.nombre,
-            "es",
-            {
+            rowA.original.nombre.localeCompare(rowB.original.nombre, "es", {
                 sensitivity: "base",
-            }
-        ),
+            }),
     },
-    { accessorKey: "dni", header: "DNI", },
-    { accessorKey: "email", header: "Email", },
-    { accessorKey: "rol", header: "Rol",
+    { accessorKey: "dni", header: "DNI" },
+    { accessorKey: "email", header: "Email" },
+    {
+        accessorKey: "rol",
+        header: "Rol",
 
         cell: ({ row }) => {
             const rol = row.original.rol;
@@ -77,7 +93,10 @@ export default function AdminUsuarios() {
 
     const [globalFilter, setGlobalFilter] = useState("");
 
-    const [pagination, setPagination] = useState<PaginationState>({pageIndex: 0,pageSize: 5,});
+    const [pagination, setPagination] = useState<PaginationState>({
+        pageIndex: 0,
+        pageSize: 5,
+    });
 
     const {
         data: usuarios = sinUsuarios,
@@ -85,6 +104,73 @@ export default function AdminUsuarios() {
         isError,
         error,
     } = useUsuarios();
+
+    const crearUsuarioMutation = useCrearUsuario();
+
+    const actualizarUsuarioMutation = useActualizarUsuario();
+
+    const { data: turnos = [] } = useTurnos();
+
+    function handleCrearUsuario(
+        usuario: UsuarioRequest | ActualizarUsuarioRequest,
+    ) {
+        if (!("clave" in usuario)) {
+            return;
+        }
+
+        crearUsuarioMutation.mutate(usuario, {
+            onSuccess: () => {
+                setMensajeCreacion(
+                    "Usuario creado correctamente.",
+                );
+            },
+        });
+    }
+
+    function usuarioTieneTurnoAbierto(usuario: Usuario) {
+        if (usuario.rol !== "ENFERMERO") {
+            return false;
+        }
+
+        return turnos.some(
+            (turno) =>
+                turno.enfermero.id === usuario.id &&
+                (
+                    turno.estado === "PROGRAMADO" ||
+                    turno.estado === "EN_CURSO"
+                ),
+        );
+    }
+
+    function handleActualizarUsuario(
+        usuario: UsuarioRequest | ActualizarUsuarioRequest,
+    ) {
+        if (!usuarioEditando) {
+            return;
+        }
+
+        const request: ActualizarUsuarioRequest = {
+            nombre: usuario.nombre,
+            dni: usuario.dni,
+            email: usuario.email,
+            rol: usuario.rol,
+            activo: usuario.activo,
+        };
+
+        actualizarUsuarioMutation.mutate(
+            {
+                id: usuarioEditando.id,
+                usuario: request,
+            },
+            {
+                onSuccess: () => {
+                    setMensajeEdicion(
+                        "Usuario actualizado correctamente.",
+                    );
+                },
+            },
+        );
+    }
 
     const table = useReactTable({
         data: usuarios,
@@ -105,6 +191,23 @@ export default function AdminUsuarios() {
         getSortedRowModel: getSortedRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
     });
+
+    const [mensajeCreacion, setMensajeCreacion] = useState<string | null>(null);
+
+    const [usuarioEditando, setUsuarioEditando] = useState<Usuario | null>(null);
+
+    useEffect(() => {
+        if (usuarioEditando) {
+            editarRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        }
+    }, [usuarioEditando]);
+
+    const [mensajeEdicion, setMensajeEdicion] = useState<string | null>(null);
+
+    const editarRef = useRef<HTMLDivElement>(null);
 
     if (isLoading) {
         return (
@@ -133,6 +236,44 @@ export default function AdminUsuarios() {
 
                 <p className="mt-2 text-sm text-petro/60">
                     Usuarios registrados en Control107.
+                </p>
+            </div>
+
+            {mensajeCreacion && (
+                <div className="mb-4">
+                    <MensajeConfirmacion
+                        mensaje={mensajeCreacion}
+                        onCerrar={() => setMensajeCreacion(null)}
+                    />
+                </div>
+            )}
+
+            <div className="mb-6 rounded-xl bg-blanco p-6 shadow-sm">
+                <h2 className="mb-4 text-xl font-semibold text-petro">Nuevo usuario</h2>
+
+                <UsuarioForm
+                    onSubmit={handleCrearUsuario}
+                    isPending={crearUsuarioMutation.isPending}
+                />
+
+                {crearUsuarioMutation.isError && (
+                    <div className="mt-4 rounded-lg border border-coral/30 bg-coral/5 p-3">
+                        <p className="text-sm font-semibold text-coral">
+                            {obtenerMensajeError(crearUsuarioMutation.error)}
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            <div className="my-8 border-t border-petro/10" />
+
+            <div className="mb-4">
+                <h2 className="text-xl font-semibold text-petro">
+                    Administrar usuarios
+                </h2>
+
+                <p className="mt-1 text-sm text-petro/60">
+                    Consulta y administra los usuarios registrados.
                 </p>
             </div>
 
@@ -182,6 +323,11 @@ export default function AdminUsuarios() {
                                             </th>
                                         );
                                     })}
+
+                                    <th className="border-b border-petro/10 px-4 py-3 text-sm font-semibold text-petro">
+                                        Acciones
+                                    </th>
+
                                 </tr>
                             ))}
                         </thead>
@@ -190,7 +336,7 @@ export default function AdminUsuarios() {
                             {table.getRowModel().rows.length === 0 ? (
                                 <tr>
                                     <td
-                                        colSpan={columnas.length}
+                                        colSpan={columnas.length + 1}
                                         className="px-4 py-8 text-center text-sm text-petro/60"
                                     >
                                         No se encontraron usuarios.
@@ -209,7 +355,26 @@ export default function AdminUsuarios() {
                                                     cell.getContext(),
                                                 )}
                                             </td>
+
                                         ))}
+                                        <td className="px-4 py-4 text-sm">
+                                            {usuarioTieneTurnoAbierto(row.original) ? (
+                                                <span className="rounded-md bg-petro/10 px-2 py-1 text-xs font-semibold text-petro/60">
+                                                    Turno abierto
+                                                </span>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setMensajeEdicion(null);
+                                                        setUsuarioEditando(row.original);
+                                                    }}
+                                                    className="rounded-lg border border-turquesa/30 px-3 py-2 text-sm font-semibold text-turquesa transition hover:bg-turquesa/10"
+                                                >
+                                                    Editar
+                                                </button>
+                                            )}
+                                        </td>
                                     </tr>
                                 ))
                             )}
@@ -244,6 +409,81 @@ export default function AdminUsuarios() {
                     </div>
                 </div>
             </div>
+
+            {usuarioEditando && (
+                <>
+                    <div className="my-8 border-t border-petro/10" />
+
+                    <div
+                        ref={editarRef}
+                        className="rounded-xl bg-blanco p-6 shadow-sm"
+                    >
+                        <div className="mb-4 flex items-start justify-between gap-4">
+                            <div>
+                                <h2 className="text-xl font-semibold text-petro">
+                                    Editar usuario
+                                </h2>
+
+                                <p className="mt-1 text-sm text-petro/60">
+                                    Modificando{" "}
+                                    <span className="font-semibold text-petro">
+                                        {usuarioEditando.nombre}
+                                    </span>
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setMensajeEdicion(null);
+                                    setUsuarioEditando(null);
+                                }}
+                                className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+
+                        {mensajeEdicion && (
+                            <div className="mb-4">
+                                <MensajeConfirmacion
+                                    mensaje={mensajeEdicion}
+                                    onCerrar={() =>
+                                        setMensajeEdicion(null)
+                                    }
+                                />
+                            </div>
+                        )}
+
+                        <UsuarioForm
+                            key={usuarioEditando.id}
+                            valoresIniciales={{
+                                nombre: usuarioEditando.nombre,
+                                dni: usuarioEditando.dni,
+                                email: usuarioEditando.email,
+                                rol: usuarioEditando.rol,
+                                activo: usuarioEditando.activo,
+                            }}
+                            textoBoton="Guardar cambios"
+                            isPending={
+                                actualizarUsuarioMutation.isPending
+                            }
+                            onSubmit={handleActualizarUsuario}
+                        />
+
+                        {actualizarUsuarioMutation.isError && (
+                            <div className="mt-4 rounded-lg border border-coral/30 bg-coral/5 p-3">
+                                <p className="text-sm font-semibold text-coral">
+                                    {obtenerMensajeError(
+                                        actualizarUsuarioMutation.error,
+                                    )}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </>
+            )}
+
         </section>
     );
 }

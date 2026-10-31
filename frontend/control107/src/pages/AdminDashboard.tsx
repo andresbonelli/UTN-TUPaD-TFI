@@ -4,7 +4,7 @@ export default function AdminDashboard() {
   return (
     <section>
       <div className="mb-6">
-        <h2 className="text-3xl font-bold text-petro">Dashboard</h2>
+        <h2 className="text-3xl font-bold text-petro">Panel de Administración</h2>
 
         <p className="mt-2 text-sm text-petro/60">
           Gestiona los recursos principales de Control107.

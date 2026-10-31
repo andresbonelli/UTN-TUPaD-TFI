@@ -165,22 +165,22 @@ export default function AdminTurnos() {
 
     const historialRef = useRef<HTMLDivElement>(null);
 
-        useEffect(() => {
-            if (turnoEditando) {
-                editarRef.current?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start",
-                });
-            }
-        }, [turnoEditando]);
+    useEffect(() => {
+        if (turnoEditando) {
+            editarRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        }
+    }, [turnoEditando]);
 
     const { data: turnos = sinTurnos, isLoading, isError, error } = useTurnos();
 
     const {
-    data: turnoViendo,
-    isLoading: turnoViendoCargando,
-    isError: turnoViendoError,
-} = useTurno(turnoViendoId);
+        data: turnoViendo,
+        isLoading: turnoViendoCargando,
+        isError: turnoViendoError,
+    } = useTurno(turnoViendoId);
 
 
     useEffect(() => {
@@ -205,10 +205,7 @@ export default function AdminTurnos() {
         crearTurnoMutation.mutate(turno);
     }
 
-    // function handleActualizarTurno(turno: TurnoRequest) {
-    //     if (!turnoEditando) {
-    //         return;
-    //     }
+
     function handleActualizarTurno(turno: TurnoRequest) {
         if (!turnoEditando) {
             return;
@@ -306,7 +303,10 @@ export default function AdminTurnos() {
                 )}
             </div>
 
+            {/* Divisor administrar Turnos  */}
             <div className="my-8 border-t border-petro/10" />
+
+            <h2 className="mb-4 text-xl font-semibold text-petro">Administrar Turnos</h2>
 
             <div className="mb-4">
                 <label htmlFor="buscar-turnos" className="sr-only">

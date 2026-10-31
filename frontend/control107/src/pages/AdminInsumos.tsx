@@ -215,7 +215,7 @@ export default function AdminInsumos() {
             {/* divisor */}
             <div className="my-8 border-t border-petro/10" />
 
-            <h3 className="mb-5 text-2xl font-bold">Buscar / Editar Insumos</h3>
+            <h2 className="mb-4 text-xl font-semibold text-petro">Administrar Insumos</h2>
 
             <div className="mb-4">
                 <label htmlFor="buscar-insumos" className="sr-only">
