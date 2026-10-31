@@ -1,4 +1,5 @@
 import { useForm } from "@tanstack/react-form";
+import { useState } from "react";
 import { useRegistrarIngreso } from "../../hooks/useTurnos";
 import type {
     ControlInsumo,
@@ -20,11 +21,32 @@ interface ControlIngresoFormValues {
     observaciones: string;
 }
 
+// const CONTROLES_POR_PAGINA = 20;
+
 export default function FormularioControlIngreso({
     turnoId,
     controles,
 }: FormularioControlIngresoProps) {
     const registrarIngresoMutation = useRegistrarIngreso();
+
+    const [pagina, setPagina] = useState(0);
+    const [controlesPorPagina, setControlesPorPagina] = useState(20);
+
+    const totalPaginas = Math.ceil(
+        controles.length / controlesPorPagina,
+    );
+
+    const inicio = pagina * controlesPorPagina;
+
+    const controlesPagina = controles
+        .map((control, index) => ({
+            control,
+            index,
+        }))
+        .slice(
+            inicio,
+            inicio + controlesPorPagina,
+        );
 
     const form = useForm({
         defaultValues: {
@@ -79,7 +101,7 @@ export default function FormularioControlIngreso({
             </p>
 
             <div className="space-y-4">
-                {controles.map((control, index) => {
+                {controlesPagina.map(({ control, index }) => {
                     const esOxigeno = control.esOxigeno;
 
                     return (
@@ -210,6 +232,75 @@ export default function FormularioControlIngreso({
                     );
                 })}
             </div>
+
+            {totalPaginas > 1 && (
+                <div className="flex flex-col gap-3 rounded-lg border border-petro/10 bg-petro/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-4">
+                        <p className="text-sm text-petro/60">
+                            Mostrando {inicio + 1}-
+                            {Math.min(
+                                inicio + controlesPorPagina,
+                                controles.length,
+                            )} de {controles.length}
+                        </p>
+
+                        <label className="flex items-center gap-2 text-sm text-petro/60">
+                            Por página
+
+                            <select
+                                value={controlesPorPagina}
+                                onChange={(event) => {
+                                    setControlesPorPagina(
+                                        Number(event.target.value),
+                                    );
+                                    setPagina(0);
+                                }}
+                                className="rounded-lg border border-petro/20 bg-blanco px-2 py-1 text-sm text-petro outline-none focus:border-turquesa"
+                            >
+                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={20}>20</option>
+                                <option value={50}>50</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setPagina((paginaActual) =>
+                                    Math.max(0, paginaActual - 1)
+                                )
+                            }
+                            disabled={pagina === 0}
+                            className="rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm font-semibold text-petro disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            Anterior
+                        </button>
+
+                        <span className="text-sm font-medium text-petro">
+                            Página {pagina + 1} de {totalPaginas}
+                        </span>
+
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setPagina((paginaActual) =>
+                                    Math.min(
+                                        totalPaginas - 1,
+                                        paginaActual + 1,
+                                    )
+                                )
+                            }
+                            disabled={pagina >= totalPaginas - 1}
+                            className="rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm font-semibold text-petro disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            Siguiente
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <form.Field name="observaciones">
                 {(field) => (

@@ -79,7 +79,10 @@ const {
                     <BotonLogout />
                 </div>
 
+                
                 <TurnoActual turno={turnoOperativo} />
+
+                <div className="my-8 border-t border-petro/10" />
 
                 {turnoOperativo.estado === "EN_CURSO" && (
                     <>
@@ -100,6 +103,8 @@ const {
                             turnoId={turnoOperativo.id}
                             controles={turnoOperativo.controlInsumos}
                         />
+
+                        <div className="my-8 border-t border-petro/10" />
 
                         <CancelarTurno
                             turnoId={turnoOperativo.id}

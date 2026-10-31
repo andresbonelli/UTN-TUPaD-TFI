@@ -1,10 +1,13 @@
 import type { ControlInsumo } from "../../interfaces/Turno";
+import { useState } from "react";
 
 import CardOxigeno from "./CardOxigeno";
 
 interface ControlInsumosProps {
     controles: ControlInsumo[];
 }
+
+type CantidadPorPagina = 5 | 10 | 20 | 50 | "todos";
 
 export default function ControlInsumos({ controles }: ControlInsumosProps) {
     const esControlOxigeno = (control: ControlInsumo) => control.esOxigeno;
@@ -16,6 +19,55 @@ export default function ControlInsumos({ controles }: ControlInsumosProps) {
     );
 
     const controlesNormales = controles.filter((control) => !control.esCritico);
+
+    const [paginaCriticos, setPaginaCriticos] = useState(0);
+    const [paginaNormales, setPaginaNormales] = useState(0);
+
+    const [cantidadCriticos, setCantidadCriticos] =
+        useState<CantidadPorPagina>(20);
+
+    const [cantidadNormales, setCantidadNormales] =
+        useState<CantidadPorPagina>(20);
+
+    const totalPaginasCriticos =
+        cantidadCriticos === "todos"
+            ? 1
+            : Math.ceil(
+                controlesCriticos.length / cantidadCriticos,
+            );
+
+    const inicioCriticos =
+        cantidadCriticos === "todos"
+            ? 0
+            : paginaCriticos * cantidadCriticos;
+
+    const criticosPagina =
+        cantidadCriticos === "todos"
+            ? controlesCriticos
+            : controlesCriticos.slice(
+                inicioCriticos,
+                inicioCriticos + cantidadCriticos,
+            );
+
+    const totalPaginasNormales =
+        cantidadNormales === "todos"
+            ? 1
+            : Math.ceil(
+                controlesNormales.length / cantidadNormales,
+            );
+
+    const inicioNormales =
+        cantidadNormales === "todos"
+            ? 0
+            : paginaNormales * cantidadNormales;
+
+    const normalesPagina =
+        cantidadNormales === "todos"
+            ? controlesNormales
+            : controlesNormales.slice(
+                inicioNormales,
+                inicioNormales + cantidadNormales,
+            );
 
     return (
         <section className="mt-6 space-y-6">
@@ -33,6 +85,8 @@ export default function ControlInsumos({ controles }: ControlInsumosProps) {
                 <CardOxigeno controles={controlesOxigeno} />
             )}
 
+            <div className="my-8 border-t border-petro/10" />
+
             {controlesCriticos.length > 0 && (
                 <div>
                     <h3 className="mb-3 text-lg font-semibold text-petro">
@@ -40,7 +94,7 @@ export default function ControlInsumos({ controles }: ControlInsumosProps) {
                     </h3>
 
                     <div className="space-y-3">
-                        {controlesCriticos.map((control) => (
+                        {criticosPagina.map((control) => (
                             <div
                                 key={`${control.categoria}-${control.nombre}`}
                                 className="rounded-xl border border-coral/30 bg-coral/5 p-4"
@@ -95,8 +149,86 @@ export default function ControlInsumos({ controles }: ControlInsumosProps) {
                             </div>
                         ))}
                     </div>
+
+                    <div className="mt-4 flex flex-col gap-3 rounded-lg border border-petro/10 bg-petro/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-4">
+                            <p className="text-sm text-petro/60">
+                                {cantidadCriticos === "todos"
+                                    ? `Mostrando todos (${controlesCriticos.length})`
+                                    : `Mostrando ${inicioCriticos + 1}-${Math.min(
+                                        inicioCriticos + cantidadCriticos,
+                                        controlesCriticos.length,
+                                    )} de ${controlesCriticos.length}`}
+                            </p>
+
+                            <label className="flex items-center gap-2 text-sm text-petro/60">
+                                Por página
+
+                                <select
+                                    value={cantidadCriticos}
+                                    onChange={(event) => {
+                                        const value = event.target.value;
+
+                                        setCantidadCriticos(
+                                            value === "todos"
+                                                ? "todos"
+                                                : (Number(value) as 5 | 10 | 20 | 50),
+                                        );
+
+                                        setPaginaCriticos(0);
+                                    }}
+                                    className="rounded-lg border border-petro/20 bg-blanco px-2 py-1 text-sm text-petro outline-none focus:border-turquesa"
+                                >
+                                    <option value={5}>5</option>
+                                    <option value={10}>10</option>
+                                    <option value={20}>20</option>
+                                    <option value={50}>50</option>
+                                    <option value="todos">Todos</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        {cantidadCriticos !== "todos" && totalPaginasCriticos > 1 && (
+                            <div className="flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setPaginaCriticos((paginaActual) =>
+                                            Math.max(0, paginaActual - 1)
+                                        )
+                                    }
+                                    disabled={paginaCriticos === 0}
+                                    className="rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm font-semibold text-petro disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                    Anterior
+                                </button>
+
+                                <span className="text-sm font-medium text-petro">
+                                    Página {paginaCriticos + 1} de {totalPaginasCriticos}
+                                </span>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setPaginaCriticos((paginaActual) =>
+                                            Math.min(
+                                                totalPaginasCriticos - 1,
+                                                paginaActual + 1,
+                                            )
+                                        )
+                                    }
+                                    disabled={paginaCriticos >= totalPaginasCriticos - 1}
+                                    className="rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm font-semibold text-petro disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                    Siguiente
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
+
+            <div className="my-8 border-t border-petro/10" />
 
             {controlesNormales.length > 0 && (
                 <div>
@@ -105,7 +237,7 @@ export default function ControlInsumos({ controles }: ControlInsumosProps) {
                     </h3>
 
                     <div className="space-y-3">
-                        {controlesNormales.map((control) => (
+                        {normalesPagina.map((control) => (
                             <div
                                 key={`${control.categoria}-${control.nombre}`}
                                 className="rounded-xl border border-petro/10 bg-blanco p-4"
@@ -146,8 +278,89 @@ export default function ControlInsumos({ controles }: ControlInsumosProps) {
                             </div>
                         ))}
                     </div>
+
+                    <div className="mt-4 flex flex-col gap-3 rounded-lg border border-petro/10 bg-petro/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-4">
+                            <p className="text-sm text-petro/60">
+                                {cantidadNormales === "todos"
+                                    ? `Mostrando todos (${controlesNormales.length})`
+                                    : `Mostrando ${inicioNormales + 1}-${Math.min(
+                                        inicioNormales + cantidadNormales,
+                                        controlesNormales.length,
+                                    )} de ${controlesNormales.length}`}
+                            </p>
+
+                            <label className="flex items-center gap-2 text-sm text-petro/60">
+                                Por página
+
+                                <select
+                                    value={cantidadNormales}
+                                    onChange={(event) => {
+                                        const value = event.target.value;
+
+                                        setCantidadNormales(
+                                            value === "todos"
+                                                ? "todos"
+                                                : (Number(value) as 5 | 10 | 20 | 50),
+                                        );
+
+                                        setPaginaNormales(0);
+                                    }}
+                                    className="rounded-lg border border-petro/20 bg-blanco px-2 py-1 text-sm text-petro outline-none focus:border-turquesa"
+                                >
+                                    <option value={5}>5</option>
+                                    <option value={10}>10</option>
+                                    <option value={20}>20</option>
+                                    <option value={50}>50</option>
+                                    <option value="todos">Todos</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        {cantidadNormales !== "todos" && totalPaginasNormales > 1 && (
+                            <div className="flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setPaginaNormales((paginaActual) =>
+                                            Math.max(0, paginaActual - 1)
+                                        )
+                                    }
+                                    disabled={paginaNormales === 0}
+                                    className="rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm font-semibold text-petro disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                    Anterior
+                                </button>
+
+                                <span className="text-sm font-medium text-petro">
+                                    Página {paginaNormales + 1} de {totalPaginasNormales}
+                                </span>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setPaginaNormales((paginaActual) =>
+                                            Math.min(
+                                                totalPaginasNormales - 1,
+                                                paginaActual + 1,
+                                            )
+                                        )
+                                    }
+                                    disabled={
+                                        paginaNormales >= totalPaginasNormales - 1
+                                    }
+                                    className="rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm font-semibold text-petro disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                    Siguiente
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
+            
+            <div className="my-8 border-t border-petro/10" />
+
         </section>
     );
 }

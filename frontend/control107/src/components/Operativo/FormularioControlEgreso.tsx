@@ -2,10 +2,14 @@ import { useForm } from "@tanstack/react-form";
 
 import { useRegistrarEgreso } from "../../hooks/useTurnos";
 
+import { useState } from "react";
+
 import type {
     ControlInsumo,
     IngresoEgresoRequest,
 } from "../../interfaces/Turno";
+
+type CantidadPorPagina = 5 | 10 | 20 | 50 | "todos";
 
 interface FormularioControlEgresoProps {
     turnoId: number;
@@ -28,6 +32,39 @@ export default function FormularioControlEgreso({
     controles,
 }: FormularioControlEgresoProps) {
     const registrarEgresoMutation = useRegistrarEgreso();
+
+    const [pagina, setPagina] = useState(0);
+
+    const [cantidadPorPagina, setCantidadPorPagina] =
+        useState<CantidadPorPagina>(20);
+
+    const totalPaginas =
+        cantidadPorPagina === "todos"
+            ? 1
+            : Math.ceil(
+                controles.length / cantidadPorPagina,
+            );
+
+    const inicio =
+        cantidadPorPagina === "todos"
+            ? 0
+            : pagina * cantidadPorPagina;
+
+    const controlesPagina =
+        cantidadPorPagina === "todos"
+            ? controles.map((control, index) => ({
+                control,
+                index,
+            }))
+            : controles
+                .map((control, index) => ({
+                    control,
+                    index,
+                }))
+                .slice(
+                    inicio,
+                    inicio + cantidadPorPagina,
+                );
 
     const form = useForm({
         defaultValues: {
@@ -84,7 +121,7 @@ export default function FormularioControlEgreso({
             </p>
 
             <div className="space-y-4">
-                {controles.map((control, index) => {
+                {controlesPagina.map(({ control, index }) => {
                     const esOxigeno = control.esOxigeno;
                     const unidad = esOxigeno ? "bar" : "unidades";
 
@@ -246,6 +283,81 @@ export default function FormularioControlEgreso({
                         </article>
                     );
                 })}
+            </div>
+            <div className="flex flex-col gap-3 rounded-lg border border-petro/10 bg-petro/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-4">
+                    <p className="text-sm text-petro/60">
+                        {cantidadPorPagina === "todos"
+                            ? `Mostrando todos (${controles.length})`
+                            : `Mostrando ${inicio + 1}-${Math.min(
+                                inicio + cantidadPorPagina,
+                                controles.length,
+                            )} de ${controles.length}`}
+                    </p>
+
+                    <label className="flex items-center gap-2 text-sm text-petro/60">
+                        Por página
+
+                        <select
+                            value={cantidadPorPagina}
+                            onChange={(event) => {
+                                const value = event.target.value;
+
+                                setCantidadPorPagina(
+                                    value === "todos"
+                                        ? "todos"
+                                        : (Number(value) as 5 | 10 | 20 | 50),
+                                );
+
+                                setPagina(0);
+                            }}
+                            className="rounded-lg border border-petro/20 bg-blanco px-2 py-1 text-sm text-petro outline-none focus:border-turquesa"
+                        >
+                            <option value={5}>5</option>
+                            <option value={10}>10</option>
+                            <option value={20}>20</option>
+                            <option value={50}>50</option>
+                            <option value="todos">Todos</option>
+                        </select>
+                    </label>
+                </div>
+
+                {cantidadPorPagina !== "todos" && totalPaginas > 1 && (
+                    <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setPagina((paginaActual) =>
+                                    Math.max(0, paginaActual - 1)
+                                )
+                            }
+                            disabled={pagina === 0}
+                            className="rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm font-semibold text-petro disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            Anterior
+                        </button>
+
+                        <span className="text-sm font-medium text-petro">
+                            Página {pagina + 1} de {totalPaginas}
+                        </span>
+
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setPagina((paginaActual) =>
+                                    Math.min(
+                                        totalPaginas - 1,
+                                        paginaActual + 1,
+                                    )
+                                )
+                            }
+                            disabled={pagina >= totalPaginas - 1}
+                            className="rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm font-semibold text-petro disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            Siguiente
+                        </button>
+                    </div>
+                )}
             </div>
 
             <form.Field name="observaciones">
