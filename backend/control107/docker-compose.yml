@@ -33,7 +33,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      - FRONTEND_HOST=${FRONTEND_HOST:}
+      - FRONTEND_HOST=${FRONTEND_HOST:-http://localhost:5173}
       - DB_URL=jdbc:mysql://db:3306/control107_db
       - SPRING_PROFILES_ACTIVE=prod
       - DB_USERNAME=${DB_USERNAME}
