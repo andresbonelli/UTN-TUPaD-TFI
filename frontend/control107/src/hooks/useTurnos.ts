@@ -10,6 +10,7 @@ import type {
   ResumenTurnos,
   Turno,
   TurnoRequest,
+  ActualizarTurnoRequest,
 } from "../interfaces/Turno";
 
 import {
@@ -22,7 +23,7 @@ import {
   registrarIngreso,
   cancelarTurno,
   crearTurno,
-  actualizarTurno,
+  actualizarTurno,  
 } from "../services/turno";
 
 export function useTurnos() {
@@ -50,33 +51,63 @@ export function useCrearTurno() {
   });
 }
 
-export function useTurno(id: number) {
+// export function useTurno(id: number) {
+//   return useQuery<Turno>({
+//     queryKey: ["turnos", id],
+//     queryFn: () => obtenerTurno(id),
+//   });
+// }
+
+export function useTurno(id: number | null) {
   return useQuery<Turno>({
     queryKey: ["turnos", id],
-    queryFn: () => obtenerTurno(id),
+    queryFn: () => obtenerTurno(id!),
+    enabled: id !== null,
   });
 }
 
+// export function useActualizarTurno() {
+//   const queryClient = useQueryClient();
+
+//   return useMutation<
+//     Turno,
+//     Error,
+//     {
+//       id: number;
+//       turno: TurnoRequest;
+//     }
+//   >({
+//     mutationFn: ({ id, turno }) =>
+//       actualizarTurno(id, turno),
+
+//     onSuccess: async () => {
+//       await queryClient.invalidateQueries({
+//         queryKey: ["turnos"],
+//       });
+//     },
+//   });
+// }
+
 export function useActualizarTurno() {
-  const queryClient = useQueryClient();
+    const queryClient = useQueryClient();
 
-  return useMutation<
-    Turno,
-    Error,
-    {
-      id: number;
-      turno: TurnoRequest;
-    }
-  >({
-    mutationFn: ({ id, turno }) =>
-      actualizarTurno(id, turno),
+    return useMutation<
+        Turno,
+        Error,
+        {
+            id: number;
+            turno: ActualizarTurnoRequest;
+        }
+    >({
+        mutationFn: ({ id, turno }) =>
+            actualizarTurno(id, turno),
 
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["turnos"],
-      });
-    },
-  });
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: ["turnos"],
+            });
+        },
+    });
 }
 
 export function useTurnosActivos() {

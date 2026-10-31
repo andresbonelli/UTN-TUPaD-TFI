@@ -1,8 +1,11 @@
+
 import { useForm } from "@tanstack/react-form";
 
 import { useInsumos } from "../hooks/useInsumos";
 
 import type { AmbulanciaRequest } from "../interfaces/Ambulancia";
+
+import SelectorInsumosAmbulancia from "./Admin/SelectorInsumosAmbulancia";
 
 interface AmbulanciaFormProps {
     onSubmit: (ambulancia: AmbulanciaRequest) => void;
@@ -13,6 +16,7 @@ interface AmbulanciaFormProps {
 
 const input =
     "w-full rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm text-petro outline-none transition focus:border-turquesa focus:ring-2 focus:ring-turquesa/20";
+
 
 export const AmbulanciaForm = ({
     onSubmit,
@@ -25,6 +29,7 @@ export const AmbulanciaForm = ({
         isLoading: insumosCargando,
         isError: insumosError,
     } = useInsumos();
+
 
     const form = useForm({
         defaultValues: {
@@ -50,7 +55,8 @@ export const AmbulanciaForm = ({
 
                 const formatoViejo = /^[A-Z]{3}\d{3}$/;
 
-                const formatoMercosur = /^[A-Z]{2}\d{3}[A-Z]{2}$/;
+                const formatoMercosur =
+                    /^[A-Z]{2}\d{3}[A-Z]{2}$/;
 
                 if (
                     !formatoViejo.test(patenteNormalizada) &&
@@ -75,19 +81,19 @@ export const AmbulanciaForm = ({
         },
 
         onSubmit: async ({ value }) => {
-            const idsInsumos = valoresIniciales
-                ? value.insumos
-                : insumos.map((insumo) => insumo.id);
-
             onSubmit({
-                patente: value.patente.trim().replace(/\s/g, "").toUpperCase(),
+                patente: value.patente
+                    .trim()
+                    .replace(/\s/g, "")
+                    .toUpperCase(),
 
                 disponible: value.disponible,
 
-                insumos: idsInsumos,
+                insumos: value.insumos,
             });
         },
     });
+
 
     return (
         <form
@@ -114,7 +120,9 @@ export const AmbulanciaForm = ({
                             value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(event) =>
-                                field.handleChange(event.target.value.toUpperCase())
+                                field.handleChange(
+                                    event.target.value.toUpperCase(),
+                                )
                             }
                             placeholder="Ejemplo: AB123CD"
                             maxLength={9}
@@ -127,7 +135,10 @@ export const AmbulanciaForm = ({
                         </p>
 
                         {field.state.meta.errors.map((error) => (
-                            <p key={String(error)} className="text-xs text-coral">
+                            <p
+                                key={String(error)}
+                                className="text-xs text-coral"
+                            >
                                 {String(error)}
                             </p>
                         ))}
@@ -141,7 +152,11 @@ export const AmbulanciaForm = ({
                         <input
                             type="checkbox"
                             checked={field.state.value}
-                            onChange={(event) => field.handleChange(event.target.checked)}
+                            onChange={(event) =>
+                                field.handleChange(
+                                    event.target.checked,
+                                )
+                            }
                             className="h-4 w-4 accent-turquesa"
                         />
 
@@ -158,10 +173,46 @@ export const AmbulanciaForm = ({
                 )}
             </form.Field>
 
-            <form.Subscribe selector={(state) => state.errors}>
+            <form.Field name="insumos">
+                {(field) => (
+                    <div className="flex flex-col gap-3">
+                        <div>
+                            <p className="text-sm font-medium text-petro">
+                                Insumos de la ambulancia
+                            </p>
+
+                            <p className="text-xs text-petro/60">
+                                Selecciona los insumos que pertenecen a esta ambulancia.
+                            </p>
+                        </div>
+
+                        {insumosCargando ? (
+                            <p className="text-sm text-petro/60">
+                                Cargando insumos...
+                            </p>
+                        ) : insumosError ? (
+                            <p className="text-sm font-semibold text-coral">
+                                No se pudieron cargar los insumos.
+                            </p>
+                        ) : (
+                            <SelectorInsumosAmbulancia
+                                insumos={insumos}
+                                seleccionados={field.state.value}
+                                onChange={field.handleChange}
+                            />
+                        )}
+                    </div>
+                )}
+            </form.Field>
+            <form.Subscribe
+                selector={(state) => state.errors}
+            >
                 {(errors) =>
                     errors.map((error) => (
-                        <p key={String(error)} className="text-sm font-semibold text-coral">
+                        <p
+                            key={String(error)}
+                            className="text-sm font-semibold text-coral"
+                        >
                             {String(error)}
                         </p>
                     ))
@@ -170,10 +221,16 @@ export const AmbulanciaForm = ({
 
             <button
                 type="submit"
-                disabled={isPending || insumosCargando || insumosError}
+                disabled={
+                    isPending ||
+                    insumosCargando ||
+                    insumosError
+                }
                 className="rounded-lg bg-turquesa px-4 py-2 text-sm font-semibold text-blanco transition hover:bg-petro disabled:cursor-not-allowed disabled:opacity-50"
             >
-                {isPending ? "Guardando..." : textoBoton}
+                {isPending
+                    ? "Guardando..."
+                    : textoBoton}
             </button>
         </form>
     );

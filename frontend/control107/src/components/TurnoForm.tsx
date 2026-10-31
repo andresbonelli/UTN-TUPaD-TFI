@@ -3,10 +3,7 @@ import { useForm } from "@tanstack/react-form";
 import { useAmbulancias } from "../hooks/useAmbulancia";
 import { useUsuarios } from "../hooks/useUsuarios";
 
-import type {
-    HorarioTurno,
-    TurnoRequest,
-} from "../interfaces/Turno";
+import type { HorarioTurno, TurnoRequest } from "../interfaces/Turno";
 
 interface TurnoFormProps {
     onSubmit: (turno: TurnoRequest) => void;
@@ -24,29 +21,20 @@ export default function TurnoForm({
     textoBoton = "Guardar turno",
     isPending = false,
 }: TurnoFormProps) {
-    const {
-        data: usuarios = [],
-        isLoading: usuariosCargando,
-    } = useUsuarios();
+    const { data: usuarios = [], isLoading: usuariosCargando } = useUsuarios();
 
-    const {
-        data: ambulancias = [],
-        isLoading: ambulanciasCargando,
-    } = useAmbulancias();
+    const { data: ambulancias = [], isLoading: ambulanciasCargando } =
+        useAmbulancias();
 
     const enfermeros = usuarios.filter(
         (usuario) =>
             usuario.rol === "ENFERMERO" &&
-            (
-                usuario.activo ||
-                usuario.id === valoresIniciales?.enfermeroId
-            ),
+            (usuario.activo || usuario.id === valoresIniciales?.enfermeroId),
     );
 
     const ambulanciasSeleccionables = ambulancias.filter(
         (ambulancia) =>
-            ambulancia.disponible ||
-            ambulancia.id === valoresIniciales?.ambulanciaId,
+            ambulancia.disponible || ambulancia.id === valoresIniciales?.ambulanciaId,
     );
 
     const form = useForm({
@@ -72,8 +60,7 @@ export default function TurnoForm({
                 if (value.enfermeroId <= 0) {
                     return {
                         fields: {
-                            enfermeroId:
-                                "Debe seleccionar un enfermero",
+                            enfermeroId: "Debe seleccionar un enfermero",
                         },
                     };
                 }
@@ -81,8 +68,7 @@ export default function TurnoForm({
                 if (value.ambulanciaId <= 0) {
                     return {
                         fields: {
-                            ambulanciaId:
-                                "Debe seleccionar una ambulancia",
+                            ambulanciaId: "Debe seleccionar una ambulancia",
                         },
                     };
                 }
@@ -90,8 +76,7 @@ export default function TurnoForm({
                 if (!value.nombreMedico.trim()) {
                     return {
                         fields: {
-                            nombreMedico:
-                                "El nombre del médico es obligatorio",
+                            nombreMedico: "El nombre del médico es obligatorio",
                         },
                     };
                 }
@@ -99,8 +84,7 @@ export default function TurnoForm({
                 if (!value.nombreChofer.trim()) {
                     return {
                         fields: {
-                            nombreChofer:
-                                "El nombre del chofer es obligatorio",
+                            nombreChofer: "El nombre del chofer es obligatorio",
                         },
                     };
                 }
@@ -145,17 +129,12 @@ export default function TurnoForm({
                             type="date"
                             value={field.state.value}
                             onBlur={field.handleBlur}
-                            onChange={(event) =>
-                                field.handleChange(event.target.value)
-                            }
+                            onChange={(event) => field.handleChange(event.target.value)}
                             className={input}
                         />
 
                         {field.state.meta.errors.map((error) => (
-                            <p
-                                key={String(error)}
-                                className="text-xs text-coral"
-                            >
+                            <p key={String(error)} className="text-xs text-coral">
                                 {String(error)}
                             </p>
                         ))}
@@ -179,9 +158,7 @@ export default function TurnoForm({
                             value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(event) =>
-                                field.handleChange(
-                                    event.target.value as HorarioTurno,
-                                )
+                                field.handleChange(event.target.value as HorarioTurno)
                             }
                             className={input}
                         >
@@ -210,31 +187,21 @@ export default function TurnoForm({
                             disabled={usuariosCargando}
                             onBlur={field.handleBlur}
                             onChange={(event) =>
-                                field.handleChange(
-                                    Number(event.target.value),
-                                )
+                                field.handleChange(Number(event.target.value))
                             }
                             className={input}
                         >
-                            <option value={0}>
-                                Seleccionar enfermero
-                            </option>
+                            <option value={0}>Seleccionar enfermero</option>
 
                             {enfermeros.map((enfermero) => (
-                                <option
-                                    key={enfermero.id}
-                                    value={enfermero.id}
-                                >
+                                <option key={enfermero.id} value={enfermero.id}>
                                     {enfermero.nombre} · {enfermero.email}
                                 </option>
                             ))}
                         </select>
 
                         {field.state.meta.errors.map((error) => (
-                            <p
-                                key={String(error)}
-                                className="text-xs text-coral"
-                            >
+                            <p key={String(error)} className="text-xs text-coral">
                                 {String(error)}
                             </p>
                         ))}
@@ -242,56 +209,58 @@ export default function TurnoForm({
                 )}
             </form.Field>
 
-            <form.Field name="ambulanciaId">
-                {(field) => (
-                    <div className="flex flex-col gap-2">
-                        <label
-                            htmlFor={field.name}
-                            className="text-sm font-medium text-petro"
-                        >
-                            Ambulancia
-                        </label>
-
-                        <select
-                            id={field.name}
-                            name={field.name}
-                            value={field.state.value}
-                            disabled={ambulanciasCargando}
-                            onBlur={field.handleBlur}
-                            onChange={(event) =>
-                                field.handleChange(
-                                    Number(event.target.value),
-                                )
-                            }
-                            className={input}
-                        >
-                            <option value={0}>
-                                Seleccionar ambulancia
-                            </option>
-
-                            {ambulanciasSeleccionables.map(
-                                (ambulancia) => (
-                                    <option
-                                        key={ambulancia.id}
-                                        value={ambulancia.id}
-                                    >
-                                        {ambulancia.patente}
-                                    </option>
-                                ),
-                            )}
-                        </select>
-
-                        {field.state.meta.errors.map((error) => (
-                            <p
-                                key={String(error)}
-                                className="text-xs text-coral"
+            {!valoresIniciales && (
+                <form.Field name="ambulanciaId">
+                    {(field) => (
+                        <div className="flex flex-col gap-2">
+                            <label
+                                htmlFor={field.name}
+                                className="text-sm font-medium text-petro"
                             >
-                                {String(error)}
-                            </p>
-                        ))}
-                    </div>
-                )}
-            </form.Field>
+                                Ambulancia
+                            </label>
+
+                            <select
+                                id={field.name}
+                                name={field.name}
+                                value={field.state.value}
+                                disabled={ambulanciasCargando}
+                                onBlur={field.handleBlur}
+                                onChange={(event) =>
+                                    field.handleChange(
+                                        Number(event.target.value),
+                                    )
+                                }
+                                className={input}
+                            >
+                                <option value={0}>
+                                    Seleccionar ambulancia
+                                </option>
+
+                                {ambulanciasSeleccionables.map(
+                                    (ambulancia) => (
+                                        <option
+                                            key={ambulancia.id}
+                                            value={ambulancia.id}
+                                        >
+                                            {ambulancia.patente}
+                                        </option>
+                                    ),
+                                )}
+                            </select>
+
+                            {field.state.meta.errors.map((error) => (
+                                <p
+                                    key={String(error)}
+                                    className="text-xs text-coral"
+                                >
+                                    {String(error)}
+                                </p>
+                            ))}
+                        </div>
+                    )}
+                </form.Field>
+            )}
 
             <form.Field name="nombreMedico">
                 {(field) => (
@@ -309,18 +278,13 @@ export default function TurnoForm({
                             type="text"
                             value={field.state.value}
                             onBlur={field.handleBlur}
-                            onChange={(event) =>
-                                field.handleChange(event.target.value)
-                            }
+                            onChange={(event) => field.handleChange(event.target.value)}
                             placeholder="Nombre del médico"
                             className={input}
                         />
 
                         {field.state.meta.errors.map((error) => (
-                            <p
-                                key={String(error)}
-                                className="text-xs text-coral"
-                            >
+                            <p key={String(error)} className="text-xs text-coral">
                                 {String(error)}
                             </p>
                         ))}
@@ -344,18 +308,13 @@ export default function TurnoForm({
                             type="text"
                             value={field.state.value}
                             onBlur={field.handleBlur}
-                            onChange={(event) =>
-                                field.handleChange(event.target.value)
-                            }
+                            onChange={(event) => field.handleChange(event.target.value)}
                             placeholder="Nombre del chofer"
                             className={input}
                         />
 
                         {field.state.meta.errors.map((error) => (
-                            <p
-                                key={String(error)}
-                                className="text-xs text-coral"
-                            >
+                            <p key={String(error)} className="text-xs text-coral">
                                 {String(error)}
                             </p>
                         ))}
@@ -365,11 +324,7 @@ export default function TurnoForm({
 
             <button
                 type="submit"
-                disabled={
-                    isPending ||
-                    usuariosCargando ||
-                    ambulanciasCargando
-                }
+                disabled={isPending || usuariosCargando || ambulanciasCargando}
                 className="rounded-lg bg-turquesa px-4 py-2 text-sm font-semibold text-blanco transition hover:bg-petro disabled:cursor-not-allowed disabled:opacity-50"
             >
                 {isPending ? "Guardando..." : textoBoton}

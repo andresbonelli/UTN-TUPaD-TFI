@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
     flexRender,
@@ -12,11 +12,18 @@ import {
     type SortingState,
 } from "@tanstack/react-table";
 
-import { useCrearTurno, useTurnos } from "../hooks/useTurnos";
+import {
+    useActualizarTurno,
+    useCrearTurno,
+    useTurnos,
+    useTurno
+} from "../hooks/useTurnos";
 
 import TurnoForm from "../components/TurnoForm";
 
-import type { Turno, TurnoRequest } from "../interfaces/Turno";
+import HistorialTurno from "../components/Admin/HistorialTurno";
+
+import type { ActualizarTurnoRequest, Turno, TurnoRequest } from "../interfaces/Turno";
 
 import {
     obtenerColorEstado,
@@ -149,14 +156,83 @@ export default function AdminTurnos() {
         pageSize: 5,
     });
 
-    // const [turnoEditando, setTurnoEditando] = useState<Turno | null>(null);
+    const [turnoEditando, setTurnoEditando] = useState<Turno | null>(null);
+
+    const [turnoViendoId, setTurnoViendoId] = useState<number | null>(null);
+
+
+    const editarRef = useRef<HTMLDivElement>(null);
+
+    const historialRef = useRef<HTMLDivElement>(null);
+
+        useEffect(() => {
+            if (turnoEditando) {
+                editarRef.current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                });
+            }
+        }, [turnoEditando]);
 
     const { data: turnos = sinTurnos, isLoading, isError, error } = useTurnos();
 
+    const {
+    data: turnoViendo,
+    isLoading: turnoViendoCargando,
+    isError: turnoViendoError,
+} = useTurno(turnoViendoId);
+
+
+    useEffect(() => {
+        if (turnoViendo) {
+            historialRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        }
+    }, [turnoViendo]);
+
+
+    useTurno(turnoViendoId);
+
     const crearTurnoMutation = useCrearTurno();
+
+    const actualizarTurnoMutation = useActualizarTurno();
+
+
 
     function handleCrearTurno(turno: TurnoRequest) {
         crearTurnoMutation.mutate(turno);
+    }
+
+    // function handleActualizarTurno(turno: TurnoRequest) {
+    //     if (!turnoEditando) {
+    //         return;
+    //     }
+    function handleActualizarTurno(turno: TurnoRequest) {
+        if (!turnoEditando) {
+            return;
+        }
+
+        const request: ActualizarTurnoRequest = {
+            fecha: turno.fecha,
+            horario: turno.horario,
+            enfermeroId: turno.enfermeroId,
+            nombreChofer: turno.nombreChofer,
+            nombreMedico: turno.nombreMedico,
+        };
+
+        actualizarTurnoMutation.mutate(
+            {
+                id: turnoEditando.id,
+                turno: request, //request es por la modificacion del dto
+            },
+            {
+                onSuccess: () => {
+                    setTurnoEditando(null);
+                },
+            },
+        );
     }
 
     const table = useReactTable({
@@ -289,7 +365,7 @@ export default function AdminTurnos() {
                             {table.getRowModel().rows.length === 0 ? (
                                 <tr>
                                     <td
-                                        colSpan={columnas.length}
+                                        colSpan={columnas.length + 1}
                                         className="px-4 py-8 text-center text-sm text-petro/60"
                                     >
                                         No se encontraron turnos.
@@ -313,17 +389,36 @@ export default function AdminTurnos() {
                                             </td>
                                         ))}
                                         <td className="px-4 py-4 text-sm whitespace-nowrap">
-                                            {row.original.estado === "PROGRAMADO" ? (
+                                            {row.original.estado === "PROGRAMADO" && (
                                                 <button
                                                     type="button"
-                                                    // onClick={() => setTurnoEditando(row.original)}
+                                                    onClick={() => {
+                                                        setTurnoViendoId(null);
+                                                        setTurnoEditando(row.original);
+                                                    }}
                                                     className="rounded-lg border border-turquesa/30 px-3 py-2 text-sm font-semibold text-turquesa transition hover:bg-turquesa/10"
                                                 >
                                                     Editar
                                                 </button>
-                                            ) : (
+                                            )}
+
+                                            {(row.original.estado === "FINALIZADO" ||
+                                                row.original.estado === "CANCELADO") && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setTurnoEditando(null);
+                                                            setTurnoViendoId(row.original.id);
+                                                        }}
+                                                        className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5"
+                                                    >
+                                                        Ver
+                                                    </button>
+                                                )}
+
+                                            {row.original.estado === "EN_CURSO" && (
                                                 <span className="text-xs text-petro/40">
-                                                    No editable
+                                                    Sin acciones
                                                 </span>
                                             )}
                                         </td>
@@ -361,6 +456,115 @@ export default function AdminTurnos() {
                     </div>
                 </div>
             </div>
+
+            {turnoEditando && (
+                <>
+                    <div className="my-8 border-t border-petro/10" />
+
+                    <div ref={editarRef} className="rounded-xl bg-blanco p-6 shadow-sm">
+                        <div className="mb-4 flex items-start justify-between gap-4">
+                            <div>
+                                <h2 className="text-xl font-semibold text-petro">
+                                    Editar turno
+                                </h2>
+
+                                <p className="mt-1 text-sm text-petro/60">
+                                    Modificando turno #{turnoEditando.id}
+
+                                    <br />
+
+                                    Ambulancia{": "}
+                                    <span className="text-lg font-bold text-petro">
+                                        {turnoEditando.ambulancia.patente}
+                                    </span>
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setTurnoEditando(null)}
+                                className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+
+                        <TurnoForm
+                            key={turnoEditando.id}
+                            valoresIniciales={{
+                                fecha: turnoEditando.fecha,
+                                horario: turnoEditando.horario,
+                                enfermeroId: turnoEditando.enfermero.id,
+                                ambulanciaId: turnoEditando.ambulancia.id,
+                                nombreChofer: turnoEditando.chofer,
+                                nombreMedico: turnoEditando.medico,
+                            }}
+                            textoBoton="Guardar cambios"
+                            isPending={actualizarTurnoMutation.isPending}
+                            onSubmit={handleActualizarTurno}
+                        />
+
+                        {actualizarTurnoMutation.isError && (
+                            <div className="mt-4 rounded-lg border border-coral/30 bg-coral/5 p-3">
+                                <p className="text-sm font-semibold text-coral">
+                                    No se pudo actualizar el turno.
+                                </p>
+
+                                <p className="mt-1 text-sm text-petro/70">
+                                    {actualizarTurnoMutation.error.message}
+                                </p>
+                            </div>
+                        )}
+
+                        <button
+                            type="button"
+                            onClick={() => setTurnoEditando(null)}
+                            className="mt-3 text-sm font-semibold text-petro/60 transition hover:text-petro"
+                        >
+                            Cerrar
+                        </button>
+                    </div>
+                </>
+            )}
+
+            {turnoViendoId !== null && (
+                <>
+                    <div className="my-8 border-t border-petro/10" />
+
+                    {turnoViendoCargando && (
+                        <div className="rounded-xl bg-blanco p-6 shadow-sm">
+                            <p className="text-sm text-petro/60">
+                                Cargando historial del turno...
+                            </p>
+                        </div>
+                    )}
+
+                    {turnoViendoError && (
+                        <div className="rounded-xl border border-coral/30 bg-coral/5 p-6">
+                            <p className="font-semibold text-coral">
+                                No se pudo cargar el historial del turno.
+                            </p>
+
+                            <button
+                                type="button"
+                                onClick={() => setTurnoViendoId(null)}
+                                className="mt-3 text-sm font-semibold text-petro"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+                    )}
+
+                    {turnoViendo && (
+                        <div ref={historialRef}>
+                            <HistorialTurno
+                                turno={turnoViendo}
+                                onCerrar={() => setTurnoViendoId(null)}
+                            />
+                        </div>
+                    )}
+                </>
+            )}
         </section>
     );
 }

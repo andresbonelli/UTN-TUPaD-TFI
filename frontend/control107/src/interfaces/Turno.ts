@@ -82,3 +82,7 @@ export interface TurnoRequest {
     nombreChofer: string;
     nombreMedico: string;
 }
+
+//Para evitar actualizar ambulancia
+export type ActualizarTurnoRequest =
+    Omit<TurnoRequest, "ambulanciaId">;

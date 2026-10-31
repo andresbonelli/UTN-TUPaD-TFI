@@ -24,6 +24,10 @@ import type { Ambulancia, AmbulanciaRequest } from "../interfaces/Ambulancia";
 
 import { obtenerMensajeError } from "../utils/error";
 
+import { useTurnos } from "../hooks/useTurnos";
+
+import MensajeConfirmacion from "../components/MensajeConfirmacion";
+
 const columnas: ColumnDef<Ambulancia>[] = [
     {
         accessorKey: "id",
@@ -37,6 +41,30 @@ const columnas: ColumnDef<Ambulancia>[] = [
             rowA.original.patente.localeCompare(rowB.original.patente, "es", {
                 sensitivity: "base",
             }),
+    },
+    {
+        id: "estado",
+
+        accessorFn: (ambulancia) =>
+            ambulancia.disponible
+                ? "Disponible"
+                : "No disponible",
+
+        header: "Estado",
+
+        cell: ({ row }) => (
+            <span
+                className={
+                    row.original.disponible
+                        ? "rounded-md bg-verde/10 px-2 py-1 text-xs font-semibold text-verde"
+                        : "rounded-md bg-petro/10 px-2 py-1 text-xs font-semibold text-petro/60"
+                }
+            >
+                {row.original.disponible
+                    ? "Disponible"
+                    : "No disponible"}
+            </span>
+        ),
     },
 ];
 
@@ -59,12 +87,29 @@ export default function AdminAmbulancias() {
         error,
     } = useAmbulancias();
 
+    const { data: turnos = [] } = useTurnos();
+
     const crearAmbulanciaMutation = useCrearAmbulancia();
 
     const actualizarAmbulanciaMutation = useActualizarAmbulancia();
 
+    const [mensajeCreacion, setMensajeCreacion] =
+        useState<string | null>(null);
+
+    const [mensajeEdicion, setMensajeEdicion] =
+        useState<string | null>(null);
+
     function handleCrearAmbulancia(ambulancia: AmbulanciaRequest) {
-        crearAmbulanciaMutation.mutate(ambulancia);
+        crearAmbulanciaMutation.mutate(
+            ambulancia,
+            {
+                onSuccess: () => {
+                    setMensajeCreacion(
+                        "Ambulancia creada correctamente.",
+                    );
+                },
+            },
+        );
     }
 
     function handleActualizarAmbulancia(ambulancia: AmbulanciaRequest) {
@@ -79,9 +124,22 @@ export default function AdminAmbulancias() {
             },
             {
                 onSuccess: () => {
-                    setAmbulanciaEditando(null);
+                    setMensajeEdicion(
+                        "Ambulancia actualizada correctamente.",
+                    );
                 },
             },
+        );
+    }
+
+    function ambulanciaTieneTurnoAbierto(ambulanciaId: number) {
+        return turnos.some(
+            (turno) =>
+                turno.ambulancia.id === ambulanciaId &&
+                (
+                    turno.estado === "PROGRAMADO" ||
+                    turno.estado === "EN_CURSO"
+                ),
         );
     }
 
@@ -149,6 +207,15 @@ export default function AdminAmbulancias() {
                 </p>
             </div>
 
+            {mensajeCreacion && (
+                <div className="mb-4">
+                    <MensajeConfirmacion
+                        mensaje={mensajeCreacion}
+                        onCerrar={() => setMensajeCreacion(null)}
+                    />
+                </div>
+            )}
+
             <div className="mb-6 rounded-xl bg-blanco p-6 shadow-sm">
                 <h2 className="mb-4 text-xl font-semibold text-petro">
                     Nueva ambulancia
@@ -168,8 +235,18 @@ export default function AdminAmbulancias() {
                 )}
             </div>
 
-            {/* Divisor  */}
+            {/* Divisor - Gestionar ambulancias  */}
             <div className="my-8 border-t border-petro/10" />
+
+            <div className="mb-4">
+                <h2 className="text-xl font-semibold text-petro">
+                    Administrar ambulancias
+                </h2>
+
+                <p className="mt-1 text-sm text-petro/60">
+                    Consulta y modifica las ambulancias registradas.
+                </p>
+            </div>
 
             <div className="mb-4">
                 <label htmlFor="buscar-ambulancias" className="sr-only">
@@ -250,13 +327,22 @@ export default function AdminAmbulancias() {
                                             </td>
                                         ))}
                                         <td className="px-4 py-4 text-sm">
-                                            <button
-                                                type="button"
-                                                onClick={() => setAmbulanciaEditando(row.original)}
-                                                className="rounded-lg border border-turquesa/30 px-3 py-2 text-sm font-semibold text-turquesa transition hover:bg-turquesa/10"
-                                            >
-                                                Editar
-                                            </button>
+                                            {ambulanciaTieneTurnoAbierto(row.original.id) ? (
+                                                <span className="rounded-md bg-petro/10 px-2 py-1 text-xs font-semibold text-petro/60">
+                                                    Turno abierto
+                                                </span>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setMensajeEdicion(null);
+                                                        setAmbulanciaEditando(row.original);
+                                                    }}
+                                                    className="rounded-lg border border-turquesa/30 px-3 py-2 text-sm font-semibold text-turquesa transition hover:bg-turquesa/10"
+                                                >
+                                                    Editar
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))
@@ -315,12 +401,24 @@ export default function AdminAmbulancias() {
 
                             <button
                                 type="button"
-                                onClick={() => setAmbulanciaEditando(null)}
+                                onClick={() => {
+                                    setMensajeEdicion(null);
+                                    setAmbulanciaEditando(null);
+                                }}
                                 className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5"
                             >
                                 Cerrar
                             </button>
                         </div>
+
+                        {mensajeEdicion && (
+                            <div className="mb-4">
+                                <MensajeConfirmacion
+                                    mensaje={mensajeEdicion}
+                                    onCerrar={() => setMensajeEdicion(null)}
+                                />
+                            </div>
+                        )}
 
                         <AmbulanciaForm
                             key={ambulanciaEditando.id}
@@ -346,7 +444,10 @@ export default function AdminAmbulancias() {
 
                         <button
                             type="button"
-                            onClick={() => setAmbulanciaEditando(null)}
+                            onClick={() => {
+                                setMensajeEdicion(null);
+                                setAmbulanciaEditando(null);
+                            }}
                             className="mt-3 text-sm font-semibold text-petro/60 transition hover:text-petro"
                         >
                             Cancelar
