@@ -5,7 +5,7 @@
     "puntoControl": 35,
     "critico": true,
     "esOxigeno": true,
-    "capacidadMaxima": 60
+    "capacidadMaxima": 150
   },
   {
     "nombre": "Tubo grande, presion en bares",
@@ -13,7 +13,7 @@
     "puntoControl": 35,
     "critico": true,
     "esOxigeno": true,
-    "capacidadMaxima": 100
+    "capacidadMaxima": 200
   },
   {
     "nombre": "Adrenalina",
