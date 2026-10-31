@@ -23,6 +23,7 @@ logging:
   level:
     org.springframework: info
     com.tup.tfi.control107: info
+
 app:
   data-loader:
     enabled: true

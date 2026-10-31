@@ -17,9 +17,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -44,6 +44,7 @@ public class DataLoader implements CommandLineRunner {
     public record InsumoSeedDTO(String nombre, String categoria, int puntoControl, boolean critico, boolean esOxigeno, Double capacidadMaxima) {}
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         if (usuarioRepository.count() > 0) {
             return; // Ya existen datos
@@ -70,6 +71,8 @@ public class DataLoader implements CommandLineRunner {
 
         UsuarioDTO admin = usuarioService.crearUsuario(adminDto);
         UsuarioDTO enfermero = usuarioService.crearUsuario(enfermeroDto);
+
+        log.info("Usuarios creados: admin={}, enfermero={}", admin, enfermero);
 
         String medico = "Dr. Gutierrez";
         String chofer = "Sr. Blanco";
@@ -191,7 +194,7 @@ public class DataLoader implements CommandLineRunner {
     private Ambulancia crearAmbulanciaConInsumos(String patente, Set<Insumo> insumosBase) {
         Ambulancia amb = Ambulancia.builder()
                 .patente(patente)
-                .insumos(insumosBase)
+                .insumos(new HashSet<>(insumosBase))
                 .build();
         return ambulanciaRepository.save(amb);
     }
