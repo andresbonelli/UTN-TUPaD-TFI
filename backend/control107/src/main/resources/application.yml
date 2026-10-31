@@ -42,7 +42,7 @@ logging:
 
 app:
   cors:
-    allowed-origins: "${FRONTEND.HOST:http://localhost:5173}"
+    allowed-origins: "${FRONTEND_HOST:http://localhost:5173}"
   data-loader:
     enabled: true
 
