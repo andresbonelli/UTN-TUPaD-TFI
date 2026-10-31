@@ -12,6 +12,7 @@ import type {
 import {
     actualizarAmbulancia,
     crearAmbulancia,
+    eliminarAmbulancia,
     listarAmbulancias,
 } from "../services/ambulancia";
 
@@ -75,6 +76,24 @@ export function useActualizarAmbulancia() {
                 "Error al actualizar la ambulancia:",
                 error
             );
+        },
+    });
+}
+
+export function useEliminarAmbulancia() {
+    const queryClient = useQueryClient();
+
+    return useMutation<
+        void,
+        Error,
+        number
+    >({
+        mutationFn: eliminarAmbulancia,
+
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: ["ambulancias"],
+            });
         },
     });
 }

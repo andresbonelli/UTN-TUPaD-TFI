@@ -33,3 +33,9 @@ export async function actualizarAmbulancia(
 
     return response.data;
 }
+
+export async function eliminarAmbulancia(
+    id: number,
+): Promise<void> {
+    await api.delete(`/ambulancias/${id}`);
+}

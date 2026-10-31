@@ -16,6 +16,7 @@ import {
     useActualizarAmbulancia,
     useAmbulancias,
     useCrearAmbulancia,
+    useEliminarAmbulancia,
 } from "../hooks/useAmbulancia";
 
 import { AmbulanciaForm } from "../components/AmbulanciaForm";
@@ -93,6 +94,14 @@ export default function AdminAmbulancias() {
 
     const actualizarAmbulanciaMutation = useActualizarAmbulancia();
 
+    const eliminarAmbulanciaMutation = useEliminarAmbulancia();
+
+    const [ambulanciaEliminandoId, setAmbulanciaEliminandoId] =
+        useState<number | null>(null);
+
+    const [mensajeEliminacion, setMensajeEliminacion] =
+        useState<string | null>(null);
+
     const [mensajeCreacion, setMensajeCreacion] =
         useState<string | null>(null);
 
@@ -126,6 +135,22 @@ export default function AdminAmbulancias() {
                 onSuccess: () => {
                     setMensajeEdicion(
                         "Ambulancia actualizada correctamente.",
+                    );
+                },
+            },
+        );
+    }
+
+    function handleEliminarAmbulancia(id: number) {
+        eliminarAmbulanciaMutation.mutate(
+            id,
+            {
+                onSuccess: () => {
+                    setAmbulanciaEliminandoId(null);
+                    setAmbulanciaEditando(null);
+
+                    setMensajeEliminacion(
+                        "Ambulancia eliminada correctamente.",
                     );
                 },
             },
@@ -238,6 +263,17 @@ export default function AdminAmbulancias() {
             {/* Divisor - Gestionar ambulancias  */}
             <div className="my-8 border-t border-petro/10" />
 
+            {mensajeEliminacion && (
+                <div className="mb-4">
+                    <MensajeConfirmacion
+                        mensaje={mensajeEliminacion}
+                        onCerrar={() =>
+                            setMensajeEliminacion(null)
+                        }
+                    />
+                </div>
+            )}
+
             <div className="mb-4">
                 <h2 className="text-xl font-semibold text-petro">
                     Administrar ambulancias
@@ -336,6 +372,7 @@ export default function AdminAmbulancias() {
                                                     type="button"
                                                     onClick={() => {
                                                         setMensajeEdicion(null);
+                                                        setAmbulanciaEliminandoId(null);
                                                         setAmbulanciaEditando(row.original);
                                                     }}
                                                     className="rounded-lg border border-turquesa/30 px-3 py-2 text-sm font-semibold text-turquesa transition hover:bg-turquesa/10"
@@ -403,6 +440,7 @@ export default function AdminAmbulancias() {
                                 type="button"
                                 onClick={() => {
                                     setMensajeEdicion(null);
+                                    setAmbulanciaEliminandoId(null);
                                     setAmbulanciaEditando(null);
                                 }}
                                 className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5"
@@ -442,16 +480,65 @@ export default function AdminAmbulancias() {
                             </div>
                         )}
 
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setMensajeEdicion(null);
-                                setAmbulanciaEditando(null);
-                            }}
-                            className="mt-3 text-sm font-semibold text-petro/60 transition hover:text-petro"
-                        >
-                            Cancelar
-                        </button>
+                        <div className="mt-6 border-t border-petro/10 pt-4">
+                            {ambulanciaEliminandoId === ambulanciaEditando.id ? (
+                                <div className="flex flex-col items-start gap-3">
+                                    <div>
+                                        <p className="text-sm font-semibold text-coral">
+                                            ¿Eliminar esta ambulancia?
+                                        </p>
+
+                                        <p className="mt-1 text-xs text-petro/60">
+                                            La ambulancia dejará de estar disponible en el sistema.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setAmbulanciaEliminandoId(null)
+                                            }
+                                            disabled={
+                                                eliminarAmbulanciaMutation.isPending
+                                            }
+                                            className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5 disabled:opacity-50"
+                                        >
+                                            Cancelar
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleEliminarAmbulancia(
+                                                    ambulanciaEditando.id,
+                                                )
+                                            }
+                                            disabled={
+                                                eliminarAmbulanciaMutation.isPending
+                                            }
+                                            className="rounded-lg bg-coral px-3 py-2 text-sm font-semibold text-blanco transition disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            {eliminarAmbulanciaMutation.isPending
+                                                ? "Eliminando..."
+                                                : "Confirmar eliminación"}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setAmbulanciaEliminandoId(
+                                            ambulanciaEditando.id,
+                                        )
+                                    }
+                                    className="text-sm font-semibold text-coral transition hover:text-coral/70"
+                                >
+                                    Eliminar ambulancia
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </>
             )}

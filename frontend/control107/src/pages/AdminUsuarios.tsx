@@ -16,6 +16,7 @@ import {
     useActualizarUsuario,
     useCrearUsuario,
     useUsuarios,
+    useEliminarUsuario,
 } from "../hooks/useUsuarios";
 
 import { useTurnos } from "../hooks/useTurnos";
@@ -207,6 +208,28 @@ export default function AdminUsuarios() {
 
     const [mensajeEdicion, setMensajeEdicion] = useState<string | null>(null);
 
+    const [usuarioEliminandoId, setUsuarioEliminandoId] = useState<number | null>(null);
+
+    const eliminarUsuarioMutation = useEliminarUsuario();
+
+    const [mensajeEliminacion, setMensajeEliminacion] = useState<string | null>(null);
+
+    function handleEliminarUsuario(id: number) {
+        eliminarUsuarioMutation.mutate(
+            id,
+            {
+                onSuccess: () => {
+                    setUsuarioEliminandoId(null);
+                    setUsuarioEditando(null);
+
+                    setMensajeEliminacion(
+                        "Usuario eliminado correctamente.",
+                    );
+                },
+            },
+        );
+    }
+
     const editarRef = useRef<HTMLDivElement>(null);
 
     if (isLoading) {
@@ -265,7 +288,20 @@ export default function AdminUsuarios() {
                 )}
             </div>
 
+            {/* Divisor Administracion de usuarios */}
+
             <div className="my-8 border-t border-petro/10" />
+
+            {mensajeEliminacion && (
+                <div className="mb-4">
+                    <MensajeConfirmacion
+                        mensaje={mensajeEliminacion}
+                        onCerrar={() =>
+                            setMensajeEliminacion(null)
+                        }
+                    />
+                </div>
+            )}
 
             <div className="mb-4">
                 <h2 className="text-xl font-semibold text-petro">
@@ -367,6 +403,7 @@ export default function AdminUsuarios() {
                                                     type="button"
                                                     onClick={() => {
                                                         setMensajeEdicion(null);
+                                                        setUsuarioEliminandoId(null);
                                                         setUsuarioEditando(row.original);
                                                     }}
                                                     className="rounded-lg border border-turquesa/30 px-3 py-2 text-sm font-semibold text-turquesa transition hover:bg-turquesa/10"
@@ -480,6 +517,65 @@ export default function AdminUsuarios() {
                                 </p>
                             </div>
                         )}
+                        <div className="mt-6 border-t border-petro/10 pt-4">
+                            {usuarioEliminandoId === usuarioEditando.id ? (
+                                <div className="flex flex-col items-start gap-3">
+                                    <div>
+                                        <p className="text-sm font-semibold text-coral">
+                                            ¿Eliminar este usuario?
+                                        </p>
+
+                                        <p className="mt-1 text-xs text-petro/60">
+                                            El usuario dejará de estar disponible en el sistema.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setUsuarioEliminandoId(null)
+                                            }
+                                            disabled={
+                                                eliminarUsuarioMutation.isPending
+                                            }
+                                            className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5 disabled:opacity-50"
+                                        >
+                                            Cancelar
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleEliminarUsuario(
+                                                    usuarioEditando.id,
+                                                )
+                                            }
+                                            disabled={
+                                                eliminarUsuarioMutation.isPending
+                                            }
+                                            className="rounded-lg bg-coral px-3 py-2 text-sm font-semibold text-blanco transition disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            {eliminarUsuarioMutation.isPending
+                                                ? "Eliminando..."
+                                                : "Confirmar eliminación"}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setUsuarioEliminandoId(
+                                            usuarioEditando.id,
+                                        )
+                                    }
+                                    className="text-sm font-semibold text-coral transition hover:text-coral/70"
+                                >
+                                    Eliminar usuario
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </>
             )}

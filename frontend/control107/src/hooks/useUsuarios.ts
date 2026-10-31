@@ -13,6 +13,7 @@ import type {
 import {
     actualizarUsuario,
     crearUsuario,
+    eliminarUsuario,
     listarUsuarios,
 } from "../services/usuario";
 
@@ -55,6 +56,24 @@ export function useActualizarUsuario() {
     >({
         mutationFn: ({ id, usuario }) =>
             actualizarUsuario(id, usuario),
+
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: ["usuarios"],
+            });
+        },
+    });
+}
+
+export function useEliminarUsuario() {
+    const queryClient = useQueryClient();
+
+    return useMutation<
+        void,
+        Error,
+        number
+    >({
+        mutationFn: eliminarUsuario,
 
         onSuccess: async () => {
             await queryClient.invalidateQueries({
