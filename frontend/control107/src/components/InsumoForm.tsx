@@ -35,10 +35,24 @@ export default function InsumoForm({
 
         validators: {
             onSubmit: ({ value }) => {
+                const nombreNormalizado = value.nombre.trim();
+
                 if (!value.nombre.trim()) {
                     return {
                         fields: {
                             nombre: "El nombre es obligatorio",
+                        },
+                    };
+                }
+
+                if (
+                    nombreNormalizado.length < 3 ||
+                    nombreNormalizado.length > 255
+                ) {
+                    return {
+                        fields: {
+                            nombre:
+                                "El nombre debe tener entre 3 y 255 caracteres",
                         },
                     };
                 }

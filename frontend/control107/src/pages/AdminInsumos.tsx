@@ -15,6 +15,7 @@ import {
 import {
     useActualizarInsumo,
     useCrearInsumo,
+    useEliminarInsumo,
     useInsumos,
 } from "../hooks/useInsumos";
 
@@ -27,6 +28,8 @@ import CategoriaBadge from "../components/CategoriaBadge";
 import { obtenerMensajeError } from "../utils/error";
 
 import type { Insumo, InsumoRequest } from "../interfaces/Insumo";
+
+import MensajeConfirmacion from "../components/MensajeConfirmacion";
 
 const columnas: ColumnDef<Insumo>[] = [
     {
@@ -100,9 +103,17 @@ export default function AdminInsumos() {
 
     const actualizarInsumoMutation = useActualizarInsumo();
 
+    const eliminarInsumoMutation = useEliminarInsumo();
+
     const { data: categorias = [] } = useCategorias();
 
     const [insumoEditando, setInsumoEditando] = useState<Insumo | null>(null);
+
+    const [insumoEliminandoId, setInsumoEliminandoId] =
+        useState<number | null>(null);
+
+    const [mensajeEliminacion, setMensajeEliminacion] =
+        useState<string | null>(null);
 
     const categoriaActual = insumoEditando
         ? categorias.find(
@@ -111,6 +122,8 @@ export default function AdminInsumos() {
         : undefined;
 
     const editarRef = useRef<HTMLDivElement>(null);
+
+    const [mensajeCreacion, setMensajeCreacion] = useState<string | null>(null);
 
     useEffect(() => {
         if (insumoEditando) {
@@ -122,7 +135,13 @@ export default function AdminInsumos() {
     }, [insumoEditando]);
 
     function handleCrearInsumo(insumo: InsumoRequest) {
-        crearInsumoMutation.mutate(insumo);
+        crearInsumoMutation.mutate(insumo, {
+            onSuccess: () => {
+                setMensajeCreacion(
+                    "Insumo creado correctamente.",
+                );
+            },
+        });
     }
 
     const table = useReactTable({
@@ -183,6 +202,22 @@ export default function AdminInsumos() {
         );
     }
 
+    function handleEliminarInsumo(id: number) {
+        eliminarInsumoMutation.mutate(
+            id,
+            {
+                onSuccess: () => {
+                    setInsumoEliminandoId(null);
+                    setInsumoEditando(null);
+
+                    setMensajeEliminacion(
+                        "Insumo eliminado correctamente.",
+                    );
+                },
+            },
+        );
+    }
+
     return (
         <section className="text-petro">
             <div className="mb-6">
@@ -192,6 +227,15 @@ export default function AdminInsumos() {
                     Insumos registrados en Control107.
                 </p>
             </div>
+
+            {mensajeCreacion && (
+                <div className="mb-4">
+                    <MensajeConfirmacion
+                        mensaje={mensajeCreacion}
+                        onCerrar={() => setMensajeCreacion(null)}
+                    />
+                </div>
+            )}
 
             {/* Seccion de nuevo insumo */}
             <div className="mb-6 rounded-xl bg-blanco p-6 shadow-sm">
@@ -214,6 +258,18 @@ export default function AdminInsumos() {
 
             {/* divisor */}
             <div className="my-8 border-t border-petro/10" />
+
+            {mensajeEliminacion && (
+                <div className="mb-4">
+                    <MensajeConfirmacion
+                        mensaje={mensajeEliminacion}
+                        onCerrar={() =>
+                            setMensajeEliminacion(null)
+                        }
+                    />
+                </div>
+            )}
+
 
             <h2 className="mb-4 text-xl font-semibold text-petro">Administrar Insumos</h2>
 
@@ -297,7 +353,11 @@ export default function AdminInsumos() {
                                         <td className="px-4 py-4 text-sm">
                                             <button
                                                 type="button"
-                                                onClick={() => setInsumoEditando(row.original)}
+                                                onClick={() => {
+                                                    setInsumoEliminandoId(null);
+                                                    eliminarInsumoMutation.reset();
+                                                    setInsumoEditando(row.original);
+                                                }}
                                                 className="rounded-lg border border-turquesa/30 px-3 py-2 text-sm font-semibold text-turquesa transition hover:bg-turquesa/10"
                                             >
                                                 Editar
@@ -361,7 +421,11 @@ export default function AdminInsumos() {
 
                             <button
                                 type="button"
-                                onClick={() => setInsumoEditando(null)}
+                                onClick={() => {
+                                    setInsumoEliminandoId(null);
+                                    eliminarInsumoMutation.reset();
+                                    setInsumoEditando(null);
+                                }}
                                 className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5"
                             >
                                 Cerrar
@@ -399,13 +463,77 @@ export default function AdminInsumos() {
                                     </div>
                                 )}
 
-                                <button
-                                    type="button"
-                                    onClick={() => setInsumoEditando(null)}
-                                    className="mt-3 text-sm font-semibold text-petro/60 transition hover:text-petro"
-                                >
-                                    Cancelar
-                                </button>
+                                <div className="mt-6 border-t border-petro/10 pt-4">
+                                    {insumoEliminandoId === insumoEditando.id ? (
+                                        <div className="flex flex-col items-start gap-3">
+                                            <div>
+                                                <p className="text-sm font-semibold text-coral">
+                                                    ¿Eliminar este insumo?
+                                                </p>
+
+                                                <p className="mt-1 text-xs text-petro/60">
+                                                    El insumo dejará de estar disponible en el sistema.
+                                                </p>
+                                            </div>
+
+                                            {eliminarInsumoMutation.isError && (
+                                                <div className="w-full rounded-lg border border-coral/30 bg-coral/5 p-3">
+                                                    <p className="text-sm font-semibold text-coral">
+                                                        {obtenerMensajeError(
+                                                            eliminarInsumoMutation.error,
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setInsumoEliminandoId(null);
+                                                        eliminarInsumoMutation.reset();
+                                                    }}
+                                                    disabled={
+                                                        eliminarInsumoMutation.isPending
+                                                    }
+                                                    className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5 disabled:opacity-50"
+                                                >
+                                                    Cancelar
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        handleEliminarInsumo(
+                                                            insumoEditando.id,
+                                                        )
+                                                    }
+                                                    disabled={
+                                                        eliminarInsumoMutation.isPending
+                                                    }
+                                                    className="rounded-lg bg-coral px-3 py-2 text-sm font-semibold text-blanco transition disabled:cursor-not-allowed disabled:opacity-50"
+                                                >
+                                                    {eliminarInsumoMutation.isPending
+                                                        ? "Eliminando..."
+                                                        : "Confirmar eliminación"}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setInsumoEliminandoId(
+                                                    insumoEditando.id,
+                                                )
+                                            }
+                                            className="text-sm font-semibold text-coral transition hover:text-coral/70"
+                                        >
+                                            Eliminar insumo
+                                        </button>
+                                    )}
+                                </div>
+
                             </>
                         )}
                     </div>

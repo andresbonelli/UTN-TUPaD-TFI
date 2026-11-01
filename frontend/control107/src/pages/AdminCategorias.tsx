@@ -8,9 +8,12 @@ import {
     useActualizarCategoria,
     useCategorias,
     useCrearCategoria,
+    useEliminarCategoria,
 } from "../hooks/useCategorias";
 
 import CategoriaForm from "../components/CategoriaForm";
+
+import MensajeConfirmacion from "../components/MensajeConfirmacion";
 
 import type {
     Categoria,
@@ -27,17 +30,21 @@ export default function AdminCategorias() {
         error,
     } = useCategorias();
 
-    const crearCategoriaMutation =
-        useCrearCategoria();
+    const crearCategoriaMutation = useCrearCategoria();
 
-    const actualizarCategoriaMutation =
-        useActualizarCategoria();
+    const actualizarCategoriaMutation = useActualizarCategoria();
 
-    const [categoriaEditando, setCategoriaEditando] =
-        useState<Categoria | null>(null);
+    const eliminarCategoriaMutation = useEliminarCategoria();
 
-    const editarRef =
-        useRef<HTMLDivElement>(null);
+    const [categoriaEliminandoId, setCategoriaEliminandoId] = useState<number | null>(null);
+
+    const [mensajeCreacion, setMensajeCreacion] = useState<string | null>(null);
+
+    const [mensajeEliminacion, setMensajeEliminacion] = useState<string | null>(null);
+
+    const [categoriaEditando, setCategoriaEditando] = useState<Categoria | null>(null);
+
+    const editarRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (categoriaEditando) {
@@ -52,7 +59,16 @@ export default function AdminCategorias() {
     function handleCrearCategoria(
         categoria: CategoriaRequest
     ) {
-        crearCategoriaMutation.mutate(categoria);
+        crearCategoriaMutation.mutate(
+            categoria,
+            {
+                onSuccess: () => {
+                    setMensajeCreacion(
+                        "Categoría creada correctamente."
+                    );
+                },
+            }
+        );
     }
 
     function handleActualizarCategoria(
@@ -74,6 +90,23 @@ export default function AdminCategorias() {
             }
         );
     }
+
+    function handleEliminarCategoria(id: number) {
+        eliminarCategoriaMutation.mutate(
+            id,
+            {
+                onSuccess: () => {
+                    setCategoriaEliminandoId(null);
+                    setCategoriaEditando(null);
+
+                    setMensajeEliminacion(
+                        "Categoría eliminada correctamente."
+                    );
+                },
+            }
+        );
+    }
+
 
     if (isLoading) {
         return (
@@ -119,7 +152,18 @@ export default function AdminCategorias() {
                 </p>
             </div>
 
-            {/* CREATE */}
+            {mensajeCreacion && (
+                <div className="mb-4">
+                    <MensajeConfirmacion
+                        mensaje={mensajeCreacion}
+                        onCerrar={() =>
+                            setMensajeCreacion(null)
+                        }
+                    />
+                </div>
+            )}
+
+            {/* Crear Categorias  */}
             <div className="mb-6 rounded-xl bg-blanco p-6 shadow-sm">
                 <h2 className="mb-4 text-xl font-semibold text-petro">
                     Nueva categoría
@@ -149,6 +193,17 @@ export default function AdminCategorias() {
 
             {/* Divisor */}
             <div className="my-8 border-t border-petro/10" />
+
+            {mensajeEliminacion && (
+                <div className="mb-4">
+                    <MensajeConfirmacion
+                        mensaje={mensajeEliminacion}
+                        onCerrar={() =>
+                            setMensajeEliminacion(null)
+                        }
+                    />
+                </div>
+            )}
 
             <h2 className="mb-4 text-xl font-semibold text-petro">Administrar Categorias</h2>
 
@@ -192,11 +247,11 @@ export default function AdminCategorias() {
 
                                         <button
                                             type="button"
-                                            onClick={() =>
-                                                setCategoriaEditando(
-                                                    categoria
-                                                )
-                                            }
+                                            onClick={() => {
+                                                setCategoriaEliminandoId(null);
+                                                eliminarCategoriaMutation.reset();
+                                                setCategoriaEditando(categoria);
+                                            }}
                                             className="rounded-lg border border-turquesa/30 px-3 py-2 text-sm font-semibold text-turquesa transition hover:bg-turquesa/10"
                                         >
                                             Editar
@@ -233,11 +288,11 @@ export default function AdminCategorias() {
 
                             <button
                                 type="button"
-                                onClick={() =>
-                                    setCategoriaEditando(
-                                        null
-                                    )
-                                }
+                                onClick={() => {
+                                    setCategoriaEliminandoId(null);
+                                    eliminarCategoriaMutation.reset();
+                                    setCategoriaEditando(null);
+                                }}
                                 className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5"
                             >
                                 Cerrar
@@ -274,15 +329,73 @@ export default function AdminCategorias() {
                             </div>
                         )}
 
-                        <button
-                            type="button"
-                            onClick={() =>
-                                setCategoriaEditando(null)
-                            }
-                            className="mt-3 text-sm font-semibold text-petro/60 transition hover:text-petro"
-                        >
-                            Cancelar
-                        </button>
+                        <div className="mt-6 border-t border-petro/10 pt-4">
+                            {categoriaEliminandoId === categoriaEditando.id ? (
+                                <div className="flex flex-col items-start gap-3">
+                                    <div>
+                                        <p className="text-sm font-semibold text-coral">
+                                            ¿Eliminar esta categoría?
+                                        </p>
+
+                                        <p className="mt-1 text-xs text-petro/60">
+                                            La categoría dejará de estar disponible en el sistema.
+                                        </p>
+                                    </div>
+
+                                    {eliminarCategoriaMutation.isError && (
+                                        <div className="w-full rounded-lg border border-coral/30 bg-coral/5 p-3">
+                                            <p className="text-sm font-semibold text-coral">
+                                                {obtenerMensajeError(
+                                                    eliminarCategoriaMutation.error
+                                                )}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setCategoriaEliminandoId(null);
+                                                eliminarCategoriaMutation.reset();
+                                            }}
+                                            disabled={eliminarCategoriaMutation.isPending}
+                                            className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5 disabled:opacity-50"
+                                        >
+                                            Cancelar
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleEliminarCategoria(
+                                                    categoriaEditando.id
+                                                )
+                                            }
+                                            disabled={eliminarCategoriaMutation.isPending}
+                                            className="rounded-lg bg-coral px-3 py-2 text-sm font-semibold text-blanco transition disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            {eliminarCategoriaMutation.isPending
+                                                ? "Eliminando..."
+                                                : "Confirmar eliminación"}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        eliminarCategoriaMutation.reset();
+                                        setCategoriaEliminandoId(
+                                            categoriaEditando.id
+                                        );
+                                    }}
+                                    className="text-sm font-semibold text-coral transition hover:text-coral/70"
+                                >
+                                    Eliminar categoría
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </>
             )}

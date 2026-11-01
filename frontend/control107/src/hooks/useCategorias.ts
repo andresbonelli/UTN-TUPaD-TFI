@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Categoria, CategoriaRequest } from "../interfaces/Categoria";
-import { crearCategoria, listarCategorias, actualizarCategoria } from "../services/categoria"
+import {
+  crearCategoria,
+  listarCategorias,
+  actualizarCategoria,
+  eliminarCategoria,
+} from "../services/categoria";
 
 export function useCategorias() {
   return useQuery<Categoria[]>({
@@ -57,6 +62,27 @@ export function useActualizarCategoria() {
     onError: (error) => {
       console.error(
         "Error al actualizar la categoría:",
+        error
+      );
+    },
+  });
+}
+
+export function useEliminarCategoria() {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, number>({
+    mutationFn: eliminarCategoria,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["categorias"],
+      });
+    },
+
+    onError: (error) => {
+      console.error(
+        "Error al eliminar la categoría:",
         error
       );
     },

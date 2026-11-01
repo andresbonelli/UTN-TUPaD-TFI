@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import type { Insumo, InsumoRequest } from "../interfaces/Insumo";
-import { actualizarInsumo, crearInsumo, listarInsumos } from "../services/insumo";
+import { actualizarInsumo, crearInsumo, eliminarInsumo, listarInsumos } from "../services/insumo";
 
 export function useInsumos() {
     return useQuery<Insumo[]>({
@@ -77,6 +77,27 @@ export function useActualizarInsumo() {
         onError: (error) => {
             console.error(
                 "Error al actualizar el insumo:",
+                error
+            );
+        },
+    });
+}
+
+export function useEliminarInsumo() {
+    const queryClient = useQueryClient();
+
+    return useMutation<void, Error, number>({
+        mutationFn: eliminarInsumo,
+
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["insumos"],
+            });
+        },
+
+        onError: (error) => {
+            console.error(
+                "Error al eliminar el insumo:",
                 error
             );
         },

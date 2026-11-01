@@ -33,3 +33,7 @@ export async function actualizarInsumo(
 
     return response.data;
 }
+
+export async function eliminarInsumo(id: number): Promise<void> {
+    await api.delete(`/insumos/${id}`);
+}
