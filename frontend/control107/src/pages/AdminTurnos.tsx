@@ -36,6 +36,15 @@ import {
 
 const columnas: ColumnDef<Turno>[] = [
     {
+        accessorKey: "id",
+        header: "Turno",
+        cell: ({ row }) => (
+            <span className="font-semibold text-petro">
+                #{row.original.id}
+            </span>
+        ),
+    },
+    {
         accessorKey: "fecha",
         header: "Fecha",
 
@@ -458,9 +467,16 @@ export default function AdminTurnos() {
                                                 )}
 
                                             {row.original.estado === "EN_CURSO" && (
-                                                <span className="text-xs text-petro/40">
-                                                    Sin acciones
-                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setTurnoEditando(null);
+                                                        setTurnoViendoId(row.original.id);
+                                                    }}
+                                                    className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5"
+                                                >
+                                                    Ver
+                                                </button>
                                             )}
                                         </td>
                                     </tr>

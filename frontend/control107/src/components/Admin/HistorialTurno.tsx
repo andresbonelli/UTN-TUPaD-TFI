@@ -133,15 +133,24 @@ export default function HistorialTurno({
     onCerrar,
 }: HistorialTurnoProps) {
     const insumosConActividad = useMemo(
-    () =>
-        turno.controlInsumos.filter(
-            (control) =>
-                (control.cantidadUsada ?? 0) > 0 ||
-                control.cantidadRestockeo > 0 ||
-                control.ingresoFaltante > 0,
-        ),
-    [turno.controlInsumos],
-);
+        () =>
+            turno.controlInsumos.filter(
+                (control) =>
+                    (control.cantidadUsada ?? 0) > 0 ||
+                    control.cantidadRestockeo > 0 ||
+                    control.ingresoFaltante > 0,
+            ),
+        [turno.controlInsumos],
+    );
+
+    const insumosFaltantesIngreso = useMemo(
+        () =>
+            turno.controlInsumos.filter(
+                (control) =>
+                    control.ingresoFaltante > 0,
+            ),
+        [turno.controlInsumos],
+    );
 
 
     const [sorting, setSorting] =
@@ -301,13 +310,109 @@ export default function HistorialTurno({
                             </p>
 
                             <p className="mt-1 text-sm text-petro">
-                                {turno.observacionesEgreso ||
+                                {turno.estado === "EN_CURSO"
+                                    ? "Pendiente - El turno se encuentra en curso"
+                                    : turno.observacionesEgreso ||
                                     "Sin observaciones"}
                             </p>
                         </div>
                     </div>
                 )}
             </div>
+
+            {turno.estado === "EN_CURSO" && (
+                <div className="mt-6">
+                    <h3 className="text-lg font-semibold text-petro">
+                        Faltantes detectados al ingreso
+                    </h3>
+
+                    <p className="mt-1 text-sm text-petro/60">
+                        Insumos que estaban por debajo del punto de control al iniciar el turno.
+                    </p>
+
+                    {insumosFaltantesIngreso.length === 0 ? (
+                        <p className="mt-3 rounded-lg bg-petro/5 p-4 text-sm text-petro/60">
+                            No se registraron faltantes al ingreso.
+                        </p>
+                    ) : (
+                        <div className="mt-3 overflow-hidden rounded-lg border border-petro/10">
+                            <div className="overflow-x-auto">
+                                <table className="w-full border-collapse text-left">
+                                    <thead className="bg-petro/5">
+                                        <tr>
+                                            <th className="px-4 py-3 text-sm font-semibold whitespace-nowrap text-petro">
+                                                Insumo
+                                            </th>
+
+                                            <th className="px-4 py-3 text-sm font-semibold whitespace-nowrap text-petro">
+                                                Categoría
+                                            </th>
+
+                                            <th className="px-4 py-3 text-sm font-semibold whitespace-nowrap text-petro">
+                                                Faltante
+                                            </th>
+
+                                            <th className="px-4 py-3 text-sm font-semibold whitespace-nowrap text-petro">
+                                                Prioridad
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {insumosFaltantesIngreso.map((insumo) => (
+                                            <tr
+                                                key={insumo.insumoId}
+                                                className="border-t border-petro/10"
+                                            >
+                                                <td className="px-4 py-3 text-sm font-medium text-petro">
+                                                    {insumo.nombre}
+                                                </td>
+
+                                                <td className="px-4 py-3 text-sm text-petro">
+                                                    <span
+                                                        className="inline-block rounded-full border px-2 py-1 text-xs font-semibold"
+                                                        style={{
+                                                            borderColor:
+                                                                insumo.colorCategoria,
+                                                            color:
+                                                                insumo.colorCategoria,
+                                                            backgroundColor:
+                                                                `${insumo.colorCategoria}15`,
+                                                        }}
+                                                    >
+                                                        {insumo.categoria}
+                                                    </span>
+                                                </td>
+
+                                                <td className="px-4 py-3 text-sm">
+                                                    <span className="font-semibold text-coral">
+                                                        {insumo.ingresoFaltante}{" "}
+                                                        {insumo.esOxigeno
+                                                            ? "bar"
+                                                            : "unidades"}
+                                                    </span>
+                                                </td>
+
+                                                <td className="px-4 py-3 text-sm">
+                                                    {insumo.esCritico ? (
+                                                        <span className="rounded-md bg-coral/10 px-2 py-1 text-xs font-semibold text-coral">
+                                                            Crítico
+                                                        </span>
+                                                    ) : (
+                                                        <span className="rounded-md bg-verde/10 px-2 py-1 text-xs font-semibold text-verde">
+                                                            Normal
+                                                        </span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {turno.estado === "FINALIZADO" && (
                 <div className="mt-6">

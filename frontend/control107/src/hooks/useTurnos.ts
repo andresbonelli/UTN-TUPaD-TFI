@@ -23,8 +23,11 @@ import {
   registrarIngreso,
   cancelarTurno,
   crearTurno,
-  actualizarTurno,  
+  actualizarTurno,
+  obtenerResumenOperativo, 
 } from "../services/turno";
+
+import type { ResumenOperativo } from "../interfaces/ResumenOperativo";
 
 export function useTurnos() {
   return useQuery<Turno[]>({
@@ -51,12 +54,6 @@ export function useCrearTurno() {
   });
 }
 
-// export function useTurno(id: number) {
-//   return useQuery<Turno>({
-//     queryKey: ["turnos", id],
-//     queryFn: () => obtenerTurno(id),
-//   });
-// }
 
 export function useTurno(id: number | null) {
   return useQuery<Turno>({
@@ -66,27 +63,6 @@ export function useTurno(id: number | null) {
   });
 }
 
-// export function useActualizarTurno() {
-//   const queryClient = useQueryClient();
-
-//   return useMutation<
-//     Turno,
-//     Error,
-//     {
-//       id: number;
-//       turno: TurnoRequest;
-//     }
-//   >({
-//     mutationFn: ({ id, turno }) =>
-//       actualizarTurno(id, turno),
-
-//     onSuccess: async () => {
-//       await queryClient.invalidateQueries({
-//         queryKey: ["turnos"],
-//       });
-//     },
-//   });
-// }
 
 export function useActualizarTurno() {
     const queryClient = useQueryClient();
@@ -185,4 +161,10 @@ export function useCancelarTurno() {
   });
 }
 
+export function useResumenOperativo() {
+    return useQuery<ResumenOperativo>({
+        queryKey: ["resumen-operativo"],
+        queryFn: obtenerResumenOperativo,
+    });
+}
 
