@@ -3,15 +3,13 @@ package com.tup.tfi.control107.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tup.tfi.control107.config.SecurityConfig;
-import com.tup.tfi.control107.dto.ResumenOperativoDTO;
+import com.tup.tfi.control107.dto.EstadisticasTurnosDTO;
 import com.tup.tfi.control107.dto.TurnoDTO;
-import com.tup.tfi.control107.dto.UsuarioDTO;
 import com.tup.tfi.control107.dto.request.CancelarTurnoDTO;
 import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
 import com.tup.tfi.control107.dto.request.TurnoRequestDTO;
 import com.tup.tfi.control107.model.enums.EstadoTurno;
 import com.tup.tfi.control107.model.enums.HorarioTurno;
-import com.tup.tfi.control107.model.enums.RolUsuario;
 import com.tup.tfi.control107.service.TurnoService;
 import com.tup.tfi.control107.util.JwtUtil;
 import com.tup.tfi.control107.util.SecurityUtil;
@@ -119,21 +117,15 @@ class TurnoControllerTest {
 
     @Test
     void obtenerResumenOperativo_ok() throws Exception {
-        ResumenOperativoDTO resumen = ResumenOperativoDTO.builder()
-                .turnosActivos(2)
-                .ambulanciasDisponibles(3)
-                .ambulanciasTotales(5)
-                .alertas(1)
-                .turnosConInconsistencias(List.of(turnoDTO))
-                .listaAmbulancias(List.of())
-                .build();
+        EstadisticasTurnosDTO est = EstadisticasTurnosDTO.builder()
+                        .turnosActivos(List.of(new EstadisticasTurnosDTO.ResumenTurnoDTO(1L, LocalDate.now(), HorarioTurno.MANIANA)))
+                        .build();
 
-        when(turnoService.obtenerResumenOperativo()).thenReturn(resumen);
+        when(turnoService.estadisticasTurnos()).thenReturn(est);
 
         mockMvc.perform(get(BASE_URL + "/resumen").contextPath(CONTEXT_PATH))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.turnosActivos").value(2))
-                .andExpect(jsonPath("$.ambulanciasDisponibles").value(3));
+                .andExpect(jsonPath("$.turnosActivos").isArray());
     }
 
     @Test
