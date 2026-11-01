@@ -42,7 +42,13 @@ logging:
 
 app:
   cors:
-    allowed-origins: "*"
+    allowed-origins: "${FRONTEND_HOST:http://localhost:5173}"
+  data-loader:
+    enabled: true
+
+security:
+  jwt:
+    expiration-time: 86400000
 
 security:
   jwt:

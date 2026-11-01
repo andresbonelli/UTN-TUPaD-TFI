@@ -63,6 +63,8 @@ public class TurnoDTO {
     public static class ControlInsumoDTO {
         private Long insumoId;
         private String colorCategoria;
+        private Long insumoId;
+        private String colorCategoria;
         private String nombre;
         private String categoria;
         private boolean esCritico;
@@ -75,9 +77,15 @@ public class TurnoDTO {
         private Double capacidadMaxima;
         private boolean esOxigeno;
         private Integer puntoControl;
+        // Solo para oxigeno
+        private Double capacidadMaxima;
+        private boolean esOxigeno;
+        private Integer puntoControl;
 
         public ControlInsumoDTO(ControlInsumo controlInsumo) {
             if (null == controlInsumo) return;
+            this.insumoId = controlInsumo.getInsumo().getId();
+            this.colorCategoria = controlInsumo.getInsumo().getCategoria().getColor();
             this.insumoId = controlInsumo.getInsumo().getId();
             this.colorCategoria = controlInsumo.getInsumo().getCategoria().getColor();
             this.nombre = controlInsumo.getInsumo().getNombre();

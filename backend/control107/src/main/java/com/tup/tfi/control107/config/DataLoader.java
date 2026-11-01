@@ -16,9 +16,10 @@ import com.tup.tfi.control107.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Profile("dev")
+@ConditionalOnProperty(name = "app.data-loader.enabled", havingValue = "true", matchIfMissing = true)
 public class DataLoader implements CommandLineRunner {
 
     private final UsuarioRepository usuarioRepository;
@@ -43,6 +44,7 @@ public class DataLoader implements CommandLineRunner {
     public record InsumoSeedDTO(String nombre, String categoria, int puntoControl, boolean critico, boolean esOxigeno, Double capacidadMaxima) {}
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         if (usuarioRepository.count() > 0) {
             return; // Ya existen datos
@@ -50,28 +52,30 @@ public class DataLoader implements CommandLineRunner {
 
         // 1. Cargar Usuarios
         UsuarioRequestDTO adminDto = new UsuarioRequestDTO(
-                "Hugo Catalan",
+                "Juan Perez",
                 "30111222",
-                "hugo.catalan@control107.gob.ar",
+                "juan.perez@control107.gob.ar",
                 RolUsuario.ADMINISTRADOR,
-                "1234",
+                "1234abcd!",
                 true
         );
 
         UsuarioRequestDTO enfermeroDto = new UsuarioRequestDTO(
-                "Andrés Bonelli",
+                "Eva Lopez",
                 "32333444",
-                "andres.bonelli@control107.gob.ar",
+                "eva.lopez@control107.gob.ar",
                 RolUsuario.ENFERMERO,
-                "1234",
+                "1234abcd!",
                 true
         );
 
         UsuarioDTO admin = usuarioService.crearUsuario(adminDto);
         UsuarioDTO enfermero = usuarioService.crearUsuario(enfermeroDto);
 
-        String medico = "Matías Carro";
-        String chofer = "Juan Perez";
+        log.info("Usuarios creados: admin={}, enfermero={}", admin, enfermero);
+
+        String medico = "Dr. Gutierrez";
+        String chofer = "Sr. Blanco";
 
         // 2. Cargar Categorías desde JSON
         List<CategoriaSeedDTO> categoriasData;
@@ -190,7 +194,7 @@ public class DataLoader implements CommandLineRunner {
     private Ambulancia crearAmbulanciaConInsumos(String patente, Set<Insumo> insumosBase) {
         Ambulancia amb = Ambulancia.builder()
                 .patente(patente)
-                .insumos(insumosBase)
+                .insumos(new HashSet<>(insumosBase))
                 .build();
         return ambulanciaRepository.save(amb);
     }
