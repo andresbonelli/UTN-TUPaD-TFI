@@ -125,6 +125,8 @@ export default function AdminInsumos() {
 
     const [mensajeCreacion, setMensajeCreacion] = useState<string | null>(null);
 
+    const [mensajeActualizacion, setMensajeActualizacion] = useState<string | null>(null);
+
     useEffect(() => {
         if (insumoEditando) {
             editarRef.current?.scrollIntoView({
@@ -197,6 +199,10 @@ export default function AdminInsumos() {
             {
                 onSuccess: () => {
                     setInsumoEditando(null);
+
+                    setMensajeActualizacion(
+                        "Insumo actualizado correctamente.",
+                    );
                 },
             },
         );
@@ -259,6 +265,18 @@ export default function AdminInsumos() {
             {/* divisor */}
             <div className="my-8 border-t border-petro/10" />
 
+            {mensajeActualizacion && (
+                <div className="mb-4">
+                    <MensajeConfirmacion
+                        mensaje={mensajeActualizacion}
+                        onCerrar={() =>
+                            setMensajeActualizacion(null)
+                        }
+                    />
+                </div>
+            )}
+
+
             {mensajeEliminacion && (
                 <div className="mb-4">
                     <MensajeConfirmacion
@@ -271,7 +289,7 @@ export default function AdminInsumos() {
             )}
 
 
-            <h2 className="mb-4 text-xl font-semibold text-petro">Administrar Insumos</h2>
+            <h2 className="mb-4 text-xl font-semibold text-petro">Administrar insumos</h2>
 
             <div className="mb-4">
                 <label htmlFor="buscar-insumos" className="sr-only">
@@ -522,11 +540,13 @@ export default function AdminInsumos() {
                                     ) : (
                                         <button
                                             type="button"
-                                            onClick={() =>
+                                            onClick={() => {
+                                                eliminarInsumoMutation.reset();
+
                                                 setInsumoEliminandoId(
                                                     insumoEditando.id,
-                                                )
-                                            }
+                                                );
+                                            }}
                                             className="text-sm font-semibold text-coral transition hover:text-coral/70"
                                         >
                                             Eliminar insumo

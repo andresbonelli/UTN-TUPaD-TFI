@@ -40,6 +40,8 @@ export default function AdminCategorias() {
 
     const [mensajeCreacion, setMensajeCreacion] = useState<string | null>(null);
 
+    const [mensajeActualizacion, setMensajeActualizacion] = useState<string | null>(null);
+
     const [mensajeEliminacion, setMensajeEliminacion] = useState<string | null>(null);
 
     const [categoriaEditando, setCategoriaEditando] = useState<Categoria | null>(null);
@@ -86,6 +88,10 @@ export default function AdminCategorias() {
             {
                 onSuccess: () => {
                     setCategoriaEditando(null);
+
+                    setMensajeActualizacion(
+                        "Categoría actualizada correctamente.",
+                    );
                 },
             }
         );
@@ -176,6 +182,7 @@ export default function AdminCategorias() {
                             ? "Guardando..."
                             : "Guardar categoría"
                     }
+                    isPending={crearCategoriaMutation.isPending}
                 />
 
                 {crearCategoriaMutation.isError && (
@@ -194,6 +201,17 @@ export default function AdminCategorias() {
             {/* Divisor */}
             <div className="my-8 border-t border-petro/10" />
 
+            {mensajeActualizacion && (
+                <div className="mb-4">
+                    <MensajeConfirmacion
+                        mensaje={mensajeActualizacion}
+                        onCerrar={() =>
+                            setMensajeActualizacion(null)
+                        }
+                    />
+                </div>
+            )}
+
             {mensajeEliminacion && (
                 <div className="mb-4">
                     <MensajeConfirmacion
@@ -205,7 +223,7 @@ export default function AdminCategorias() {
                 </div>
             )}
 
-            <h2 className="mb-4 text-xl font-semibold text-petro">Administrar Categorias</h2>
+            <h2 className="mb-4 text-xl font-semibold text-petro">Administrar categorías</h2>
 
             <div className="rounded-xl bg-blanco p-6 shadow-sm">
 
@@ -314,9 +332,8 @@ export default function AdminCategorias() {
                                     ? "Guardando..."
                                     : "Guardar cambios"
                             }
-                            onSubmit={
-                                handleActualizarCategoria
-                            }
+                            isPending={actualizarCategoriaMutation.isPending}
+                            onSubmit={handleActualizarCategoria}
                         />
 
                         {actualizarCategoriaMutation.isError && (

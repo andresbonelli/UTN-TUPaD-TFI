@@ -37,6 +37,14 @@ export default function TurnoForm({
             ambulancia.disponible || ambulancia.id === valoresIniciales?.ambulanciaId,
     );
 
+    const hoy = new Date();
+
+    const fechaMinima = [
+        hoy.getFullYear(),
+        String(hoy.getMonth() + 1).padStart(2, "0"),
+        String(hoy.getDate()).padStart(2, "0"),
+    ].join("-");
+
     const form = useForm({
         defaultValues: {
             fecha: valoresIniciales?.fecha ?? "",
@@ -53,6 +61,14 @@ export default function TurnoForm({
                     return {
                         fields: {
                             fecha: "La fecha es obligatoria",
+                        },
+                    };
+                }
+
+                if (value.fecha < fechaMinima) {
+                    return {
+                        fields: {
+                            fecha: "La fecha del turno no puede ser anterior a hoy",
                         },
                     };
                 }
@@ -127,6 +143,7 @@ export default function TurnoForm({
                             id={field.name}
                             name={field.name}
                             type="date"
+                            min={fechaMinima}
                             value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(event) => field.handleChange(event.target.value)}

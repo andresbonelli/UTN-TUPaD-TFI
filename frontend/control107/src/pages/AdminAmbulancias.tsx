@@ -373,6 +373,9 @@ export default function AdminAmbulancias() {
                                                     onClick={() => {
                                                         setMensajeEdicion(null);
                                                         setAmbulanciaEliminandoId(null);
+
+                                                        eliminarAmbulanciaMutation.reset();
+
                                                         setAmbulanciaEditando(row.original);
                                                     }}
                                                     className="rounded-lg border border-turquesa/30 px-3 py-2 text-sm font-semibold text-turquesa transition hover:bg-turquesa/10"
@@ -441,6 +444,9 @@ export default function AdminAmbulancias() {
                                 onClick={() => {
                                     setMensajeEdicion(null);
                                     setAmbulanciaEliminandoId(null);
+
+                                    eliminarAmbulanciaMutation.reset();
+
                                     setAmbulanciaEditando(null);
                                 }}
                                 className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5"
@@ -493,12 +499,23 @@ export default function AdminAmbulancias() {
                                         </p>
                                     </div>
 
+                                    {eliminarAmbulanciaMutation.isError && (
+                                        <div className="w-full rounded-lg border border-coral/30 bg-coral/5 p-3">
+                                            <p className="text-sm font-semibold text-coral">
+                                                {obtenerMensajeError(
+                                                    eliminarAmbulanciaMutation.error,
+                                                )}
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <div className="flex items-center gap-2">
                                         <button
                                             type="button"
-                                            onClick={() =>
-                                                setAmbulanciaEliminandoId(null)
-                                            }
+                                            onClick={() => {
+                                                setAmbulanciaEliminandoId(null);
+                                                eliminarAmbulanciaMutation.reset();
+                                            }}
                                             disabled={
                                                 eliminarAmbulanciaMutation.isPending
                                             }

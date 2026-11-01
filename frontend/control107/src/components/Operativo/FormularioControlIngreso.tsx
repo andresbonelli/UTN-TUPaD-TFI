@@ -21,7 +21,6 @@ interface ControlIngresoFormValues {
     observaciones: string;
 }
 
-// const CONTROLES_POR_PAGINA = 20;
 
 export default function FormularioControlIngreso({
     turnoId,
@@ -175,7 +174,7 @@ export default function FormularioControlIngreso({
                                                 className="text-sm font-medium text-petro"
                                             >
                                                 {esOxigeno
-                                                    ? "Presion encontrada"
+                                                    ? "Presión encontrada"
                                                     : "Cantidad encontrada"}
                                             </label>
 

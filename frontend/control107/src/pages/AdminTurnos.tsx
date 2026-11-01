@@ -26,22 +26,25 @@ import TurnoForm from "../components/TurnoForm";
 
 import HistorialTurno from "../components/Admin/HistorialTurno";
 
-import type { ActualizarTurnoRequest, Turno, TurnoRequest } from "../interfaces/Turno";
+import type {
+    ActualizarTurnoRequest,
+    Turno,
+    TurnoRequest,
+} from "../interfaces/Turno";
 
 import {
     obtenerColorEstado,
     obtenerTextoEstado,
     obtenerTextoHorario,
 } from "../utils/turno";
+import MensajeConfirmacion from "../components/MensajeConfirmacion";
 
 const columnas: ColumnDef<Turno>[] = [
     {
         accessorKey: "id",
         header: "Turno",
         cell: ({ row }) => (
-            <span className="font-semibold text-petro">
-                #{row.original.id}
-            </span>
+            <span className="font-semibold text-petro">#{row.original.id}</span>
         ),
     },
     {
@@ -172,7 +175,6 @@ export default function AdminTurnos() {
 
     const [turnoViendoId, setTurnoViendoId] = useState<number | null>(null);
 
-
     const editarRef = useRef<HTMLDivElement>(null);
 
     const historialRef = useRef<HTMLDivElement>(null);
@@ -194,7 +196,6 @@ export default function AdminTurnos() {
         isError: turnoViendoError,
     } = useTurno(turnoViendoId);
 
-
     useEffect(() => {
         if (turnoViendo) {
             historialRef.current?.scrollIntoView({
@@ -203,9 +204,6 @@ export default function AdminTurnos() {
             });
         }
     }, [turnoViendo]);
-
-
-    useTurno(turnoViendoId);
 
     const crearTurnoMutation = useCrearTurno();
 
@@ -217,11 +215,19 @@ export default function AdminTurnos() {
 
     const [motivoCancelacion, setMotivoCancelacion] = useState("");
 
+    const [mensajeCreacion, setMensajeCreacion] = useState<string | null>(null);
+
+    const [mensajeActualizacion, setMensajeActualizacion] = useState<string | null>(null);
+
+    const [mensajeCancelacion, setMensajeCancelacion] = useState<string | null>(null);
 
     function handleCrearTurno(turno: TurnoRequest) {
-        crearTurnoMutation.mutate(turno);
+        crearTurnoMutation.mutate(turno, {
+            onSuccess: () => {
+                setMensajeCreacion("Turno creado correctamente.");
+            },
+        });
     }
-
 
     function handleActualizarTurno(turno: TurnoRequest) {
         if (!turnoEditando) {
@@ -244,6 +250,10 @@ export default function AdminTurnos() {
             {
                 onSuccess: () => {
                     setTurnoEditando(null);
+
+                    setMensajeActualizacion(
+                        "Turno actualizado correctamente.",
+                    );
                 },
             },
         );
@@ -272,6 +282,10 @@ export default function AdminTurnos() {
                     setConfirmandoCancelacion(false);
                     setMotivoCancelacion("");
                     setTurnoEditando(null);
+
+                    setMensajeCancelacion(
+                        "Turno cancelado correctamente.",
+                    );
                 },
             },
         );
@@ -327,6 +341,15 @@ export default function AdminTurnos() {
                 </p>
             </div>
 
+            {mensajeCreacion && (
+                <div className="mb-4">
+                    <MensajeConfirmacion
+                        mensaje={mensajeCreacion}
+                        onCerrar={() => setMensajeCreacion(null)}
+                    />
+                </div>
+            )}
+
             <div className="mb-6 rounded-xl bg-blanco p-6 shadow-sm">
                 <h2 className="mb-4 text-xl font-semibold text-petro">Nuevo turno</h2>
 
@@ -338,11 +361,9 @@ export default function AdminTurnos() {
                 {crearTurnoMutation.isError && (
                     <div className="mt-4 rounded-lg border border-coral/30 bg-coral/5 p-3">
                         <p className="text-sm font-semibold text-coral">
-                            No se pudo crear el turno.
-                        </p>
-
-                        <p className="mt-1 text-sm text-petro/70">
-                            {crearTurnoMutation.error.message}
+                            {obtenerMensajeError(
+                                crearTurnoMutation.error,
+                            )}
                         </p>
                     </div>
                 )}
@@ -351,7 +372,31 @@ export default function AdminTurnos() {
             {/* Divisor administrar Turnos  */}
             <div className="my-8 border-t border-petro/10" />
 
-            <h2 className="mb-4 text-xl font-semibold text-petro">Administrar Turnos</h2>
+            {mensajeActualizacion && (
+                <div className="mb-4">
+                    <MensajeConfirmacion
+                        mensaje={mensajeActualizacion}
+                        onCerrar={() =>
+                            setMensajeActualizacion(null)
+                        }
+                    />
+                </div>
+            )}
+
+            {mensajeCancelacion && (
+                <div className="mb-4">
+                    <MensajeConfirmacion
+                        mensaje={mensajeCancelacion}
+                        onCerrar={() =>
+                            setMensajeCancelacion(null)
+                        }
+                    />
+                </div>
+            )}
+
+            <h2 className="mb-4 text-xl font-semibold text-petro">
+                Administrar Turnos
+            </h2>
 
             <div className="mb-4">
                 <label htmlFor="buscar-turnos" className="sr-only">
@@ -442,6 +487,8 @@ export default function AdminTurnos() {
 
                                                         setConfirmandoCancelacion(false);
                                                         setMotivoCancelacion("");
+
+                                                        actualizarTurnoMutation.reset();
                                                         cancelarTurnoMutation.reset();
 
                                                         setTurnoEditando(row.original);
@@ -527,9 +574,7 @@ export default function AdminTurnos() {
 
                                 <p className="mt-1 text-sm text-petro/60">
                                     Modificando turno #{turnoEditando.id}
-
                                     <br />
-
                                     Ambulancia{": "}
                                     <span className="text-lg font-bold text-petro">
                                         {turnoEditando.ambulancia.patente}
@@ -539,7 +584,15 @@ export default function AdminTurnos() {
 
                             <button
                                 type="button"
-                                onClick={() => setTurnoEditando(null)}
+                                onClick={() => {
+                                    setConfirmandoCancelacion(false);
+                                    setMotivoCancelacion("");
+
+                                    actualizarTurnoMutation.reset();
+                                    cancelarTurnoMutation.reset();
+
+                                    setTurnoEditando(null);
+                                }}
                                 className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5"
                             >
                                 Cerrar
@@ -564,11 +617,9 @@ export default function AdminTurnos() {
                         {actualizarTurnoMutation.isError && (
                             <div className="mt-4 rounded-lg border border-coral/30 bg-coral/5 p-3">
                                 <p className="text-sm font-semibold text-coral">
-                                    No se pudo actualizar el turno.
-                                </p>
-
-                                <p className="mt-1 text-sm text-petro/70">
-                                    {actualizarTurnoMutation.error.message}
+                                    {obtenerMensajeError(
+                                        actualizarTurnoMutation.error,
+                                    )}
                                 </p>
                             </div>
                         )}
@@ -582,7 +633,8 @@ export default function AdminTurnos() {
                                         </p>
 
                                         <p className="mt-1 text-xs text-petro/60">
-                                            Indica el motivo de la cancelación. Este dato es obligatorio.
+                                            Indica el motivo de la cancelación. Este dato es
+                                            obligatorio.
                                         </p>
                                     </div>
 
@@ -609,9 +661,7 @@ export default function AdminTurnos() {
                                     {cancelarTurnoMutation.isError && (
                                         <div className="rounded-lg border border-coral/30 bg-coral/5 p-3">
                                             <p className="text-sm font-semibold text-coral">
-                                                {obtenerMensajeError(
-                                                    cancelarTurnoMutation.error
-                                                )}
+                                                {obtenerMensajeError(cancelarTurnoMutation.error)}
                                             </p>
                                         </div>
                                     )}

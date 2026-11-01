@@ -2,6 +2,12 @@ import { Link } from "react-router-dom";
 
 import { useResumenOperativo } from "../hooks/useTurnos";
 
+import {
+  obtenerColorEstado,
+  obtenerTextoEstado,
+  obtenerTextoHorario,
+} from "../utils/turno";
+
 export default function AdminDashboard() {
   const {
     data: resumen,
@@ -10,13 +16,13 @@ export default function AdminDashboard() {
   } = useResumenOperativo();
 
   const turnosConAlertasCriticas =
-  resumen?.turnosConInconsistencias.filter((turno) =>
-    turno.controlInsumos.some(
-      (insumo) =>
-        insumo.ingresoFaltante > 0 &&
-        insumo.esCritico,
-    ),
-  ) ?? [];
+    resumen?.turnosConInconsistencias.filter((turno) =>
+      turno.controlInsumos.some(
+        (insumo) =>
+          insumo.ingresoFaltante > 0 &&
+          insumo.esCritico,
+      ),
+    ) ?? [];
 
   return (
     <section>
@@ -229,7 +235,7 @@ export default function AdminDashboard() {
                         </p>
 
                         <p className="mt-1 text-sm text-petro/60">
-                          {turno.fecha} · {turno.horario}
+                          {turno.fecha} · {obtenerTextoHorario(turno.horario)}
                         </p>
 
                         <p className="mt-1 text-sm text-petro/60">
@@ -237,8 +243,12 @@ export default function AdminDashboard() {
                         </p>
                       </div>
 
-                      <span className="rounded-md bg-ambar/10 px-2 py-1 text-xs font-semibold text-ambar">
-                        {turno.estado}
+                      <span
+                        className={`rounded-md px-2 py-1 text-xs font-semibold ${obtenerColorEstado(
+                          turno.estado,
+                        )}`}
+                      >
+                        {obtenerTextoEstado(turno.estado)}
                       </span>
                     </div>
                   </div>
@@ -248,48 +258,48 @@ export default function AdminDashboard() {
           )}
         </>
       )}
-                {turnosConAlertasCriticas.length > 0 && (
-            <div className="mt-8 border-t border-petro/10 pt-8">
-              <div className="mb-4">
-                <h2 className="text-xl font-semibold text-coral">
-                  Alertas críticas
-                </h2>
+      {turnosConAlertasCriticas.length > 0 && (
+        <div className="mt-8 border-t border-petro/10 pt-8">
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold text-coral">
+              Alertas críticas
+            </h2>
 
-                <p className="mt-1 text-sm text-petro/60">
-                  Turnos activos con insumos críticos faltantes.
-                </p>
-              </div>
+            <p className="mt-1 text-sm text-petro/60">
+              Turnos activos con insumos críticos faltantes.
+            </p>
+          </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                {turnosConAlertasCriticas.map((turno) => (
-                  <div
-                    key={turno.id}
-                    className="rounded-xl border border-coral/20 bg-coral/5 p-4"
-                  >
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p className="font-semibold text-petro">
-                          Turno #{turno.id}
-                        </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {turnosConAlertasCriticas.map((turno) => (
+              <div
+                key={turno.id}
+                className="rounded-xl border border-coral/20 bg-coral/5 p-4"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-petro">
+                      Turno #{turno.id}
+                    </p>
 
-                        <p className="mt-1 text-sm text-petro/60">
-                          {turno.fecha} · {turno.horario}
-                        </p>
+                    <p className="mt-1 text-sm text-petro/60">
+                      {turno.fecha} · {obtenerTextoHorario(turno.horario)}
+                    </p>
 
-                        <p className="mt-1 text-sm text-petro/60">
-                          Ambulancia {turno.ambulancia.patente}
-                        </p>
-                      </div>
-
-                      <span className="rounded-md bg-coral/10 px-2 py-1 text-xs font-semibold text-coral">
-                        Crítico
-                      </span>
-                    </div>
+                    <p className="mt-1 text-sm text-petro/60">
+                      Ambulancia {turno.ambulancia.patente}
+                    </p>
                   </div>
-                ))}
+
+                  <span className="rounded-md bg-coral/10 px-2 py-1 text-xs font-semibold text-coral">
+                    Crítico
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

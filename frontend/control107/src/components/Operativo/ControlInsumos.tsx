@@ -127,7 +127,6 @@ export default function ControlInsumos({ controles }: ControlInsumosProps) {
                                         <p className="text-xs text-petro/60">Ingreso</p>
 
                                         <p className="font-semibold text-petro">
-                                            {/* {control.cantidadIngreso ?? "Sin registrar"} */}
                                             {control.cantidadIngreso}
                                         </p>
                                     </div>
@@ -264,7 +263,6 @@ export default function ControlInsumos({ controles }: ControlInsumosProps) {
                                         <p className="text-xs text-petro/60">Ingreso</p>
 
                                         <p className="font-semibold text-petro">
-                                            {/* {control.cantidadIngreso ?? "Sin registrar"} */}
                                             {control.cantidadIngreso}
                                         </p>
                                     </div>

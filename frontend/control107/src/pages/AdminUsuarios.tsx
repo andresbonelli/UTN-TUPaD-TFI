@@ -25,6 +25,8 @@ import UsuarioForm from "../components/UsuarioForm";
 
 import MensajeConfirmacion from "../components/MensajeConfirmacion";
 
+import { useAuthStore } from "../stores/authStore";
+
 import type {
     ActualizarUsuarioRequest,
     Usuario,
@@ -111,6 +113,11 @@ export default function AdminUsuarios() {
     const actualizarUsuarioMutation = useActualizarUsuario();
 
     const { data: turnos = [] } = useTurnos();
+
+    const usuarioAutenticado = useAuthStore(
+        (state) => state.usuario,
+    );
+
 
     function handleCrearUsuario(
         usuario: UsuarioRequest | ActualizarUsuarioRequest,
@@ -404,6 +411,9 @@ export default function AdminUsuarios() {
                                                     onClick={() => {
                                                         setMensajeEdicion(null);
                                                         setUsuarioEliminandoId(null);
+
+                                                        eliminarUsuarioMutation.reset();
+
                                                         setUsuarioEditando(row.original);
                                                     }}
                                                     className="rounded-lg border border-turquesa/30 px-3 py-2 text-sm font-semibold text-turquesa transition hover:bg-turquesa/10"
@@ -473,6 +483,10 @@ export default function AdminUsuarios() {
                                 type="button"
                                 onClick={() => {
                                     setMensajeEdicion(null);
+                                    setUsuarioEliminandoId(null);
+
+                                    eliminarUsuarioMutation.reset();
+
                                     setUsuarioEditando(null);
                                 }}
                                 className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5"
@@ -530,12 +544,23 @@ export default function AdminUsuarios() {
                                         </p>
                                     </div>
 
+                                    {eliminarUsuarioMutation.isError && (
+                                        <div className="w-full rounded-lg border border-coral/30 bg-coral/5 p-3">
+                                            <p className="text-sm font-semibold text-coral">
+                                                {obtenerMensajeError(
+                                                    eliminarUsuarioMutation.error,
+                                                )}
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <div className="flex items-center gap-2">
                                         <button
                                             type="button"
-                                            onClick={() =>
-                                                setUsuarioEliminandoId(null)
-                                            }
+                                            onClick={() => {
+                                                setUsuarioEliminandoId(null);
+                                                eliminarUsuarioMutation.reset();
+                                            }}
                                             disabled={
                                                 eliminarUsuarioMutation.isPending
                                             }
@@ -563,17 +588,19 @@ export default function AdminUsuarios() {
                                     </div>
                                 </div>
                             ) : (
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        setUsuarioEliminandoId(
-                                            usuarioEditando.id,
-                                        )
-                                    }
-                                    className="text-sm font-semibold text-coral transition hover:text-coral/70"
-                                >
-                                    Eliminar usuario
-                                </button>
+                                usuarioAutenticado?.id !== usuarioEditando.id && (
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setUsuarioEliminandoId(
+                                                usuarioEditando.id,
+                                            )
+                                        }
+                                        className="text-sm font-semibold text-coral transition hover:text-coral/70"
+                                    >
+                                        Eliminar usuario
+                                    </button>
+                                )
                             )}
                         </div>
                     </div>
