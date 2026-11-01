@@ -14,10 +14,13 @@ import {
 
 import {
     useActualizarTurno,
+    useCancelarTurno,
     useCrearTurno,
     useTurnos,
-    useTurno
+    useTurno,
 } from "../hooks/useTurnos";
+
+import { obtenerMensajeError } from "../utils/error";
 
 import TurnoForm from "../components/TurnoForm";
 
@@ -199,6 +202,11 @@ export default function AdminTurnos() {
 
     const actualizarTurnoMutation = useActualizarTurno();
 
+    const cancelarTurnoMutation = useCancelarTurno();
+
+    const [confirmandoCancelacion, setConfirmandoCancelacion] = useState(false);
+
+    const [motivoCancelacion, setMotivoCancelacion] = useState("");
 
 
     function handleCrearTurno(turno: TurnoRequest) {
@@ -226,6 +234,34 @@ export default function AdminTurnos() {
             },
             {
                 onSuccess: () => {
+                    setTurnoEditando(null);
+                },
+            },
+        );
+    }
+
+    function handleCancelarTurno() {
+        if (!turnoEditando) {
+            return;
+        }
+
+        const motivo = motivoCancelacion.trim();
+
+        if (!motivo) {
+            return;
+        }
+
+        cancelarTurnoMutation.mutate(
+            {
+                turnoId: turnoEditando.id,
+                request: {
+                    observaciones: motivo,
+                },
+            },
+            {
+                onSuccess: () => {
+                    setConfirmandoCancelacion(false);
+                    setMotivoCancelacion("");
                     setTurnoEditando(null);
                 },
             },
@@ -394,6 +430,11 @@ export default function AdminTurnos() {
                                                     type="button"
                                                     onClick={() => {
                                                         setTurnoViendoId(null);
+
+                                                        setConfirmandoCancelacion(false);
+                                                        setMotivoCancelacion("");
+                                                        cancelarTurnoMutation.reset();
+
                                                         setTurnoEditando(row.original);
                                                     }}
                                                     className="rounded-lg border border-turquesa/30 px-3 py-2 text-sm font-semibold text-turquesa transition hover:bg-turquesa/10"
@@ -516,13 +557,92 @@ export default function AdminTurnos() {
                             </div>
                         )}
 
-                        <button
-                            type="button"
-                            onClick={() => setTurnoEditando(null)}
-                            className="mt-3 text-sm font-semibold text-petro/60 transition hover:text-petro"
-                        >
-                            Cerrar
-                        </button>
+                        <div className="mt-6 border-t border-petro/10 pt-4">
+                            {confirmandoCancelacion ? (
+                                <div className="flex flex-col gap-3">
+                                    <div>
+                                        <p className="text-sm font-semibold text-coral">
+                                            ¿Cancelar este turno?
+                                        </p>
+
+                                        <p className="mt-1 text-xs text-petro/60">
+                                            Indica el motivo de la cancelación. Este dato es obligatorio.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label
+                                            htmlFor="motivo-cancelacion"
+                                            className="text-sm font-medium text-petro"
+                                        >
+                                            Motivo de cancelación
+                                        </label>
+
+                                        <textarea
+                                            id="motivo-cancelacion"
+                                            rows={3}
+                                            value={motivoCancelacion}
+                                            onChange={(event) =>
+                                                setMotivoCancelacion(event.target.value)
+                                            }
+                                            placeholder="Ej: ambulancia averiada, requiere limpieza..."
+                                            className="w-full resize-none rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm text-petro outline-none focus:border-coral focus:ring-2 focus:ring-coral/20"
+                                        />
+                                    </div>
+
+                                    {cancelarTurnoMutation.isError && (
+                                        <div className="rounded-lg border border-coral/30 bg-coral/5 p-3">
+                                            <p className="text-sm font-semibold text-coral">
+                                                {obtenerMensajeError(
+                                                    cancelarTurnoMutation.error
+                                                )}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setConfirmandoCancelacion(false);
+                                                setMotivoCancelacion("");
+                                                cancelarTurnoMutation.reset();
+                                            }}
+                                            disabled={cancelarTurnoMutation.isPending}
+                                            className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5 disabled:opacity-50"
+                                        >
+                                            Volver
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={handleCancelarTurno}
+                                            disabled={
+                                                cancelarTurnoMutation.isPending ||
+                                                !motivoCancelacion.trim()
+                                            }
+                                            className="rounded-lg bg-coral px-3 py-2 text-sm font-semibold text-blanco transition disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            {cancelarTurnoMutation.isPending
+                                                ? "Cancelando..."
+                                                : "Confirmar cancelación"}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setMotivoCancelacion("");
+                                        cancelarTurnoMutation.reset();
+                                        setConfirmandoCancelacion(true);
+                                    }}
+                                    className="text-sm font-semibold text-coral transition hover:text-coral/70"
+                                >
+                                    Cancelar turno
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </>
             )}
