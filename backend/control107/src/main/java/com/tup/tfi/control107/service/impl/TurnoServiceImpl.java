@@ -1,6 +1,7 @@
 package com.tup.tfi.control107.service.impl;
 
 import com.tup.tfi.control107.dto.AmbulanciaDTO;
+import com.tup.tfi.control107.dto.EstadisticasTurnosDTO;
 import com.tup.tfi.control107.dto.ResumenOperativoDTO;
 import com.tup.tfi.control107.dto.TurnoDTO;
 import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
@@ -15,6 +16,7 @@ import com.tup.tfi.control107.repository.TurnoRepository;
 import com.tup.tfi.control107.repository.UsuarioRepository;
 import com.tup.tfi.control107.service.TurnoService;
 import jakarta.persistence.EntityNotFoundException;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -183,6 +186,29 @@ public class TurnoServiceImpl extends AbstractService<Turno> implements TurnoSer
         request.aplicar(t, ambulancia, enfermero);
         repository.save(t);
         return new TurnoDTO(t);
+    }
+
+    @Override
+    public EstadisticasTurnosDTO estadisticasTurnos() {
+        List<Turno> turnos = repository.findAllByEliminadoIsFalse();
+        return EstadisticasTurnosDTO.builder()
+                .turnosActivos(turnos.stream()
+                        .filter(t -> t.getEstado().equals(EstadoTurno.EN_CURSO))
+                        .map(toResumenDTO())
+                        .toList())
+                .turnosCancelados(turnos.stream()
+                        .filter(t -> t.getEstado().equals(EstadoTurno.CANCELADO))
+                        .map(toResumenDTO())
+                        .toList())
+                .turnosConFaltantes(turnos.stream()
+                        .filter(t -> t.getControlInsumos().stream().anyMatch(i -> i.getIngresoFaltante() > 0))
+                        .map(toResumenDTO())
+                        .toList())
+                .build();
+    }
+
+    private @NonNull Function<Turno, EstadisticasTurnosDTO.ResumenTurnoDTO> toResumenDTO() {
+        return t -> new EstadisticasTurnosDTO.ResumenTurnoDTO(t.getId(), t.getFecha(), t.getHorario());
     }
 
     private void validarDisponibilidad(Long ambulanciaId, Long enfermeroId, LocalDate fecha, com.tup.tfi.control107.model.enums.HorarioTurno horario, Long turnoIdExcluido) {

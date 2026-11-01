@@ -1,5 +1,6 @@
 package com.tup.tfi.control107.service;
 
+import com.tup.tfi.control107.dto.EstadisticasTurnosDTO;
 import com.tup.tfi.control107.dto.ResumenOperativoDTO;
 import com.tup.tfi.control107.dto.TurnoDTO;
 import com.tup.tfi.control107.dto.request.IngresoEgresoDTO;
@@ -31,4 +32,6 @@ public interface TurnoService {
     TurnoDTO cancelarTurno(Long turnoId, String observaciones);
 
     TurnoDTO modificarTurno(Long turnoId, TurnoRequestDTO request);
+
+    EstadisticasTurnosDTO estadisticasTurnos();
 }

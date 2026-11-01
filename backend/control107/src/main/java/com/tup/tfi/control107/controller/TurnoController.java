@@ -1,5 +1,6 @@
 package com.tup.tfi.control107.controller;
 
+import com.tup.tfi.control107.dto.EstadisticasTurnosDTO;
 import com.tup.tfi.control107.dto.ResumenOperativoDTO;
 import com.tup.tfi.control107.dto.TurnoDTO;
 import com.tup.tfi.control107.dto.request.CancelarTurnoDTO;
@@ -48,8 +49,8 @@ public class TurnoController {
 
     @GetMapping("/resumen")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<ResumenOperativoDTO> obtenerResumenOperativo() {
-        ResumenOperativoDTO resumen = turnoService.obtenerResumenOperativo();
+    public ResponseEntity<EstadisticasTurnosDTO> estadisticasTurnos() {
+        EstadisticasTurnosDTO resumen = turnoService.estadisticasTurnos();
         return ResponseEntity.ok(resumen);
     }
 
