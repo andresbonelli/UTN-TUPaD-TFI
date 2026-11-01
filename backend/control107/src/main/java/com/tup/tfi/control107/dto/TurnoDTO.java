@@ -63,8 +63,6 @@ public class TurnoDTO {
     public static class ControlInsumoDTO {
         private Long insumoId;
         private String colorCategoria;
-        private Long insumoId;
-        private String colorCategoria;
         private String nombre;
         private String categoria;
         private boolean esCritico;
@@ -73,10 +71,6 @@ public class TurnoDTO {
         private int ingresoFaltante;
         private Integer cantidadUsada;
         private Integer cantidadRestockeo;
-        // Solo para oxigeno
-        private Double capacidadMaxima;
-        private boolean esOxigeno;
-        private Integer puntoControl;
         // Solo para oxigeno
         private Double capacidadMaxima;
         private boolean esOxigeno;
