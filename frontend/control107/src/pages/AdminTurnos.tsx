@@ -1,0 +1,690 @@
+import { useEffect, useRef, useState } from "react";
+
+import {
+    flexRender,
+    getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    useReactTable,
+    type ColumnDef,
+    type PaginationState,
+    type SortingState,
+} from "@tanstack/react-table";
+
+import {
+    useActualizarTurno,
+    useCancelarTurno,
+    useCrearTurno,
+    useTurnos,
+    useTurno,
+} from "../hooks/useTurnos";
+
+import { obtenerMensajeError } from "../utils/error";
+
+import TurnoForm from "../components/TurnoForm";
+
+import HistorialTurno from "../components/Admin/HistorialTurno";
+
+import type { ActualizarTurnoRequest, Turno, TurnoRequest } from "../interfaces/Turno";
+
+import {
+    obtenerColorEstado,
+    obtenerTextoEstado,
+    obtenerTextoHorario,
+} from "../utils/turno";
+
+const columnas: ColumnDef<Turno>[] = [
+    {
+        accessorKey: "fecha",
+        header: "Fecha",
+
+        cell: ({ row }) => <span>{row.original.fecha}</span>,
+    },
+    {
+        id: "horario",
+
+        accessorFn: (turno) => obtenerTextoHorario(turno.horario),
+
+        header: "Horario",
+
+        sortingFn: (rowA, rowB) =>
+            obtenerTextoHorario(rowA.original.horario).localeCompare(
+                obtenerTextoHorario(rowB.original.horario),
+                "es",
+                {
+                    sensitivity: "base",
+                },
+            ),
+
+        cell: ({ row }) => (
+            <span className="font-medium">
+                {obtenerTextoHorario(row.original.horario)}
+            </span>
+        ),
+    },
+    {
+        id: "estado",
+
+        accessorFn: (turno) => obtenerTextoEstado(turno.estado),
+
+        header: "Estado",
+
+        sortingFn: (rowA, rowB) =>
+            obtenerTextoEstado(rowA.original.estado).localeCompare(
+                obtenerTextoEstado(rowB.original.estado),
+                "es",
+                {
+                    sensitivity: "base",
+                },
+            ),
+
+        cell: ({ row }) => (
+            <span
+                className={`rounded-md px-2 py-1 text-xs font-semibold ${obtenerColorEstado(
+                    row.original.estado,
+                )}`}
+            >
+                {obtenerTextoEstado(row.original.estado)}
+            </span>
+        ),
+    },
+    {
+        id: "enfermero",
+
+        accessorFn: (turno) => turno.enfermero.email,
+
+        header: "Enfermero",
+
+        sortingFn: (rowA, rowB) =>
+            rowA.original.enfermero.email.localeCompare(
+                rowB.original.enfermero.email,
+                "es",
+                {
+                    sensitivity: "base",
+                },
+            ),
+
+        cell: ({ row }) => <span>{row.original.enfermero.email}</span>,
+    },
+    {
+        id: "ambulancia",
+
+        accessorFn: (turno) => turno.ambulancia.patente,
+
+        header: "Ambulancia",
+
+        sortingFn: (rowA, rowB) =>
+            rowA.original.ambulancia.patente.localeCompare(
+                rowB.original.ambulancia.patente,
+                "es",
+                {
+                    sensitivity: "base",
+                },
+            ),
+
+        cell: ({ row }) => (
+            <span className="font-medium">{row.original.ambulancia.patente}</span>
+        ),
+    },
+    {
+        accessorKey: "medico",
+        header: "Médico",
+
+        sortingFn: (rowA, rowB) =>
+            rowA.original.medico.localeCompare(rowB.original.medico, "es", {
+                sensitivity: "base",
+            }),
+    },
+    {
+        accessorKey: "chofer",
+        header: "Chofer",
+
+        sortingFn: (rowA, rowB) =>
+            rowA.original.chofer.localeCompare(rowB.original.chofer, "es", {
+                sensitivity: "base",
+            }),
+    },
+];
+
+const sinTurnos: Turno[] = [];
+
+export default function AdminTurnos() {
+    const [sorting, setSorting] = useState<SortingState>([]);
+
+    const [globalFilter, setGlobalFilter] = useState("");
+
+    const [pagination, setPagination] = useState<PaginationState>({
+        pageIndex: 0,
+        pageSize: 5,
+    });
+
+    const [turnoEditando, setTurnoEditando] = useState<Turno | null>(null);
+
+    const [turnoViendoId, setTurnoViendoId] = useState<number | null>(null);
+
+
+    const editarRef = useRef<HTMLDivElement>(null);
+
+    const historialRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (turnoEditando) {
+            editarRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        }
+    }, [turnoEditando]);
+
+    const { data: turnos = sinTurnos, isLoading, isError, error } = useTurnos();
+
+    const {
+        data: turnoViendo,
+        isLoading: turnoViendoCargando,
+        isError: turnoViendoError,
+    } = useTurno(turnoViendoId);
+
+
+    useEffect(() => {
+        if (turnoViendo) {
+            historialRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        }
+    }, [turnoViendo]);
+
+
+    useTurno(turnoViendoId);
+
+    const crearTurnoMutation = useCrearTurno();
+
+    const actualizarTurnoMutation = useActualizarTurno();
+
+    const cancelarTurnoMutation = useCancelarTurno();
+
+    const [confirmandoCancelacion, setConfirmandoCancelacion] = useState(false);
+
+    const [motivoCancelacion, setMotivoCancelacion] = useState("");
+
+
+    function handleCrearTurno(turno: TurnoRequest) {
+        crearTurnoMutation.mutate(turno);
+    }
+
+
+    function handleActualizarTurno(turno: TurnoRequest) {
+        if (!turnoEditando) {
+            return;
+        }
+
+        const request: ActualizarTurnoRequest = {
+            fecha: turno.fecha,
+            horario: turno.horario,
+            enfermeroId: turno.enfermeroId,
+            nombreChofer: turno.nombreChofer,
+            nombreMedico: turno.nombreMedico,
+        };
+
+        actualizarTurnoMutation.mutate(
+            {
+                id: turnoEditando.id,
+                turno: request, //request es por la modificacion del dto
+            },
+            {
+                onSuccess: () => {
+                    setTurnoEditando(null);
+                },
+            },
+        );
+    }
+
+    function handleCancelarTurno() {
+        if (!turnoEditando) {
+            return;
+        }
+
+        const motivo = motivoCancelacion.trim();
+
+        if (!motivo) {
+            return;
+        }
+
+        cancelarTurnoMutation.mutate(
+            {
+                turnoId: turnoEditando.id,
+                request: {
+                    observaciones: motivo,
+                },
+            },
+            {
+                onSuccess: () => {
+                    setConfirmandoCancelacion(false);
+                    setMotivoCancelacion("");
+                    setTurnoEditando(null);
+                },
+            },
+        );
+    }
+
+    const table = useReactTable({
+        data: turnos,
+        columns: columnas,
+
+        state: {
+            sorting,
+            globalFilter,
+            pagination,
+        },
+
+        onSortingChange: setSorting,
+        onGlobalFilterChange: setGlobalFilter,
+        onPaginationChange: setPagination,
+
+        getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+    });
+
+    if (isLoading) {
+        return (
+            <section>
+                <p className="text-petro/60">Cargando turnos...</p>
+            </section>
+        );
+    }
+
+    if (isError) {
+        return (
+            <section className="rounded-xl border border-coral/30 bg-coral/5 p-6">
+                <p className="font-semibold text-coral">
+                    No se pudieron cargar los turnos.
+                </p>
+
+                <p className="mt-1 text-sm text-petro/60">{error.message}</p>
+            </section>
+        );
+    }
+
+    return (
+        <section className="text-petro">
+            <div className="mb-6">
+                <h1 className="text-3xl font-bold">Turnos</h1>
+
+                <p className="mt-2 text-sm text-petro/60">
+                    Consulta los turnos registrados en Control107.
+                </p>
+            </div>
+
+            <div className="mb-6 rounded-xl bg-blanco p-6 shadow-sm">
+                <h2 className="mb-4 text-xl font-semibold text-petro">Nuevo turno</h2>
+
+                <TurnoForm
+                    onSubmit={handleCrearTurno}
+                    isPending={crearTurnoMutation.isPending}
+                />
+
+                {crearTurnoMutation.isError && (
+                    <div className="mt-4 rounded-lg border border-coral/30 bg-coral/5 p-3">
+                        <p className="text-sm font-semibold text-coral">
+                            No se pudo crear el turno.
+                        </p>
+
+                        <p className="mt-1 text-sm text-petro/70">
+                            {crearTurnoMutation.error.message}
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            {/* Divisor administrar Turnos  */}
+            <div className="my-8 border-t border-petro/10" />
+
+            <h2 className="mb-4 text-xl font-semibold text-petro">Administrar Turnos</h2>
+
+            <div className="mb-4">
+                <label htmlFor="buscar-turnos" className="sr-only">
+                    Buscar turnos
+                </label>
+
+                <input
+                    id="buscar-turnos"
+                    type="search"
+                    value={globalFilter}
+                    onChange={(event) => setGlobalFilter(event.target.value)}
+                    placeholder="Buscar por fecha, estado, enfermero, ambulancia, médico o chofer..."
+                    className="w-full max-w-xl rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm text-petro outline-none transition focus:border-turquesa focus:ring-2 focus:ring-turquesa/20"
+                />
+            </div>
+
+            <div className="overflow-hidden rounded-xl bg-blanco shadow-sm">
+                <div className="overflow-x-auto">
+                    <table className="w-full border-collapse text-left">
+                        <thead className="bg-petro/5">
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <tr key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => {
+                                        const orden = header.column.getIsSorted();
+
+                                        return (
+                                            <th
+                                                key={header.id}
+                                                className="border-b border-petro/10 px-4 py-3 text-sm font-semibold whitespace-nowrap text-petro"
+                                            >
+                                                <button
+                                                    type="button"
+                                                    onClick={header.column.getToggleSortingHandler()}
+                                                    className="inline-flex items-center gap-1"
+                                                >
+                                                    {flexRender(
+                                                        header.column.columnDef.header,
+                                                        header.getContext(),
+                                                    )}
+
+                                                    {orden === "asc" && " ↑"}
+
+                                                    {orden === "desc" && " ↓"}
+                                                </button>
+                                            </th>
+                                        );
+                                    })}
+                                    <th className="border-b border-petro/10 px-4 py-3 text-sm font-semibold whitespace-nowrap text-petro">
+                                        Acciones
+                                    </th>
+                                </tr>
+                            ))}
+                        </thead>
+
+                        <tbody>
+                            {table.getRowModel().rows.length === 0 ? (
+                                <tr>
+                                    <td
+                                        colSpan={columnas.length + 1}
+                                        className="px-4 py-8 text-center text-sm text-petro/60"
+                                    >
+                                        No se encontraron turnos.
+                                    </td>
+                                </tr>
+                            ) : (
+                                table.getRowModel().rows.map((row) => (
+                                    <tr
+                                        key={row.id}
+                                        className="border-b border-petro/10 last:border-b-0 hover:bg-petro/5"
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <td
+                                                key={cell.id}
+                                                className="px-4 py-4 text-sm whitespace-nowrap"
+                                            >
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext(),
+                                                )}
+                                            </td>
+                                        ))}
+                                        <td className="px-4 py-4 text-sm whitespace-nowrap">
+                                            {row.original.estado === "PROGRAMADO" && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setTurnoViendoId(null);
+
+                                                        setConfirmandoCancelacion(false);
+                                                        setMotivoCancelacion("");
+                                                        cancelarTurnoMutation.reset();
+
+                                                        setTurnoEditando(row.original);
+                                                    }}
+                                                    className="rounded-lg border border-turquesa/30 px-3 py-2 text-sm font-semibold text-turquesa transition hover:bg-turquesa/10"
+                                                >
+                                                    Editar
+                                                </button>
+                                            )}
+
+                                            {(row.original.estado === "FINALIZADO" ||
+                                                row.original.estado === "CANCELADO") && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setTurnoEditando(null);
+                                                            setTurnoViendoId(row.original.id);
+                                                        }}
+                                                        className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5"
+                                                    >
+                                                        Ver
+                                                    </button>
+                                                )}
+
+                                            {row.original.estado === "EN_CURSO" && (
+                                                <span className="text-xs text-petro/40">
+                                                    Sin acciones
+                                                </span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="flex flex-col gap-3 border-t border-petro/10 bg-petro/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-sm text-petro/60">
+                        Página {table.getState().pagination.pageIndex + 1} de{" "}
+                        {table.getPageCount() || 1}
+                    </p>
+
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            onClick={() => table.previousPage()}
+                            disabled={!table.getCanPreviousPage()}
+                            className="rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm font-semibold text-petro disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            Anterior
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => table.nextPage()}
+                            disabled={!table.getCanNextPage()}
+                            className="rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm font-semibold text-petro disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            Siguiente
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {turnoEditando && (
+                <>
+                    <div className="my-8 border-t border-petro/10" />
+
+                    <div ref={editarRef} className="rounded-xl bg-blanco p-6 shadow-sm">
+                        <div className="mb-4 flex items-start justify-between gap-4">
+                            <div>
+                                <h2 className="text-xl font-semibold text-petro">
+                                    Editar turno
+                                </h2>
+
+                                <p className="mt-1 text-sm text-petro/60">
+                                    Modificando turno #{turnoEditando.id}
+
+                                    <br />
+
+                                    Ambulancia{": "}
+                                    <span className="text-lg font-bold text-petro">
+                                        {turnoEditando.ambulancia.patente}
+                                    </span>
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setTurnoEditando(null)}
+                                className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+
+                        <TurnoForm
+                            key={turnoEditando.id}
+                            valoresIniciales={{
+                                fecha: turnoEditando.fecha,
+                                horario: turnoEditando.horario,
+                                enfermeroId: turnoEditando.enfermero.id,
+                                ambulanciaId: turnoEditando.ambulancia.id,
+                                nombreChofer: turnoEditando.chofer,
+                                nombreMedico: turnoEditando.medico,
+                            }}
+                            textoBoton="Guardar cambios"
+                            isPending={actualizarTurnoMutation.isPending}
+                            onSubmit={handleActualizarTurno}
+                        />
+
+                        {actualizarTurnoMutation.isError && (
+                            <div className="mt-4 rounded-lg border border-coral/30 bg-coral/5 p-3">
+                                <p className="text-sm font-semibold text-coral">
+                                    No se pudo actualizar el turno.
+                                </p>
+
+                                <p className="mt-1 text-sm text-petro/70">
+                                    {actualizarTurnoMutation.error.message}
+                                </p>
+                            </div>
+                        )}
+
+                        <div className="mt-6 border-t border-petro/10 pt-4">
+                            {confirmandoCancelacion ? (
+                                <div className="flex flex-col gap-3">
+                                    <div>
+                                        <p className="text-sm font-semibold text-coral">
+                                            ¿Cancelar este turno?
+                                        </p>
+
+                                        <p className="mt-1 text-xs text-petro/60">
+                                            Indica el motivo de la cancelación. Este dato es obligatorio.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex flex-col gap-2">
+                                        <label
+                                            htmlFor="motivo-cancelacion"
+                                            className="text-sm font-medium text-petro"
+                                        >
+                                            Motivo de cancelación
+                                        </label>
+
+                                        <textarea
+                                            id="motivo-cancelacion"
+                                            rows={3}
+                                            value={motivoCancelacion}
+                                            onChange={(event) =>
+                                                setMotivoCancelacion(event.target.value)
+                                            }
+                                            placeholder="Ej: ambulancia averiada, requiere limpieza..."
+                                            className="w-full resize-none rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-sm text-petro outline-none focus:border-coral focus:ring-2 focus:ring-coral/20"
+                                        />
+                                    </div>
+
+                                    {cancelarTurnoMutation.isError && (
+                                        <div className="rounded-lg border border-coral/30 bg-coral/5 p-3">
+                                            <p className="text-sm font-semibold text-coral">
+                                                {obtenerMensajeError(
+                                                    cancelarTurnoMutation.error
+                                                )}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setConfirmandoCancelacion(false);
+                                                setMotivoCancelacion("");
+                                                cancelarTurnoMutation.reset();
+                                            }}
+                                            disabled={cancelarTurnoMutation.isPending}
+                                            className="rounded-lg border border-petro/20 px-3 py-2 text-sm font-semibold text-petro transition hover:bg-petro/5 disabled:opacity-50"
+                                        >
+                                            Volver
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={handleCancelarTurno}
+                                            disabled={
+                                                cancelarTurnoMutation.isPending ||
+                                                !motivoCancelacion.trim()
+                                            }
+                                            className="rounded-lg bg-coral px-3 py-2 text-sm font-semibold text-blanco transition disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            {cancelarTurnoMutation.isPending
+                                                ? "Cancelando..."
+                                                : "Confirmar cancelación"}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setMotivoCancelacion("");
+                                        cancelarTurnoMutation.reset();
+                                        setConfirmandoCancelacion(true);
+                                    }}
+                                    className="text-sm font-semibold text-coral transition hover:text-coral/70"
+                                >
+                                    Cancelar turno
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </>
+            )}
+
+            {turnoViendoId !== null && (
+                <>
+                    <div className="my-8 border-t border-petro/10" />
+
+                    {turnoViendoCargando && (
+                        <div className="rounded-xl bg-blanco p-6 shadow-sm">
+                            <p className="text-sm text-petro/60">
+                                Cargando historial del turno...
+                            </p>
+                        </div>
+                    )}
+
+                    {turnoViendoError && (
+                        <div className="rounded-xl border border-coral/30 bg-coral/5 p-6">
+                            <p className="font-semibold text-coral">
+                                No se pudo cargar el historial del turno.
+                            </p>
+
+                            <button
+                                type="button"
+                                onClick={() => setTurnoViendoId(null)}
+                                className="mt-3 text-sm font-semibold text-petro"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+                    )}
+
+                    {turnoViendo && (
+                        <div ref={historialRef}>
+                            <HistorialTurno
+                                turno={turnoViendo}
+                                onCerrar={() => setTurnoViendoId(null)}
+                            />
+                        </div>
+                    )}
+                </>
+            )}
+        </section>
+    );
+}
