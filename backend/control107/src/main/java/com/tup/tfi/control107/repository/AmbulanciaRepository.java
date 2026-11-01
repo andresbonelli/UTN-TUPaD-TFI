@@ -25,7 +25,6 @@ public interface AmbulanciaRepository extends JpaRepository<Ambulancia, Long> {
     FROM Ambulancia a
     JOIN a.insumos i
     WHERE a.eliminado = false
-      AND a.disponible = true
       AND i.id = :insumoId
     """)
     boolean existeActivaConteniendoInsumo(@Param("insumoId") Long insumoId);
