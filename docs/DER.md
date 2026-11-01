@@ -8,8 +8,8 @@ erDiagram
         datetime updated_at "NOT NULL"
         boolean eliminado "NOT NULL"
         varchar(255) nombre "NOT NULL"
-        varchar(20) dni UK "NOT NULL"
-        varchar(150) email UK "NOT NULL"
+        varchar(20) dni "NOT NULL"
+        varchar(150) email "NOT NULL"
         varchar(20) rol "Enum: ADMINISTRADOR, ENFERMERO | NOT NULL"
         boolean activo "NOT NULL"
         varchar(255) hash "Embebido (Clave)"
@@ -21,7 +21,7 @@ erDiagram
         datetime created_at "NOT NULL"
         datetime updated_at "NOT NULL"
         boolean eliminado "NOT NULL"
-        varchar(20) patente UK "NOT NULL"
+        varchar(20) patente "NOT NULL"
         boolean disponible "NOT NULL"
     }
 
@@ -30,7 +30,7 @@ erDiagram
         datetime created_at "NOT NULL"
         datetime updated_at "NOT NULL"
         boolean eliminado "NOT NULL"
-        varchar(100) nombre UK "NOT NULL"
+        varchar(100) nombre "NOT NULL"
         varchar(7) color "NOT NULL"
     }
 

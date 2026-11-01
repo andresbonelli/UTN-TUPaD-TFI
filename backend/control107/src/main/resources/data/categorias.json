@@ -1,0 +1,30 @@
+[
+  {
+    "nombre": "OXIGENO",
+    "color": "#FF0000"
+  },
+  {
+    "nombre": "FARMACOLOGICOS",
+    "color": "#D9574C"
+  },
+  {
+    "nombre": "VIA AEREA",
+    "color": "#3978A8"
+  },
+  {
+    "nombre": "GOTAS COMPRIMIDOS",
+    "color": "#F2994A"
+  },
+  {
+    "nombre": "DESCARTABLES",
+    "color": "#27AE60"
+  },
+  {
+    "nombre": "CURACIONES",
+    "color": "#087E8B"
+  },
+  {
+    "nombre": "VARIOS",
+    "color": "#8E44AD"
+  }
+]

@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://db:3306/control107_db}
+    driverClassName: ${DB_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  h2:
+    console:
+      enabled: false
+
+security:
+  jwt:
+    expiration-time: 3600000
+
+logging:
+  level:
+    org.springframework: info
+    com.tup.tfi.control107: info
+
+app:
+  data-loader:
+    enabled: true

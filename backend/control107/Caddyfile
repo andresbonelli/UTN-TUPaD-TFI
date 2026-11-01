@@ -1,0 +1,3 @@
+api.andresbonelli.dev {
+    reverse_proxy control107_api:8080
+}

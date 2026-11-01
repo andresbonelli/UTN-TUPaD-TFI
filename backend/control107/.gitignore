@@ -31,7 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
-data/
 
 ### Frontend ###
 pnpm-lock.yaml
@@ -41,7 +40,8 @@ node_modules/
 
 ### Backend ###
 target/
-data/
+/data/
+!src/main/resources/data/
 
 ### Frontend ###
 node_modules/

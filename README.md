@@ -137,6 +137,7 @@ Todo el comportamiento está definido en el documento de requerimientos dentro d
 ## Documentacion
 
 - 📄 [Documentación Previa al Proyecto (PDF)](docs/Documentacion%20Previa%20al%20proyecto.pdf)
+- 🚀 [Colección de Postman (Endpoints API)](docs/Control107.postman_collection.json)
 - 🗺️ [Diagrama Entidad–Relación (DER)](docs/DER.md)
 - 🏗️ [Arquitectura del Proyecto](./docs/Arquitectura.md)
 - 🧩 [Listado de Módulos](./docs/Modulos.md)

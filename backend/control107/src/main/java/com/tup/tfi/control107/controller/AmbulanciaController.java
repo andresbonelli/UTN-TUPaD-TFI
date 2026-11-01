@@ -1,0 +1,52 @@
+package com.tup.tfi.control107.controller;
+
+import com.tup.tfi.control107.dto.AmbulanciaDTO;
+import com.tup.tfi.control107.dto.request.AmbulanciaRequestDTO;
+import com.tup.tfi.control107.service.AmbulanciaService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/v1/ambulancias")
+@RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
+@PreAuthorize("hasRole('ADMINISTRADOR')")
+public class AmbulanciaController {
+
+    private final AmbulanciaService ambulanciaService;
+
+    @GetMapping
+    public ResponseEntity<List<AmbulanciaDTO>> listarTodas() {
+        var dtos = ambulanciaService.listarTodas();
+        return ResponseEntity.ok(dtos);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AmbulanciaDTO> obtenerPorId(@PathVariable Long id) {
+        var ambulancia = ambulanciaService.obtenerPorId(id);
+        return ambulancia != null ? ResponseEntity.ok(ambulancia) : ResponseEntity.notFound().build();
+    }
+
+    @PostMapping
+    public ResponseEntity<AmbulanciaDTO> guardar(@RequestBody AmbulanciaRequestDTO ambulancia) {
+        var guardada = ambulanciaService.crearAmbulancia(ambulancia);
+        return ResponseEntity.ok(guardada);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AmbulanciaDTO> actualizar(@PathVariable Long id, @RequestBody AmbulanciaRequestDTO ambulancia) {
+        var guardada = ambulanciaService.actualizarAmbulancia(id, ambulancia);
+        return ResponseEntity.ok(guardada);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        ambulanciaService.eliminarPorId(id);
+        return ResponseEntity.noContent().build();
+    }
+}
