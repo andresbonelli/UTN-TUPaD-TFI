@@ -59,22 +59,26 @@ CREATE TABLE IF NOT EXISTS categorias (
 -- insumos
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS insumos (
-    id            BIGINT       NOT NULL AUTO_INCREMENT,
-    created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    eliminado     BOOLEAN      NOT NULL DEFAULT FALSE,
-    nombre        VARCHAR(255) NOT NULL,
-    punto_control INT          NOT NULL,
-    critico       BOOLEAN      NOT NULL DEFAULT FALSE,
-    categoria_id  BIGINT       NOT NULL,
+    id               BIGINT       NOT NULL AUTO_INCREMENT,
+    created_at       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    eliminado        BOOLEAN      NOT NULL DEFAULT FALSE,
+    nombre           VARCHAR(255) NOT NULL,
+    punto_control    INT          NOT NULL,
+    critico          BOOLEAN      NOT NULL DEFAULT FALSE,
+    oxigeno          BOOLEAN      NOT NULL DEFAULT FALSE,
+    capacidad_maxima DOUBLE       NULL,   -- solo aplica a tubos de oxigeno, puede ser nulo
+    categoria_id     BIGINT       NOT NULL,
 
     CONSTRAINT pk_insumos PRIMARY KEY (id),
     INDEX idx_insumos_categoria (categoria_id),
     INDEX idx_insumos_nombre (nombre),
     INDEX idx_insumos_critico (critico),
+    INDEX idx_insumos_oxigeno (oxigeno),
     CONSTRAINT fk_insumos_categoria FOREIGN KEY (categoria_id)
         REFERENCES categorias (id) ON DELETE RESTRICT,
-    CONSTRAINT ck_insumos_punto_control CHECK (punto_control >= 0)
+    CONSTRAINT ck_insumos_punto_control CHECK (punto_control >= 0),
+    CONSTRAINT ck_insumos_capacidad_maxima CHECK (capacidad_maxima IS NULL OR (oxigeno = TRUE AND capacidad_maxima >= 0))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
@@ -137,11 +141,13 @@ CREATE TABLE IF NOT EXISTS control_insumos (
     cantidad_egreso    INT      NULL,
     ingreso_faltante   INT      NULL,
     cantidad_usada     INT      NULL,
+    es_oxigeno         BOOLEAN  NOT NULL DEFAULT FALSE,
+    capacidad_maxima   DOUBLE   NULL,   -- solo aplica si es_oxigeno = true, puede ser nulo
     turno_id           BIGINT   NOT NULL,
     insumo_id          BIGINT   NOT NULL,
 
     CONSTRAINT pk_control_insumos PRIMARY KEY (id),
-    CONSTRAINT uk_control_turno_insumo UNIQUE (turno_id, insumo_id),
+    INDEX idx_control_turno_insumo (turno_id, insumo_id),
     INDEX idx_control_insumo (insumo_id),
     CONSTRAINT fk_control_turno FOREIGN KEY (turno_id)
         REFERENCES turnos (id) ON DELETE RESTRICT,
@@ -152,6 +158,7 @@ CREATE TABLE IF NOT EXISTS control_insumos (
         (cantidad_restockeo IS NULL OR cantidad_restockeo >= 0) AND
         (cantidad_egreso    IS NULL OR cantidad_egreso    >= 0) AND
         (ingreso_faltante   IS NULL OR ingreso_faltante   >= 0) AND
-        (cantidad_usada     IS NULL OR cantidad_usada     >= 0)
+        (cantidad_usada     IS NULL OR cantidad_usada     >= 0) AND
+        (capacidad_maxima   IS NULL OR (es_oxigeno = TRUE AND capacidad_maxima >= 0))
     )
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

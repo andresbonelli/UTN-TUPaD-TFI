@@ -42,6 +42,8 @@ erDiagram
         varchar(255) nombre "NOT NULL"
         int punto_control "NOT NULL"
         boolean critico "NOT NULL"
+        boolean oxigeno "NOT NULL"
+        double capacidad_maxima "Solo para oxigeno | Opcional"
         bigint categoria_id FK "NOT NULL"
     }
 
@@ -77,8 +79,10 @@ erDiagram
         int cantidad_egreso
         int ingreso_faltante
         int cantidad_usada
-        bigint turno_id FK "NOT NULL | UK_Compuesta"
-        bigint insumo_id FK "NOT NULL | UK_Compuesta"
+        boolean es_oxigeno "NOT NULL"
+        double capacidad_maxima "Solo para oxigeno | Opcional"
+        bigint turno_id FK "NOT NULL"
+        bigint insumo_id FK "NOT NULL"
     }
 
     %% ========================================================================
