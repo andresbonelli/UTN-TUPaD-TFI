@@ -82,21 +82,10 @@ export default function Login() {
                     </p>
                 </div>
 
-                {/* <form
-                    onSubmit={(event) => {
-                        event.preventDefault();
-                        form.handleSubmit();
-                    }}
-                    className="space-y-5"
-                > */}
-
                 <form
                     noValidate
                     onSubmit={(event) => {
                         event.preventDefault();
-
-                        console.log("Submit HTML ejecutado");
-
                         form.handleSubmit();
                     }}
                     className="space-y-5"

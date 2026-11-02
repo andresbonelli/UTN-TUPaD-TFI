@@ -101,7 +101,16 @@ export default function AdminLayout() {
                         >
                             Turnos
                         </NavLink>
-
+                        <NavLink
+                            to="/admin/estadisticas"
+                            className={({ isActive }) =>
+                                isActive
+                                    ? "rounded-lg bg-turquesa px-3 py-2 text-sm font-semibold text-blanco"
+                                    : "rounded-lg px-3 py-2 text-sm font-medium text-petro transition hover:bg-petro/5"
+                            }
+                        >
+                            Estadísticas
+                        </NavLink>
                     </div>
                 </nav>
 

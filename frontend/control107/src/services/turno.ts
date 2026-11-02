@@ -9,6 +9,8 @@ import type {
     ActualizarTurnoRequest,
 } from "../interfaces/Turno";
 
+import type { ResumenOperativo } from "../interfaces/ResumenOperativo";
+
 export async function listarTurnos(): Promise<Turno[]> {
     const response = await api.get<Turno[]>("/turnos");
 
@@ -73,17 +75,7 @@ export async function crearTurno(
     return response.data;
 }
 
-// export async function actualizarTurno(
-//     id: number,
-//     turno: TurnoRequest,
-// ): Promise<Turno> {
-//     const response = await api.put<Turno>(
-//         `/turnos/${id}`,
-//         turno,
-//     );
 
-//     return response.data;
-// }
 
 export async function actualizarTurno(
     id: number,
@@ -93,6 +85,15 @@ export async function actualizarTurno(
         `/turnos/${id}`,
         turno,
     );
+
+    return response.data;
+}
+
+export async function obtenerResumenOperativo(): Promise<ResumenOperativo> {
+    const response =
+        await api.get<ResumenOperativo>(
+            "/turnos/resumen",
+        );
 
     return response.data;
 }

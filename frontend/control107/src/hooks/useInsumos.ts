@@ -1,7 +1,20 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+    useMutation,
+    useQuery,
+    useQueryClient,
+} from "@tanstack/react-query";
 
-import type { Insumo, InsumoRequest } from "../interfaces/Insumo";
-import { actualizarInsumo, crearInsumo, eliminarInsumo, listarInsumos } from "../services/insumo";
+import {
+    actualizarInsumo,
+    crearInsumo,
+    eliminarInsumo,
+    listarInsumos,
+} from "../services/insumo";
+
+import type {
+    Insumo,
+    InsumoRequest,
+} from "../interfaces/Insumo";
 
 export function useInsumos() {
     return useQuery<Insumo[]>({
@@ -9,9 +22,6 @@ export function useInsumos() {
         queryFn: listarInsumos,
     });
 }
-
-//temporal DEBUG
-import axios from "axios";
 
 export function useCrearInsumo() {
     const queryClient = useQueryClient();
@@ -28,29 +38,6 @@ export function useCrearInsumo() {
                 queryKey: ["insumos"],
             });
         },
-
-        // onError: (error) => {
-        //     console.error(
-        //         "Error al crear el insumo:",
-        //         error
-        //     );
-        // },
-        onError: (error) => {
-            if (axios.isAxiosError(error)) {
-                console.error(
-                    "Respuesta del backend:",
-                    error.response?.data
-                );
-
-                return;
-            }
-
-            console.error(
-                "Error al crear el insumo:",
-                error
-            );
-        },
-
     });
 }
 
@@ -73,13 +60,6 @@ export function useActualizarInsumo() {
                 queryKey: ["insumos"],
             });
         },
-
-        onError: (error) => {
-            console.error(
-                "Error al actualizar el insumo:",
-                error
-            );
-        },
     });
 }
 
@@ -93,13 +73,6 @@ export function useEliminarInsumo() {
             queryClient.invalidateQueries({
                 queryKey: ["insumos"],
             });
-        },
-
-        onError: (error) => {
-            console.error(
-                "Error al eliminar el insumo:",
-                error
-            );
         },
     });
 }

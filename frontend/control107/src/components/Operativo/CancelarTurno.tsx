@@ -2,6 +2,8 @@ import { useForm } from "@tanstack/react-form";
 
 import { useCancelarTurno } from "../../hooks/useTurnos";
 
+import { obtenerMensajeError } from "../../utils/error";
+
 interface CancelarTurnoProps {
     turnoId: number;
 }
@@ -21,7 +23,12 @@ export default function CancelarTurno({
         validators: {
             onSubmit: ({ value }) => {
                 if (!value.observaciones.trim()) {
-                    return "Debes indicar el motivo de la cancelación";
+                    return {
+                        fields: {
+                            observaciones:
+                                "Debes indicar el motivo de la cancelación.",
+                        },
+                    };
                 }
 
                 return undefined;
@@ -77,6 +84,14 @@ export default function CancelarTurno({
                                 }
                                 className="mt-2 w-full resize-none rounded-lg border border-petro/20 bg-blanco px-3 py-2 text-petro outline-none focus:border-coral focus:ring-2 focus:ring-coral/20"
                             />
+                            {field.state.meta.errors.map((error) => (
+                                <p
+                                    key={String(error)}
+                                    className="mt-1 text-xs font-medium text-coral"
+                                >
+                                    {String(error)}
+                                </p>
+                            ))}
                         </div>
                     )}
                 </form.Field>
@@ -84,11 +99,9 @@ export default function CancelarTurno({
                 {cancelarTurnoMutation.isError && (
                     <div className="rounded-lg border border-coral/30 bg-blanco p-4">
                         <p className="font-semibold text-coral">
-                            No se pudo cancelar el turno.
-                        </p>
-
-                        <p className="mt-1 text-sm text-petro/70">
-                            {cancelarTurnoMutation.error.message}
+                            {obtenerMensajeError(
+                                cancelarTurnoMutation.error,
+                            )}
                         </p>
                     </div>
                 )}

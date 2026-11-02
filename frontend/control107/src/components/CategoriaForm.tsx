@@ -6,10 +6,9 @@ interface CategoriaFormProps {
     onSubmit?: (
         categoria: CategoriaRequest
     ) => void;
-
     valoresIniciales?: CategoriaRequest;
-
     textoBoton?: string;
+    isPending?: boolean;
 }
 
 const input =
@@ -19,7 +18,9 @@ export default function CategoriaForm({
     onSubmit,
     valoresIniciales,
     textoBoton = "Guardar categoría",
+    isPending = false,
 }: CategoriaFormProps) {
+
     const form = useForm({
         defaultValues: {
             nombre: valoresIniciales?.nombre ?? "",
@@ -129,10 +130,12 @@ export default function CategoriaForm({
 
             <button
                 type="submit"
-                className="rounded-lg bg-turquesa px-4 py-2 text-sm font-semibold text-blanco transition hover:bg-petro"
+                disabled={isPending}
+                className="rounded-lg bg-turquesa px-4 py-2 text-sm font-semibold text-blanco transition hover:bg-petro disabled:cursor-not-allowed disabled:opacity-50"
             >
                 {textoBoton}
             </button>
+
         </form>
     );
 }
