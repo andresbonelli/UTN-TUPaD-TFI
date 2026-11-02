@@ -23,7 +23,7 @@ jobs:
 
       - name: Build with Maven
         working-directory: backend/control107
-        run: mvn clean package -DskipTests
+        run: mvn clean package
 
       - name: Create Directory on Server
         uses: appleboy/ssh-action@v1.0.3
