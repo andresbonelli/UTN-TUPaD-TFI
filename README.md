@@ -17,6 +17,13 @@ Este **Trabajo Integrador Final** consiste en el desarrollo de una aplicación w
 El objetivo del sistema no es solo reemplazar la planilla física, sino **mejorar la trazabilidad de cada turno**, registrar de manera estructurada los **controles de ingreso y egreso**, detectar **faltantes y condiciones críticas**, calcular el **uso total de insumos** y conservar **historiales operativos completos** para el servicio 107.  
 El proyecto se desarrolla aplicando principios de **calidad de software**, **diseño**, **mantenibilidad**, **SOLID**, **Clean Code**, **testing**, **refactoring** y **reducción de deuda técnica**, buscando mantener un sistema confiable, extensible y alineado con buenas prácticas de desarrollo.
 
+---
+
+## 🎥 Video de presentación final
+
+Presentación y demostración funcional de Control107, realizada como parte de la entrega final del Trabajo Integrador Final.
+
+▶️ [Ver presentación final de Control107](https://www.youtube.com/watch?v=E8RFuTAf35E)
 
 ---
 
