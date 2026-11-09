@@ -175,6 +175,9 @@ La configuración del entorno requiere definir las variables correspondientes pa
 
 La documentación técnica y académica del proyecto se encuentra en el directorio `/docs`, donde se incluyen los documentos de arquitectura, modelo de datos, requerimientos y demás material generado durante el desarrollo.
 
+- 📘 [Informe Técnico Final (PDF)](docs/INFORME%20T%C3%89CNICO%20FINAL.pdf)
+- 📖 [Manual de Usuario Control107 (PDF)](docs/Manual%20de%20Usuario%20Control107.pdf)
+
 
 - 📄 [Documentación Previa al Proyecto (PDF)](docs/Documentacion%20Previa%20al%20proyecto.pdf)
 - 🚀 [Colección de Postman (Endpoints API)](docs/collection.json)
