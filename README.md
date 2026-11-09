@@ -1,5 +1,8 @@
 # Sistema de Gestión y Trazabilidad de Emergencias 107
-### Trabajo Integrador Final (TFI) - UTN
+
+## 📘 Trabajo Final Integrador - Entrega Final 
+
+**Tecnicatura Universitaria en Programación - Universidad Tecnológica Nacional**
 
 ## Integrantes
 
@@ -12,8 +15,16 @@
 Este **Trabajo Integrador Final** consiste en el desarrollo de una aplicación web destinada a mejorar la gestión operativa del servicio de emergencias 107. El sistema digitaliza el proceso actualmente realizado mediante planillas en papel, donde se registran datos de ambulancias, personal, estado general de la unidad e insumos críticos.
 
 El objetivo del sistema no es solo reemplazar la planilla física, sino **mejorar la trazabilidad de cada turno**, registrar de manera estructurada los **controles de ingreso y egreso**, detectar **faltantes y condiciones críticas**, calcular el **uso total de insumos** y conservar **historiales operativos completos** para el servicio 107.  
-El proyecto se desarrolla aplicando principios de **calidad de software**, **diseño**, **mantenibilidad**, **SOLID**, **Clean Code**, **testing**, **refactoring** y **reducción de deuda técnica**, garantizando un sistema confiable, extensible y alineado con buenas prácticas de desarrollo.
+El proyecto se desarrolla aplicando principios de **calidad de software**, **diseño**, **mantenibilidad**, **SOLID**, **Clean Code**, **testing**, **refactoring** y **reducción de deuda técnica**, buscando mantener un sistema confiable, extensible y alineado con buenas prácticas de desarrollo.
 
+
+---
+
+## 🌐 Sistema desplegado
+
+Control107 se encuentra disponible online en:
+
+🔗 [Acceder a Control107](https://control107.vercel.app)
 
 ---
 
@@ -21,33 +32,52 @@ El proyecto se desarrolla aplicando principios de **calidad de software**, **dis
 
 El sistema implementa:
 
-- Gestión de **turnos** con franjas horarias predefinidas (mañana, tarde, noche).  
-- Ciclo de vida del turno: **PROGRAMADO → EN_CURSO → FINALIZADO → CANCELADO**.  
-- Registro de **control de ingreso** y **control de egreso**.  
-- Cálculo automático de **faltantes**, **uso total** y **diferencias entre turnos**.  
-- Gestión de **insumos críticos** (incluyendo oxígeno para traslados).  
-- Trazabilidad completa entre guardias.  
-- Roles y seguridad: **administrador** y **enfermero**, con permisos diferenciados.  
-- Protección de datos y auditoría de eventos relevantes.
+- Gestión de **turnos** con franjas horarias predefinidas (mañana, tarde y noche).
+- Ciclo de vida normal del turno: **PROGRAMADO → EN_CURSO → FINALIZADO**. Un turno **PROGRAMADO** también puede pasar a **CANCELADO** como estado alternativo.
+- Registro de **control de ingreso** y **control de egreso**.
+- Detección automática de **faltantes** según los puntos de control establecidos y registro del **consumo de insumos** durante el turno.
+- Gestión de **categorías e insumos**, incluyendo el tratamiento diferenciado de **insumos críticos** y **oxígeno**.
+- Registro de **reposiciones** realizadas durante la guardia.
+- Registro de **observaciones de ingreso y egreso**.
+- Consulta del **historial operativo de los turnos**.
+- Consulta de **estadísticas básicas**.
+- Roles de **Administrador** y **Enfermero**, con permisos diferenciados.
+- Autenticación y autorización para el acceso a las funcionalidades del sistema.
+
+> **Nota:** internamente, el sistema representa la franja horaria de la mañana como `MANIANA` para evitar caracteres especiales. En la interfaz se muestra al usuario como **Mañana**, manteniendo una presentación más clara y natural.
 
 ---
 
-##  Stack Tecnológico
+## Stack tecnológico
 
-### **Frontend**
-- React  
-- Vite  
-- TypeScript  
-- Tailwind 
+### Frontend
 
-### **Backend**
-- Java  
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Zustand
+- Ecosistema TanStack
+
+### Backend
+
+- Java 17
 - Spring Boot
+- Spring Data JPA
+- Spring Security
+- JWT
 
-### **Base de Datos**
-- SQL relacional (MySQL)
-  
-  Nota: H2 solo se usa en entorno de desarrollo y pruebas, en produccion se utilizara MySQL
+### Base de datos
+
+- MySQL 8 en producción.
+- H2 para desarrollo y pruebas.
+
+### Despliegue
+
+- Docker
+- Docker Compose
+- Caddy como proxy inverso
+- GitHub Actions para el despliegue automatizado del backend
 
 ---
 
@@ -58,83 +88,93 @@ El sistema implementa:
 
 
 
-# 📘 Trabajo Final Integrador – Segunda Entrega  
-
 ---
 
-## 📌 Alcance del MVP
+## Estructura del repositorio
 
-El sistema implementa:
-
-- Gestión de **usuarios** (Administrador y Enfermero).  
-- Gestión de **ambulancias**.  
-- Gestión de **insumos y categorías**, incluyendo insumos críticos como oxígeno.  
-- **Programación de turnos** con franjas horarias fijas (mañana, tarde, noche).  
-- **Control de ingreso** y detección de faltantes.  
-- **Control de egreso** y cálculo de uso total.  
-- **Cancelación de turno** por condiciones críticas.  
-- Registro de **observaciones**.  
-- **Historial operativo** por ambulancia y usuario.  
-
-Todo el comportamiento está definido en el documento de requerimientos dentro de `/docs`.
-
+```text
+UTN-TUPaD-TFI/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml
+├── backend/
+│   └── control107/
+│       ├── Caddyfile
+│       ├── docker-compose.yml
+│       ├── Dockerfile
+│       ├── pom.xml
+│       └── src/
+├── database/
+│   └── V1.0.0__init.sql
+├── docs/
+└── frontend/
+    └── control107/
+        ├── package.json
+        ├── vite.config.ts
+        └── src/
+```
 ---
 
-## 🗂️ Estructura del Repositorio
+## Backend
 
-### Frontend
-```
-/control107
-│
-├── src
-│   │
-│   ├── components        → Componentes reutilizables (Navbar, Card, etc.)
-│   │
-│   ├── pages             → Páginas completas del frontend (Home, Turnos, Login)
-│   │
-│   ├── services          → Funciones para llamar al backend (fetch/axios)
-│   │
-│   ├── hooks             → Hooks personalizados 
-│   │
-│   ├── assets            → Imágenes, íconos, estilos globales
-│   │
-│   └── interfaces        → Tipos e interfaces TypeScript del dominio (Turno, Usuario, Insumo, etc.)
-│
-├── public                → Archivos estáticos servidos por Vite
-│
-├── package.json          → Placeholder (estructura del proyecto, sin dependencias)
-└── vite.config.js        → Placeholder (configuración inicial de Vite)
+El backend se encuentra organizado por responsabilidades:
 
+```text
+backend/control107/src/main/
+├── java/com/tup/tfi/control107/
+│   ├── config/
+│   ├── controller/
+│   ├── dto/
+│   ├── exception/
+│   ├── model/
+│   ├── repository/
+│   ├── service/
+│   └── util/
+└── resources/
 ```
 
----
-### Backend
-```
-/control107
-│
-├── src
-│   ├── main
-│   │   ├── java/com/tup/tfi/control107
-│   │   │   ├── controller    → Controladores REST (endpoints de la API)
-│   │   │   ├── service       → Lógica de negocio e interfaces de servicio
-│   │   │   ├── repository    → Capa de acceso a datos e interfaces JPA
-│   │   │   ├── model         → Entidades JPA y enums del dominio
-│   │   │   ├── dto           → Data Transfer Objects (request/response)
-│   │   │   ├── config        → Configuraciones de Spring (Seguridad, CORS, etc.)
-│   │   │   └── exception     → Clases de Excepcion personalizadas
-│   │   │
-│   │   └── resources         → Archivos de configuración (application.yml, properties)
-│   │
-│   └── test                  → Pruebas unitarias y de integración
-│
-├── pom.xml                   → Configuración inicial de Maven (placeholder)
-└── README.md                 → Documentación del backend
+Las pruebas automatizadas se encuentran en:
 
+```text
+backend/control107/src/test/
 ```
 
 ---
 
-## Documentacion
+## Frontend
+
+El frontend se encuentra organizado mediante páginas, componentes, servicios, hooks, interfaces, configuración y estado global:
+
+```text
+frontend/control107/src/
+├── assets/
+├── components/
+├── config/
+├── hooks/
+├── interfaces/
+├── pages/
+├── services/
+├── stores/
+└── utils/
+```
+
+---
+
+## Ejecución del proyecto
+
+Para ejecutar Control107 de forma local, consulte las instrucciones específicas de cada componente:
+
+- [Frontend](./frontend/control107/README.md)
+- [Backend](./backend/control107/README.md)
+
+La configuración del entorno requiere definir las variables correspondientes para la conexión con la base de datos, autenticación y comunicación entre frontend y backend.
+
+---
+
+## Documentación
+
+La documentación técnica y académica del proyecto se encuentra en el directorio `/docs`, donde se incluyen los documentos de arquitectura, modelo de datos, requerimientos y demás material generado durante el desarrollo.
+
 
 - 📄 [Documentación Previa al Proyecto (PDF)](docs/Documentacion%20Previa%20al%20proyecto.pdf)
 - 🚀 [Colección de Postman (Endpoints API)](docs/collection.json)
@@ -142,16 +182,9 @@ Todo el comportamiento está definido en el documento de requerimientos dentro d
 - 🏗️ [Arquitectura del Proyecto](./docs/Arquitectura.md)
 - 🧩 [Listado de Módulos](./docs/Modulos.md)
 
-Esta entrega incluye:
-
-- Documentación completa de requerimientos funcionales y no funcionales.  
-- Reglas de negocio, ciclo de vida del turno y franjas horarias.  
-- Historias de usuario.  
-- Diseño de base de datos relacional.  
-- Estructura inicial del proyecto (frontend/backend).    
-- Archivos técnicos, DER y PDFs dentro de `/docs`.  
-
 
 ---
 
+## Estado del proyecto
 
+Control107 se entrega como un **producto mínimo viable funcional**, desarrollado como Trabajo Integrador Final de la Tecnicatura Universitaria en Programación.

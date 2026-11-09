@@ -1,7 +1,6 @@
-## Diagrama Entidad Relación (DER)
-
 ```mermaid
 erDiagram
+
     usuarios {
         bigint id PK
         datetime created_at "NOT NULL"
@@ -10,10 +9,10 @@ erDiagram
         varchar(255) nombre "NOT NULL"
         varchar(20) dni "NOT NULL"
         varchar(150) email "NOT NULL"
-        varchar(20) rol "Enum: ADMINISTRADOR, ENFERMERO | NOT NULL"
+        varchar(20) rol "NOT NULL"
         boolean activo "NOT NULL"
-        varchar(255) hash "Embebido (Clave)"
-        varchar(255) salt "Embebido (Clave)"
+        varchar(255) hash "NULL"
+        varchar(255) salt "NULL"
     }
 
     ambulancias {
@@ -43,13 +42,13 @@ erDiagram
         int punto_control "NOT NULL"
         boolean critico "NOT NULL"
         boolean oxigeno "NOT NULL"
-        double capacidad_maxima "Solo para oxigeno | Opcional"
+        double capacidad_maxima "NULL - solo oxigeno"
         bigint categoria_id FK "NOT NULL"
     }
 
     ambulancia_insumo {
-        bigint ambulancia_id FK "NOT NULL"
-        bigint insumo_id FK "NOT NULL"
+        bigint ambulancia_id PK, FK
+        bigint insumo_id PK, FK
     }
 
     turnos {
@@ -58,15 +57,15 @@ erDiagram
         datetime updated_at "NOT NULL"
         boolean eliminado "NOT NULL"
         date fecha "NOT NULL"
-        varchar(20) horario "Enum: MANIANA, TARDE, NOCHE | NOT NULL"
-        varchar(20) estado "Enum: PROGRAMADO, EN_CURSO, FINALIZADO, CANCELADO | NOT NULL"
+        varchar(20) horario "NOT NULL"
+        varchar(20) estado "NOT NULL"
         varchar(100) nombre_chofer "NOT NULL"
         varchar(100) nombre_medico "NOT NULL"
-        text observaciones_ingreso
-        text observaciones_egreso
+        text observaciones_ingreso "NULL"
+        text observaciones_egreso "NULL"
         bigint ambulancia_id FK "NOT NULL"
-        bigint enfermero_id FK "Puede ser nulo hasta asignarse"
-        bigint admin_id FK "Puede ser nulo hasta asignarse"
+        bigint enfermero_id FK "NULL"
+        bigint admin_id FK "NULL"
     }
 
     control_insumos {
@@ -74,27 +73,29 @@ erDiagram
         datetime created_at "NOT NULL"
         datetime updated_at "NOT NULL"
         boolean eliminado "NOT NULL"
-        int cantidad_ingreso
-        int cantidad_restockeo
-        int cantidad_egreso
-        int ingreso_faltante
-        int cantidad_usada
+        int cantidad_ingreso "NULL"
+        int cantidad_restockeo "NULL"
+        int cantidad_egreso "NULL"
+        int ingreso_faltante "NULL"
+        int cantidad_usada "NULL"
         boolean es_oxigeno "NOT NULL"
-        double capacidad_maxima "Solo para oxigeno | Opcional"
+        double capacidad_maxima "NULL - solo oxigeno"
         bigint turno_id FK "NOT NULL"
         bigint insumo_id FK "NOT NULL"
     }
 
-    %% ========================================================================
-    %% RELACIONES
-    %% ========================================================================
-
     categorias ||--o{ insumos : "clasifica"
-    ambulancias ||--o{ ambulancia_insumo : "tiene asignado"
-    insumos ||--o{ ambulancia_insumo : "pertenece a"
+
+    ambulancias ||--o{ ambulancia_insumo : "asocia"
+    insumos ||--o{ ambulancia_insumo : "asocia"
+
     ambulancias ||--o{ turnos : "es utilizada en"
-    usuarios ||--o{ turnos : "administra (admin_id)"
-    usuarios ||--o{ turnos : "atiende (enfermero_id)"
-    turnos ||--o{ control_insumos : "registra detalle"
+
+    usuarios o|--o{ turnos : "administra"
+    usuarios o|--o{ turnos : "atiende"
+
+    turnos ||--o{ control_insumos : "registra"
     insumos ||--o{ control_insumos : "es controlado en"
 ```
+
+> **Nota sobre la asignación de personal:** los campos `enfermero_id` y `admin_id` admiten valores nulos a nivel de persistencia para permitir el manejo de bajas lógicas sin eliminar físicamente los registros relacionados. La obligatoriedad de asignar el personal correspondiente a cada turno se controla mediante las reglas de negocio implementadas en el backend. Por este motivo, la posibilidad de almacenar `NULL` en estas relaciones no implica que la aplicación permita operar libremente un turno sin el personal requerido.
