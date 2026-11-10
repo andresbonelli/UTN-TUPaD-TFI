@@ -17,7 +17,7 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    @Value("${security.jwt.secret-key:zP8u6fW7vB4n9m2K5jH3gD1sA6dQ9wE0rT7yU4iO1pL3kJ5hG8fD2sS4aA0zX9cC}")
+    @Value("${security.jwt.secret-key:}")
     private String secretKey;
 
     @Getter
