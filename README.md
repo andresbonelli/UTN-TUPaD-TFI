@@ -172,7 +172,7 @@ frontend/control107/src/
 Para ejecutar Control107 de forma local, consulte las instrucciones específicas de cada componente:
 
 - [Frontend](./frontend/control107/README.md)
-- [Backend](./backend/control107/README.md)
+- [Backend](./backend/README.MD)
 
 La configuración del entorno requiere definir las variables correspondientes para la conexión con la base de datos, autenticación y comunicación entre frontend y backend.
 
