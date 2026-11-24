@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-alpine
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /control107
 COPY control107.jar control107.jar
 EXPOSE 8080
